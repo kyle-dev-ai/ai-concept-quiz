@@ -22,7 +22,7 @@ export const dlRoadmapQuestions = [
     term: 'Batch · Epoch · Iteration',
     prompt: 'Batch, Iteration, Epoch를 데이터 1,000개와 batch size 100으로 설명해보세요.',
     shortAnswer:
-      'Batch는 한 번에 처리하는 100개 샘플 묶음이고 iteration은 그 batch로 한 번 parameter를 갱신하는 단계입니다. 1 epoch은 1,000개 전체를 한 번 사용한 것이므로 약 10 iterations입니다.',
+      'Batch는 한 번에 처리하는 100개 샘플 묶음이고 iteration은 그 batch로 한 번 parameter를 갱신하는 단계입니다. 1 epoch은 1,000개 전체를 한 번 사용한 것이므로 정확히 10 iterations입니다.',
     deepAnswer:
       '마지막 batch가 작을 수 있고 distributed training에서는 worker별 local batch와 전체 global batch를 구분해야 합니다. Epoch가 늘면 학습 기회가 늘지만 validation 성능이 꺾인 뒤 계속 학습하면 overfitting이 커질 수 있습니다.',
     keyPoints: ['Iteration은 한 번의 update 단계', 'Epoch는 전체 train set을 한 바퀴 사용'],
@@ -164,5 +164,82 @@ export const dlRoadmapQuestions = [
     ],
     followUp: 'Transformer가 RNN보다 학습 병렬화에 유리한 이유는 무엇인가요?',
     prerequisites: ['dl-perceptron-neural-network', 'transformer-attention-vs-rnn'],
+  },
+  {
+    id: 'dl-cnn-convolution-parameter-sharing',
+    category: 'dl',
+    difficulty: 'foundation',
+    term: 'CNN · Convolution Filter',
+    prompt:
+      'Convolution filter가 이미지에서 feature를 뽑는 방식과 parameter sharing의 이점은 무엇인가요?',
+    shortAnswer:
+      '작은 filter가 이미지 위를 이동하며 같은 weight로 지역 패턴을 반복 감지해 feature map을 만듭니다. 모든 위치가 filter weight를 공유하므로 fully connected보다 파라미터가 훨씬 적고, 같은 패턴을 위치와 무관하게 찾을 수 있습니다.',
+    deepAnswer:
+      'Filter 여러 개가 각각 다른 feature map을 만들고, 층이 깊어질수록 edge 같은 저수준 패턴이 물체 부분 같은 고수준 feature로 조합됩니다. 지역성과 translation 성질을 구조에 새긴 inductive bias 덕분에 적은 데이터에서도 효율적이며, 이 가정이 약한 데이터에는 이점이 줄어듭니다.',
+    keyPoints: ['같은 filter weight를 모든 위치에 공유', '지역 패턴이 고수준 feature로 조합'],
+    followUp: '3×3 filter를 여러 층 쌓는 것이 큰 filter 한 층보다 유리한 이유는 무엇인가요?',
+    prerequisites: ['dl-weight-bias-activation'],
+  },
+  {
+    id: 'dl-cnn-pooling-receptive-field',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Pooling · Receptive Field',
+    prompt: 'Pooling의 역할과 receptive field가 층을 거치며 커지는 이유를 설명해보세요.',
+    shortAnswer:
+      'Pooling은 feature map을 공간적으로 줄여 계산량을 낮추고 작은 위치 변화에 둔감하게 만듭니다. Receptive field는 출력 뉴런 하나가 바라보는 입력 영역으로, convolution과 pooling을 거듭할수록 넓어져 깊은 층은 이미지의 큰 맥락을 봅니다.',
+    deepAnswer:
+      'Max pooling은 가장 강한 반응만 남기고 average pooling은 평균을 남기며, pooling 자체는 파라미터를 학습하지 않습니다. 최근에는 stride convolution으로 대체하기도 합니다. 공간 해상도를 줄이는 만큼 segmentation처럼 위치가 중요한 task에서는 손해가 될 수 있어 dilated convolution 등으로 receptive field만 넓히기도 합니다.',
+    keyPoints: ['Pooling은 downsampling과 국소 불변성', '깊이가 receptive field를 넓힘'],
+    followUp: 'Segmentation처럼 위치가 중요한 task에서 pooling의 부작용은 무엇인가요?',
+    prerequisites: ['dl-cnn-convolution-parameter-sharing'],
+  },
+  {
+    id: 'dl-rnn-lstm-gates',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'RNN · LSTM Gate',
+    prompt: 'RNN의 vanishing gradient 문제를 LSTM의 gate 구조가 어떻게 완화하나요?',
+    shortAnswer:
+      'RNN은 같은 weight를 시간축으로 반복해서 곱하며 hidden state를 갱신하므로 긴 시퀀스에서 gradient가 사라지거나 폭발하기 쉽습니다. LSTM은 cell state라는 통로를 두고 forget·input·output gate로 지우고 더하고 내보내는 양을 조절해, gradient가 곱셈 대신 덧셈에 가까운 경로로 흐르게 합니다.',
+    deepAnswer:
+      'Forget gate가 1에 가까우면 cell state가 거의 그대로 전달되어 장기 의존성이 유지됩니다. 다만 완전한 해결이 아니라 완화이며, 순차 처리 때문에 병렬화가 어렵다는 한계는 남습니다. GRU는 gate 수를 줄인 간소화 변형이고, 이 순차 병목이 attention 기반 Transformer로 넘어간 배경입니다.',
+    keyPoints: [
+      '반복 곱셈이 vanishing gradient의 원인',
+      'Cell state와 gate가 덧셈에 가까운 경로 제공',
+    ],
+    followUp: 'LSTM의 forget gate 편향을 1 근처로 초기화하는 관행은 무엇을 노린 것인가요?',
+    prerequisites: ['dl-vanishing-exploding-gradient'],
+  },
+  {
+    id: 'dl-autoencoder-vae',
+    category: 'dl',
+    difficulty: 'advanced',
+    term: 'Autoencoder · VAE',
+    prompt: 'Autoencoder와 VAE의 latent space는 무엇이 다르고, 왜 VAE만 생성 모델이라 부르나요?',
+    shortAnswer:
+      'Autoencoder는 입력을 bottleneck으로 압축했다가 복원하며 재구성 오차만 줄이므로 latent space의 구조를 보장하지 않습니다. VAE는 latent를 확률분포로 두고 재구성 오차와 함께 latent를 prior에 가깝게 하는 KL 항을 최적화해, prior에서 sampling하면 새 데이터를 생성할 수 있습니다.',
+    deepAnswer:
+      'VAE의 목적함수는 ELBO로 재구성 항과 KL regularization의 균형이며, sampling을 미분 가능하게 만드는 reparameterization trick이 학습의 핵심 장치입니다. KL 항이 latent space를 매끄럽게 만들어 보간이 자연스럽지만, 그 대가로 출력이 흐릿해지는 경향이 GAN·diffusion과 비교되는 지점입니다.',
+    keyPoints: ['AE는 재구성만, VAE는 latent 분포까지 제약', 'ELBO는 재구성 항과 KL 항의 균형'],
+    followUp: 'KL 항의 가중치를 키우면 재구성 품질과 latent 구조는 어떻게 trade-off 되나요?',
+    prerequisites: ['math-entropy-cross-entropy-kl', 'ml-generative-discriminative'],
+  },
+  {
+    id: 'dl-diffusion-model',
+    category: 'dl',
+    difficulty: 'advanced',
+    term: 'Diffusion Model',
+    prompt: 'Diffusion model은 noise를 더하고 되돌리는 두 과정으로 어떻게 데이터를 생성하나요?',
+    shortAnswer:
+      'Forward 과정은 데이터에 Gaussian noise를 여러 단계에 걸쳐 더해 결국 순수 noise로 만듭니다. 모델은 각 단계에서 섞인 noise를 예측하도록 학습하고, 생성할 때는 순수 noise에서 시작해 단계적으로 denoising하며 데이터를 만들어냅니다.',
+    deepAnswer:
+      '학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 classifier-free guidance로 반영하며 이미지·영상·음성 생성의 사실상 표준이 되었습니다.',
+    keyPoints: [
+      'Forward는 점진적 noise 추가, reverse는 학습된 denoising',
+      '한 번에 생성하지 않고 반복 denoising',
+    ],
+    followUp: 'GAN 대비 diffusion의 학습이 안정적인 이유와 그 대가는 무엇인가요?',
+    prerequisites: ['math-gaussian-distribution', 'dl-gan-generator-discriminator'],
   },
 ] as const satisfies readonly StudyQuestion[]

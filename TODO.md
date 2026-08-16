@@ -2,8 +2,11 @@
 
 ## v1.0.0 launch gate
 
-- [ ] 127개 질문을 사람이 최종 사실·수식·난이도 검수
-- [ ] Apps in Toss 콘솔에서 `appName`, display name, icon 확정
+- [ ] 137개 질문을 사람이 최종 사실·수식·난이도 검수
+- [ ] Apps in Toss 콘솔에서 `appName`, display name, icon 확정 (v3는 콘솔 등록; config는 `primaryColor`만)
+- [ ] 콘솔에서 비게임 webview type(partner)과 앱 내 기능 1개 이상 등록
+- [x] 비게임 가이드에 따라 pinch zoom 비활성화 (`index.html` viewport)
+- [x] 공유 버튼은 링크 목적지가 없어 standalone HTTPS 배포 전까지 화면에서 숨김
 - [ ] Sandbox App iOS/Android 실기기 QA
 - [ ] Sandbox에서 system/light/dark, VoiceOver/TalkBack, 200% text를 확인
 - [ ] 최신 출시·개인정보·공유 정책 재확인

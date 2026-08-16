@@ -184,7 +184,7 @@ const coreQuestions = [
     shortAnswer:
       'Overfitting은 train 데이터에는 잘 맞지만 새로운 데이터에는 일반화하지 못하는 상태로, 보통 높은 variance와 연결됩니다. 더 많은 대표 데이터, regularization, augmentation, early stopping, 적절한 모델 크기로 줄일 수 있습니다.',
     deepAnswer:
-      '높은 bias는 모델이 너무 단순하거나 학습이 부족해 train과 validation 모두 성능이 낮은 underfitting으로 나타납니다. 높은 variance는 train 성능은 좋지만 validation 성능이 나쁜 간격으로 관찰됩니다. 원인을 구분하지 않고 모델을 키우거나 줄이면 반대 문제가 커질 수 있습니다.',
+      '높은 bias는 모델이 너무 단순하거나 학습이 부족해 train과 validation 모두 성능이 낮은 underfitting으로 나타납니다. 높은 variance는 train 성능은 좋지만 validation 성능이 나쁜 간격으로 관찰됩니다. 원인을 구분하지 않고 모델을 키우거나 줄이면 반대 문제가 커질 수 있습니다. 다만 매우 큰 신경망에서는 test 오차가 다시 내려가는 double descent처럼 고전적 U-곡선이 그대로 맞지 않는 경우도 보고됩니다.',
     keyPoints: [
       'Train-validation gap으로 진단',
       'Regularization은 표현력과 일반화의 trade-off를 조절',

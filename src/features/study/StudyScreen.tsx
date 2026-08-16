@@ -16,6 +16,8 @@ interface StudyScreenProps {
   readonly onReveal: () => void
   readonly onRate: (rating: KnowledgeRating) => Promise<void>
   readonly onNext: () => void
+  // 공유 링크 목적지가 없어(토스 WebView 내부 URL) 화면에서는 비활성화 상태다.
+  // standalone HTTPS 주소가 생기면 아래 주석 처리된 공유 UI와 함께 되살린다.
   readonly onShare: () => Promise<ShareResult>
 }
 
@@ -41,14 +43,12 @@ export function StudyScreen({
   onReveal,
   onRate,
   onNext,
-  onShare,
 }: StudyScreenProps) {
   const [isRevealed, setIsRevealed] = useState(false)
   const [rating, setRating] = useState<KnowledgeRating | null>(null)
   const [pendingRating, setPendingRating] = useState<KnowledgeRating | null>(null)
   const [isSavingRating, setIsSavingRating] = useState(false)
   const [ratingError, setRatingError] = useState(false)
-  const [shareResult, setShareResult] = useState<ShareResult | null>(null)
 
   const progress = ((index + 1) / total) * 100
 
@@ -69,11 +69,6 @@ export function StudyScreen({
       setPendingRating(null)
       setIsSavingRating(false)
     }
-  }
-
-  async function share() {
-    const result = await onShare()
-    setShareResult(result)
   }
 
   function reveal() {
@@ -206,13 +201,18 @@ export function StudyScreen({
               </p>
             </div>
             <div className="post-rating-actions__buttons">
+              {/* 친구에게 문제 내기: 공유 링크가 받는 사람이 열 수 없는 WebView 내부 URL이라
+                  standalone HTTPS 배포 전까지 숨긴다. 되살릴 때는 onShare를 다시 destructure하고
+                  shareResult state, share() 핸들러, 아래 결과 메시지를 함께 복구한다.
               <button type="button" className="button button--secondary" onClick={share}>
                 친구에게 문제 내기
               </button>
+              */}
               <button type="button" className="button button--primary" onClick={onNext}>
                 {index + 1 === total ? '학습 마치기' : '다음 질문'}
               </button>
             </div>
+            {/* 공유 결과 메시지 (공유 버튼과 함께 복구)
             {shareResult === 'copied' ? (
               <small role="status">문제와 링크를 복사했어요.</small>
             ) : null}
@@ -220,6 +220,7 @@ export function StudyScreen({
             {shareResult === 'unavailable' ? (
               <small role="status">이 환경에서는 아직 공유할 수 없어요.</small>
             ) : null}
+            */}
           </div>
         )}
       </footer>

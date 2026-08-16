@@ -44,7 +44,7 @@ export const transformerRoadmapQuestions = [
     shortAnswer:
       '각 query가 바라보는 key 축에 softmax를 적용합니다. 따라서 한 query 행의 attention weight 합은 1이고, 그 query가 여러 value에서 정보를 얼마나 가져올지 정하는 가중치가 됩니다.',
     deepAnswer:
-      'Mask된 key 위치에는 softmax 전에 매우 작은 값을 넣어 weight가 0에 가깝게 되도록 합니다. 다른 축에 softmax를 적용하면 key마다 query를 정규화하는 전혀 다른 연산이 되어 의도한 weighted sum이 깨집니다.',
+      'Mask된 key 위치에는 softmax 전에 매우 큰 음수(−∞에 가까운 값)를 더해 weight가 0에 가깝게 되도록 합니다. 다른 축에 softmax를 적용하면 key마다 query를 정규화하는 전혀 다른 연산이 되어 의도한 weighted sum이 깨집니다.',
     keyPoints: ['Query별로 key 축을 정규화', '각 행은 value 가중합의 확률형 weight'],
     followUp: 'Causal mask를 softmax 이후에 단순히 0으로 만들면 어떤 정규화 문제가 남나요?',
     prerequisites: ['transformer-attention-matrix-shapes', 'math-log-exp-softmax'],
@@ -102,7 +102,7 @@ export const transformerRoadmapQuestions = [
     shortAnswer:
       '같은 두 개의 선형 변환과 비선형 activation을 각 token 위치에 독립적으로 적용합니다. Attention이 token 간 정보를 모았다면 FFN은 각 위치의 hidden feature를 더 큰 공간에서 변환합니다.',
     deepAnswer:
-      '일반적으로 hidden dimension을 중간에서 확장한 뒤 다시 d_model로 줄이며 모든 위치가 같은 weight를 공유합니다. 따라서 sequence 상호작용은 attention이 맡고 channel 방향의 비선형 표현력은 FFN이 크게 담당합니다.',
+      '일반적으로 hidden dimension을 중간에서 확장한 뒤 다시 d_model로 줄이며 모든 위치가 같은 weight를 공유합니다. 따라서 sequence 상호작용은 attention이 맡고 channel 방향의 비선형 표현력은 FFN이 크게 담당합니다. 원 논문은 두 선형 변환 구조지만 최신 LLM은 SwiGLU처럼 gate가 있는 세 행렬 변형을 흔히 사용합니다.',
     keyPoints: ['각 token 위치에 같은 MLP 적용', 'Feature dimension을 확장·압축하며 비선형 변환'],
     followUp: 'FFN만 여러 층 쌓고 attention을 제거하면 token 사이 정보가 전달될 수 있나요?',
     prerequisites: ['transformer-end-to-end-data-flow', 'dl-weight-bias-activation'],

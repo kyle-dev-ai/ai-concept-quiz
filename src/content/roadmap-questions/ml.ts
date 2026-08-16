@@ -177,4 +177,61 @@ export const mlRoadmapQuestions = [
     followUp: 'AUC가 높아도 특정 운영 threshold에서 성능이 나쁠 수 있는 이유는 무엇인가요?',
     prerequisites: ['ml-class-imbalance', 'ml-confusion-matrix-threshold'],
   },
+  {
+    id: 'ml-logistic-regression',
+    category: 'ml',
+    difficulty: 'foundation',
+    term: 'Logistic Regression',
+    prompt: 'Logistic Regression은 선형 모델인데 어떻게 분류 확률을 만들어내나요?',
+    shortAnswer:
+      '입력의 선형 결합 점수를 sigmoid에 통과시켜 0과 1 사이의 확률로 바꿉니다. 확률이 threshold를 넘는지로 class를 정하므로 decision boundary는 여전히 선형입니다.',
+    deepAnswer:
+      '학습은 cross entropy를 최소화하는 것으로 Bernoulli likelihood의 MLE와 같습니다. 이름에 regression이 들어가지만 분류 모델이며, 다중 class로 확장하면 softmax regression이 됩니다. 해석이 쉽고 빨라 더 복잡한 모델을 평가할 때의 기준 모델로 자주 쓰입니다.',
+    keyPoints: ['선형 점수를 sigmoid로 확률화', '학습은 cross entropy 최소화'],
+    followUp: '입력 feature를 제곱항 등으로 늘리면 logistic regression의 경계는 어떻게 달라지나요?',
+    prerequisites: ['ml-regression-classification', 'math-log-exp-softmax'],
+  },
+  {
+    id: 'ml-svm-margin-kernel',
+    category: 'ml',
+    difficulty: 'intermediate',
+    term: 'SVM · Kernel Trick',
+    prompt: 'SVM의 margin 최대화와 kernel trick은 각각 무엇을 해결하나요?',
+    shortAnswer:
+      'SVM은 두 class 사이의 margin이 가장 넓은 decision boundary를 찾고, 경계는 margin 위의 support vector가 결정합니다. Kernel trick은 데이터를 명시적으로 고차원으로 옮기지 않고 내적만 kernel 함수로 바꿔 비선형 경계를 학습하게 합니다.',
+    deepAnswer:
+      'Margin 최대화는 일반화에 유리한 경계를 고르는 규제 역할을 하고, soft margin의 C가 오분류 허용과 margin 폭을 조절합니다. Kernel은 고차원 feature 공간의 내적을 직접 계산하는 것과 같아 명시적 변환 비용을 아끼지만, 데이터가 커지면 kernel 행렬 계산이 병목이 되어 대규모 학습에는 잘 쓰이지 않습니다.',
+    keyPoints: ['경계는 support vector가 결정', 'Kernel은 명시적 고차원 변환 없이 내적만 대체'],
+    followUp:
+      'RBF kernel의 gamma를 크게 하면 decision boundary와 overfitting 위험은 어떻게 변하나요?',
+    prerequisites: ['math-vector-dot-product', 'ml-regression-classification'],
+  },
+  {
+    id: 'ml-tree-bagging-boosting',
+    category: 'ml',
+    difficulty: 'intermediate',
+    term: 'Decision Tree · Bagging · Boosting',
+    prompt: 'Random Forest의 bagging과 Gradient Boosting은 트리를 어떻게 다르게 결합하나요?',
+    shortAnswer:
+      'Bagging은 bootstrap sample로 독립적인 트리를 여러 개 만들어 평균내며 분산을 줄이는 데 강합니다. Boosting은 이전 트리가 틀린 잔차를 다음 트리가 순차적으로 보정하며 편향을 줄여갑니다.',
+    deepAnswer:
+      '단일 decision tree는 해석이 쉽지만 깊어지면 overfitting하기 쉬운 high-variance 모델이라 앙상블과 궁합이 좋습니다. Random Forest는 분기마다 feature도 무작위로 뽑아 트리 간 상관을 낮추고, boosting은 learning rate와 트리 수로 과적합을 조절합니다. 정형 데이터에서는 여전히 gradient boosting 계열이 강력한 기본기입니다.',
+    keyPoints: ['Bagging은 병렬 평균으로 분산 감소', 'Boosting은 순차 보정으로 편향 감소'],
+    followUp: '트리 기반 모델이 feature scaling에 둔감한 이유는 무엇인가요?',
+    prerequisites: ['ml-overfitting-bias-variance'],
+  },
+  {
+    id: 'ml-knn-curse-of-dimensionality',
+    category: 'ml',
+    difficulty: 'intermediate',
+    term: 'kNN · Curse of Dimensionality',
+    prompt: 'kNN이 고차원에서 잘 동작하지 않는 이유를 거리 관점에서 설명해보세요.',
+    shortAnswer:
+      'kNN은 별도 학습 없이 가까운 k개의 이웃 label로 예측하는 lazy 방식이라 거리가 의미 있어야 합니다. 차원이 높아지면 점들 사이 거리가 서로 비슷해져 가장 가까운 이웃과 먼 이웃의 대비가 사라지고, 이웃이라는 개념 자체가 약해집니다.',
+    deepAnswer:
+      '고차원 공간을 데이터로 채우려면 표본이 차원에 대해 기하급수적으로 필요하다는 것이 curse of dimensionality의 핵심입니다. 실제로는 feature 선택, 차원 축소, 학습된 embedding처럼 의미 있는 저차원 표현 위에서 거리를 재는 방식으로 완화하며, vector 검색이 embedding 공간에서 동작하는 이유이기도 합니다.',
+    keyPoints: ['kNN은 거리 기반 lazy 예측', '고차원에서는 거리 대비가 사라짐'],
+    followUp: 'k를 키우면 bias와 variance는 각각 어느 쪽으로 움직이나요?',
+    prerequisites: ['math-vector-dot-product', 'ml-overfitting-bias-variance'],
+  },
 ] as const satisfies readonly StudyQuestion[]

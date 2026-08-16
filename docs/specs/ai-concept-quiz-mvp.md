@@ -23,7 +23,7 @@ AI를 공부하는 사용자가 3~5분 안에 한 개념을 자기 말로 설명
   - AI 실무 역량 강화
 - 목표별 추천 카테고리와 추천 학습 범위
 - `추천`, `전체 · 랜덤`, `Math`, `ML`, `DL`, `Transformer`, `LLM`, `RAG`, `Agent`, `AI System` 필터
-- 127개의 versioned Q&A와 대학원 구술 전체 추천 덱
+- 137개의 versioned Q&A와 대학원 구술 전체 추천 덱
 - 답 공개 전 생각하기 → 핵심 답변 → 깊이 이해 → 꼬리 질문 흐름
 - `알았다 / 애매했다 / 몰랐다` 자기평가와 로컬 진도
 - 카테고리별 용어집과 검색
@@ -54,13 +54,13 @@ AI를 공부하는 사용자가 3~5분 안에 한 개념을 자기 말로 설명
 9. 프로덕션 빌드가 Apps in Toss의 `.ait` 산출물까지 생성한다.
 10. standalone 빌드는 Apps in Toss 없이 HTTPS 호스팅에서 설치·오프라인 실행 가능한 PWA 파일을 만든다.
 11. Biome, TypeScript, 단위·컴포넌트 테스트가 통과한다.
-12. 127개 전체 콘텐츠 contract와 development/regression/challenge golden set이 100% 통과한다.
+12. 137개 전체 콘텐츠 contract와 development/regression/challenge golden set이 100% 통과한다.
 
 ## Product phases
 
 ### Phase 0 — sample MVP (this work)
 
-로컬 데이터 127개, 목표 추천, 카테고리 학습, 자기평가, 용어집, 로컬 진도를 검증한다. 사용자 런타임에는 AI를 호출하지 않지만 기획·콘텐츠 생성·평가·릴리스는 AI-native operating model을 따른다.
+로컬 데이터 137개, 목표 추천, 카테고리 학습, 자기평가, 용어집, 로컬 진도를 검증한다. 사용자 런타임에는 AI를 호출하지 않지만 기획·콘텐츠 생성·평가·릴리스는 AI-native operating model을 따른다.
 
 ### Phase 1 — content operations
 

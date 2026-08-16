@@ -6,13 +6,18 @@
 
 - Apps in Toss 콘솔 등록과 샌드박스 기기 검증
 - 최종 appName, icon URL, 공개 정책 확인
+- Dataset `1.2.0`: 대학원 구술 공백 보강 10문항(CNN·pooling, LSTM, MLE/MAP,
+  logistic regression, SVM, tree ensemble, kNN, VAE, diffusion)과 질문별 golden case,
+  기존 문항 정밀도 수정 6건
+- 심사 대비: 비게임 가이드에 따라 pinch zoom 비활성화, 공유 버튼은 열 수 있는
+  링크가 생길 때까지 숨김(코드 주석으로 보존)
 
 ## [1.0.0] - 2026-08-16
 
 ### Added
 
 - 목표·학습자 유형 기반 추천
-- 8개 카테고리와 127개 AI 구술 Q&A, 대학원 구술 전체 추천 덱
+- 8개 카테고리와 137개 AI 구술 Q&A, 대학원 구술 전체 추천 덱
 - 전체 랜덤 및 카테고리별 학습
 - 답 공개와 3단계 자기평가, 기기 내 진도
 - 마스코트, 0–100 설명력 점수, 5단계 level guide와 연속 학습 기록

@@ -36,10 +36,10 @@ export const mathRoadmapQuestions = [
     term: 'Probability Distribution · Expected Value',
     prompt: '확률분포와 기댓값을 모델의 예측 확률에 연결해 설명해보세요.',
     shortAnswer:
-      '확률분포는 가능한 결과마다 발생 가능성을 배정하며 전체 확률의 합은 1입니다. 기댓값은 각 결과에 그 확률을 곱해 더한 장기적인 평균으로, 불확실한 예측을 하나의 요약값으로 나타냅니다.',
+      '확률분포는 가능한 결과마다 발생 가능성을 배정하며 전체 확률의 합(연속 분포면 밀도의 적분)은 1입니다. 기댓값은 각 결과에 그 확률을 곱해 더한 장기적인 평균으로, 불확실한 예측을 하나의 요약값으로 나타냅니다.',
     deepAnswer:
       '분류 모델의 softmax 출력은 클래스에 대한 범주형 확률분포로 해석할 수 있습니다. 다만 숫자가 0과 1 사이이고 합이 1이라고 해서 실제 빈도와 잘 맞는 calibrated probability라는 보장은 없으므로 별도 검증이 필요합니다.',
-    keyPoints: ['확률분포의 전체 확률 합은 1', '기댓값은 확률로 가중한 평균'],
+    keyPoints: ['전체 확률의 합 또는 적분은 1', '기댓값은 확률로 가중한 평균'],
     followUp: '예측 확률이 0.8인 사례 100개 중 실제 정답이 50개라면 어떤 문제가 있나요?',
     prerequisites: ['math-mean-variance-standard-deviation'],
   },
@@ -84,7 +84,7 @@ export const mathRoadmapQuestions = [
     term: 'Eigenvector · PCA',
     prompt: '고유벡터와 고유값은 PCA에서 데이터의 중요한 방향을 어떻게 찾나요?',
     shortAnswer:
-      '고유벡터는 선형변환 뒤에도 방향이 유지되는 벡터이고 고유값은 그 방향으로 늘어나는 크기입니다. PCA는 공분산 행렬의 큰 고유값에 대응하는 고유벡터를 골라 분산이 큰 축으로 데이터를 투영합니다.',
+      '고유벡터는 선형변환을 거쳐도 자기 축을 벗어나지 않는 벡터이고, 고유값은 그 축에서의 배율로 음수면 방향이 뒤집힙니다. PCA는 공분산 행렬의 큰 고유값에 대응하는 고유벡터를 골라 분산이 큰 축으로 데이터를 투영합니다.',
     deepAnswer:
       '상위 주성분만 남기면 원래 분산을 최대한 보존하면서 차원을 줄일 수 있습니다. PCA는 선형 구조만 포착하고 입력 scale에 민감하며, 분산이 큰 방향이 반드시 task에 중요한 방향이라는 보장은 없습니다.',
     keyPoints: ['고유값은 해당 주성분이 설명하는 분산과 연결', 'PCA는 비지도 선형 차원 축소'],
@@ -263,5 +263,26 @@ export const mathRoadmapQuestions = [
     ],
     followUp: 'KL(P∥Q)와 KL(Q∥P)가 mode를 다루는 방식이 달라질 수 있는 이유는 무엇인가요?',
     prerequisites: ['math-probability-distribution-expectation', 'math-log-exp-softmax'],
+  },
+  {
+    id: 'math-mle-map',
+    category: 'math',
+    difficulty: 'intermediate',
+    term: 'MLE · MAP',
+    prompt: 'MLE와 MAP은 파라미터를 고를 때 어떤 기준이 다른가요?',
+    shortAnswer:
+      'MLE는 관측 데이터의 likelihood를 가장 크게 만드는 파라미터를 고릅니다. MAP은 여기에 파라미터의 prior를 곱해, 데이터가 말하는 것과 사전 믿음을 함께 반영한 posterior가 최대인 값을 고릅니다.',
+    deepAnswer:
+      'Log를 취하면 MAP은 MLE 목적함수에 log prior가 더해진 형태가 되어, Gaussian prior는 L2, Laplace prior는 L1 regularization과 같은 역할을 합니다. 데이터가 많아질수록 likelihood 항이 지배해 두 추정은 가까워지고, 데이터가 적을 때 prior가 극단적인 추정을 막아줍니다.',
+    keyPoints: [
+      'MLE는 likelihood 최대화, MAP은 prior까지 반영',
+      'Gaussian prior는 L2 regularization과 대응',
+    ],
+    followUp:
+      '동전을 3번 던져 모두 앞면이 나왔을 때 MLE 추정의 문제와 MAP의 완화 방식은 무엇인가요?',
+    prerequisites: [
+      'math-conditional-probability-bayes',
+      'math-probability-distribution-expectation',
+    ],
   },
 ] as const satisfies readonly StudyQuestion[]

@@ -25,10 +25,24 @@
 - Read date: 2026-08-16
 - Scope used: 8~11월 Math, ML, DL, Transformer, LLM, RAG, Agent, AI System 학습·구술 로드맵
 - Output: `src/content/roadmap-questions/`의 83개 추가 문항
-- Dataset result: version `1.1.0`, 8개 category, 총 127개 질문
+- Dataset result: version `1.1.0`, 8개 category, 총 127개 질문 (당시 기준)
 - Math coverage: vector·matrix, basis·dimension, orthogonality·projection, rank·null space,
   determinant·inverse·pseudoinverse, eigen·SVD, gradient·Jacobian·Hessian, probability·Bayes,
   covariance·Gaussian, entropy·KL divergence
+
+## source-2026-08-16-graduate-oral-coverage-expansion
+
+- Source: 대학원 구술 커버리지 리뷰(2026-08-16)에서 확인한 공백 — CNN 계열, RNN/LSTM,
+  MLE/MAP, 고전 ML 알고리즘(logistic regression, SVM, tree ensemble, kNN), 생성모델(VAE, diffusion)
+- Author: Claude(AI candidate)가 작성, 표준 교과 내용 기준. 사람 사실 검수 대기
+- Output: `math-mle-map`, `ml-logistic-regression`, `ml-svm-margin-kernel`,
+  `ml-tree-bagging-boosting`, `ml-knn-curse-of-dimensionality`,
+  `dl-cnn-convolution-parameter-sharing`, `dl-cnn-pooling-receptive-field`,
+  `dl-rnn-lstm-gates`, `dl-autoencoder-vae`, `dl-diffusion-model` — 10개 질문과
+  질문별 golden case 10개
+- 같은 batch에서 기존 문항 정밀도 수정 6건: eigenvector 방향·부호, 연속분포 적분,
+  attention mask 큰 음수 표현, FFN SwiGLU 변형 주석, double descent 주석, epoch당 iteration 수
+- Dataset result: version `1.2.0`, 8개 category, 총 137개 질문
 
 ## source-2026-08-16-public-admissions-research
 

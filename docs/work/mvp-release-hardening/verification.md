@@ -2,8 +2,8 @@
 
 - Date: 2026-08-16 (Asia/Seoul)
 - Target: `v1.0.0`
-- Runtime: Node.js `24.18.1`, npm `11.9.0`
-- Dataset: `1.1.0`
+- Runtime: Node.js `24.18.1`, npm `11.9.0` (dataset `1.2.0` 재측정은 Node `25.6.1`)
+- Dataset: `1.2.0`
 - Verdict: **CONDITIONAL GO**
 
 저장소 기준 release candidate는 통과했다. Apps in Toss upload·심사 요청은 아직 하지 않았으며 아래의 사람 콘텐츠 검수, 콘솔 metadata, 정책 확인과 iOS/Android Sandbox 검증이 끝나야 공개 출시 `GO`로 바뀐다.
@@ -16,11 +16,11 @@
 | Architecture | PASS | domain/platform import, export, CSS token boundaries |
 | Type safety | PASS | strict TypeScript project build |
 | Regression tests | PASS | `23` files, `65` tests |
-| AI content eval | PASS | `127` questions, `27` golden cases, contract/golden/category `100%` |
-| Content fingerprint | PASS | `47bc25c0d7a370050140518b0d5f0a0e29cde1559efa6697d5047938562c480e` |
-| Apps in Toss build | PASS | initial JS `74.44 KiB`, required JS `94.55 KiB`, CSS `9.53 KiB` gzip |
-| Standalone build | PASS | initial/required JS `74.32 KiB`, CSS `9.53 KiB` gzip |
-| Question asset | PASS | versioned JSON, `127` questions, `41.22 KiB` gzip; standalone precache 포함 |
+| AI content eval | PASS | `137` questions, `37` golden cases, contract/golden/category `100%` |
+| Content fingerprint | PASS | `894a6be3483b3f4db72a0ec6eaca4f6564637eeda80e5bfaf3502d69a8805836` |
+| Apps in Toss build | PASS | initial JS `74.18 KiB`, required JS `94.22 KiB`, CSS `9.57 KiB` gzip |
+| Standalone build | PASS | initial/required JS `74.03 KiB`, CSS `9.57 KiB` gzip |
+| Question asset | PASS | versioned JSON, `137` questions, `44.76 KiB` gzip (예산 `48 KiB`); standalone precache 포함 |
 | Platform isolation | PASS | standalone에 Apps SDK 없음; production에는 native Storage SDK 있음 |
 | Optional monitoring | PASS | Sentry chunk는 initial load와 standalone precache에서 제외 |
 | Dependency audit | PASS | production dependencies `0 vulnerabilities` |
@@ -31,13 +31,17 @@
 ## Artifact
 
 - File: `ai-concept-quiz.ait`
-- deployment ID: `01a00a2d-7575-7c1c-bf24-13e1ae468e69`
-- Size: `321,456 bytes` (`313.92 KiB`)
-- SHA-256: `962ca951433ed6a82bdb1aa913dbfa7a713fa69c4c06c83e591a4c39bdda360b`
+- deployment ID: `01a00a3e-8b6a-766f-90cc-552841227104`
+- Size: `325,425 bytes` (`317.80 KiB`)
+- SHA-256: `afd94776f65544a63fe1e56a8c132bd7c618065ddd08a3cfc297c62f5d5c67c0`
+- 참고: `ait build`는 빌드마다 deployment ID가 새로 발급되므로 checksum은 마지막 `npm run verify` 산출물 기준이다. console upload 직전에 재계산한다.
 
 이 ID는 local build artifact 식별자다. console upload나 deploy가 수행됐다는 뜻이 아니다.
 
 ## Browser and mobile-layout evidence
+
+아래는 dataset `1.1.0`(127문항, Math 20 · ML 21 · DL 16) 기준 기록이다. `1.2.0`(137문항,
+Math 21 · ML 25 · DL 21)에서는 브라우저 QA를 아직 재수행하지 않았으므로 출시 전 다시 확인한다.
 
 Local Chromium production preview에서 다음을 확인했다.
 
@@ -54,7 +58,7 @@ QA 중 navigation container가 pointer down 즉시 capture해 일반 tap을 삼�
 
 ## Performance and memory proxy
 
-- 127개 질문은 initial JavaScript에서 분리한 versioned JSON asset이며 browser cache를 우선 사용한다.
+- 137개 질문은 initial JavaScript에서 분리한 versioned JSON asset이며 browser cache를 우선 사용한다.
 - initial Apps JavaScript는 콘텐츠 분리 전 `115.44 KiB`에서 `74.44 KiB` gzip으로 감소했다.
 - Local Chromium에서 warm-up 뒤 30회 네-tab cycle과 forced GC의 heap delta는 `+290,469 bytes`, 이어진 30회 cycle은 `+98,908 bytes`였다.
 - DOM node count는 두 측정 모두 `70`으로 유지됐고 horizontal overflow는 `0`이었다.
@@ -63,7 +67,7 @@ QA 중 navigation container가 pointer down 즉시 capture해 일반 tap을 삼�
 
 ## Conditions before public release
 
-1. 127개 문항을 사람이 사실, 수식, 난이도, 한국어 표현 기준으로 전수 검수한다.
+1. 137개 문항을 사람이 사실, 수식, 난이도, 한국어 표현 기준으로 전수 검수한다.
 2. Apps console에서 `appName`, display name, icon, primary color와 고객센터 contact를 확정한다.
 3. 최신 비게임·개인정보·공유·수익형 교육 서비스 정책과 사업자·정산 조건을 확인한다.
 4. Sandbox App의 iOS와 Android에서 핵심 flow, native Storage, light/dark/system, VoiceOver/TalkBack와 200% text를 확인한다.

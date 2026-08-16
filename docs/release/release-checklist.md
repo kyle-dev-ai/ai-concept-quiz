@@ -4,7 +4,7 @@ Target: `v1.0.0`
 
 ## Product
 
-- [ ] 127개 Q&A 내용·수식·난이도 사람 검수
+- [ ] 137개 Q&A 내용·수식·난이도 사람 검수
 - [x] 첫 진입, 목표 변경, 카테고리 학습, 용어집, 기록 흐름 확인
 - [x] 빈 상태·저장소 실패·오프라인 상태 확인
 - [x] system/light/dark 전환, 저장 유지, 320px header 겹침과 가로 overflow 확인
@@ -50,7 +50,7 @@ npm audit --omit=dev
 - [x] strict TypeScript와 bundle budget gate
 - [x] secret/PII scan 및 final diff review
 - [x] release HTML strict CSP와 CSP violation 없는 production browser flow
-- [x] `docs/work/mvp-release-hardening/verification.md`를 최종 127문항 결과로 갱신
+- [x] `docs/work/mvp-release-hardening/verification.md`를 최종 137문항 결과로 갱신
 - [x] CHANGELOG의 `Unreleased` 항목 정리
 
 ## Approval-gated actions
