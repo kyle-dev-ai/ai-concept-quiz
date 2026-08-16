@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-concept-quiz.local/schemas/study-question.v1.schema.json",
+  "title": "StudyQuestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "category",
+    "difficulty",
+    "term",
+    "prompt",
+    "shortAnswer",
+    "deepAnswer",
+    "keyPoints",
+    "followUp",
+    "prerequisites"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "category": {
+      "enum": ["math", "ml", "dl", "transformer", "llm", "rag", "agent", "ai-system"]
+    },
+    "difficulty": {
+      "enum": ["foundation", "intermediate", "advanced"]
+    },
+    "term": {
+      "type": "string",
+      "minLength": 2
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 10
+    },
+    "shortAnswer": {
+      "type": "string",
+      "minLength": 20
+    },
+    "deepAnswer": {
+      "type": "string",
+      "minLength": 20
+    },
+    "keyPoints": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 4
+      }
+    },
+    "followUp": {
+      "type": "string",
+      "minLength": 10
+    },
+    "prerequisites": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    }
+  }
+}

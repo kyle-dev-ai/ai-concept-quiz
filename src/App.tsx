@@ -1,0 +1,376 @@
+import { useEffect, useState } from 'react'
+import { runtimeConfig } from './app/config/runtime-config'
+import type { AppDependencies } from './app/dependencies'
+import { appDependencies } from './app/dependencies'
+import { type LearningGoalId, learningGoalById } from './domain/learning/goal'
+import {
+  createLearnerProfile,
+  type LearnerProfile,
+  learnerGroupById,
+} from './domain/learning/learner-profile'
+import {
+  createInitialProgress,
+  type KnowledgeRating,
+  type LearningProgress,
+  recordReview,
+  withSelectedGoal,
+} from './domain/learning/progress'
+import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
+import { createStudyQueue } from './domain/learning/session'
+import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
+import { LibraryScreen } from './features/library/LibraryScreen'
+import { ProgressScreen } from './features/progress/ProgressScreen'
+import { StudyComplete } from './features/study/StudyComplete'
+import { StudyHome } from './features/study/StudyHome'
+import { StudyScreen } from './features/study/StudyScreen'
+import { type AppTab, BottomNavigation } from './shared/components/BottomNavigation'
+import './App.css'
+
+interface AppProps {
+  readonly dependencies?: AppDependencies
+}
+
+type SessionSource =
+  | { readonly kind: 'scope'; readonly scope: StudyScope }
+  | { readonly kind: 'daily' | 'single'; readonly question: StudyQuestion }
+
+interface StudySession {
+  readonly source: SessionSource
+  readonly queue: readonly StudyQuestion[]
+  readonly index: number
+  readonly label: string
+  readonly reviewedCount: number
+  readonly completed: boolean
+}
+
+function App({ dependencies = appDependencies }: AppProps) {
+  const [questions, setQuestions] = useState<readonly StudyQuestion[]>([])
+  const [profile, setProfile] = useState<LearnerProfile | null>(null)
+  const [progress, setProgress] = useState<LearningProgress>(createInitialProgress)
+  const [activeTab, setActiveTab] = useState<AppTab>('learn')
+  const [session, setSession] = useState<StudySession | null>(null)
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+  const [loadError, setLoadError] = useState(false)
+  const viewIdentity = `${activeTab}:${isEditingProfile ? 'editing' : 'viewing'}:${profile === null ? 'onboarding' : 'profile'}:${session?.index ?? 'none'}:${session?.completed === true ? 'complete' : 'active'}`
+
+  useEffect(() => {
+    let isActive = true
+
+    Promise.all([
+      dependencies.questions.list(),
+      dependencies.profiles.load(),
+      dependencies.progress.load(),
+    ])
+      .then(([loadedQuestions, loadedProfile, loadedProgress]) => {
+        if (!isActive) {
+          return
+        }
+
+        const alignedProgress =
+          loadedProfile === null || loadedProgress.selectedGoal === loadedProfile.learningGoalId
+            ? loadedProgress
+            : withSelectedGoal(loadedProgress, loadedProfile.learningGoalId)
+
+        setQuestions(loadedQuestions)
+        setProfile(loadedProfile)
+        setProgress(alignedProgress)
+        setIsReady(true)
+
+        if (alignedProgress !== loadedProgress) {
+          void dependencies.progress.save(alignedProgress)
+        }
+      })
+      .catch((error: unknown) => {
+        dependencies.telemetry.captureException(error, { area: 'bootstrap', operation: 'load' })
+        if (isActive) {
+          setLoadError(true)
+          setIsReady(true)
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [dependencies])
+
+  useEffect(() => {
+    if (viewIdentity.length === 0) {
+      return
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [viewIdentity])
+
+  function saveProgress(nextProgress: LearningProgress) {
+    setProgress(nextProgress)
+    void dependencies.progress.save(nextProgress).catch((error: unknown) => {
+      dependencies.telemetry.captureException(error, { area: 'progress', operation: 'save' })
+    })
+  }
+
+  function saveProfile(nextProfile: LearnerProfile) {
+    setProfile(nextProfile)
+    void dependencies.profiles.save(nextProfile).catch((error: unknown) => {
+      dependencies.telemetry.captureException(error, { area: 'profile', operation: 'save' })
+    })
+  }
+
+  async function completeOnboarding(value: OnboardingValue) {
+    const nextProfile = createLearnerProfile({
+      ...value,
+      createdAt: profile === null ? undefined : new Date(profile.createdAt),
+    })
+    const nextProgress = withSelectedGoal(progress, value.learningGoalId)
+
+    try {
+      await Promise.all([
+        dependencies.profiles.save(nextProfile),
+        dependencies.progress.save(nextProgress),
+      ])
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'onboarding', operation: 'save' })
+      throw error
+    }
+
+    setProfile(nextProfile)
+    setProgress(nextProgress)
+    setIsEditingProfile(false)
+    setActiveTab('learn')
+  }
+
+  function changeGoal(goalId: LearningGoalId) {
+    if (profile === null) {
+      return
+    }
+
+    saveProfile({ ...profile, learningGoalId: goalId })
+    saveProgress(withSelectedGoal(progress, goalId))
+    dependencies.telemetry.track({ name: 'goal_selected', goalId })
+  }
+
+  function labelForScope(scope: StudyScope): string {
+    if (scope === 'recommended') {
+      return `${learningGoalById[profile?.learningGoalId ?? 'ai-basics'].shortLabel} 추천`
+    }
+    if (scope === 'all') {
+      return '전체 랜덤'
+    }
+    return categoryById[scope].label
+  }
+
+  function startScope(scope: StudyScope) {
+    if (profile === null) {
+      return
+    }
+
+    const queue = createStudyQueue(
+      questions,
+      scope,
+      learningGoalById[profile.learningGoalId],
+      learnerGroupById[profile.groupId],
+    )
+
+    if (queue.length === 0) {
+      return
+    }
+
+    setSession({
+      source: { kind: 'scope', scope },
+      queue,
+      index: 0,
+      label: labelForScope(scope),
+      reviewedCount: 0,
+      completed: false,
+    })
+    dependencies.telemetry.track({ name: 'study_started', scope, questionCount: queue.length })
+  }
+
+  function startSingle(question: StudyQuestion, kind: 'daily' | 'single' = 'single') {
+    setSession({
+      source: { kind, question },
+      queue: [question],
+      index: 0,
+      label: kind === 'daily' ? '오늘의 10초 구술' : '다시 설명하기',
+      reviewedCount: 0,
+      completed: false,
+    })
+    dependencies.telemetry.track({ name: 'study_started', scope: kind, questionCount: 1 })
+  }
+
+  function rateCurrentQuestion(rating: KnowledgeRating) {
+    if (session === null) {
+      return
+    }
+    const question = session.queue[session.index]
+    if (question === undefined) {
+      return
+    }
+
+    saveProgress(recordReview(progress, question.id, rating))
+    setSession({ ...session, reviewedCount: session.reviewedCount + 1 })
+    dependencies.telemetry.track({
+      name: 'review_recorded',
+      questionId: question.id,
+      rating,
+    })
+  }
+
+  function revealCurrentQuestion() {
+    const question = session?.queue[session.index]
+    if (question === undefined) {
+      return
+    }
+
+    dependencies.telemetry.track({
+      name: 'answer_revealed',
+      questionId: question.id,
+    })
+  }
+
+  function nextQuestion() {
+    if (session === null) {
+      return
+    }
+
+    if (session.index + 1 >= session.queue.length) {
+      setSession({ ...session, completed: true })
+      return
+    }
+
+    setSession({ ...session, index: session.index + 1 })
+  }
+
+  async function shareCurrentQuestion() {
+    const question = session?.queue[session.index]
+    if (question === undefined) {
+      return 'unavailable' as const
+    }
+
+    const result = await dependencies.challengeShare.share(question)
+    if (result === 'shared' || result === 'copied') {
+      dependencies.telemetry.track({
+        name: 'challenge_shared',
+        questionId: question.id,
+        method: result,
+      })
+    }
+    return result
+  }
+
+  function restartSession() {
+    const source = session?.source
+    if (source === undefined) {
+      return
+    }
+
+    if (source.kind === 'scope') {
+      startScope(source.scope)
+    } else {
+      startSingle(source.question, source.kind)
+    }
+  }
+
+  function goHome() {
+    setSession(null)
+    setActiveTab('learn')
+  }
+
+  if (!isReady) {
+    return (
+      <main className="loading-screen" aria-busy="true">
+        <span className="brand-mark">A!</span>
+        <p>오늘의 질문을 섞고 있어요</p>
+        <div aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+      </main>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <main className="fatal-error">
+        <span className="eyebrow">불러오지 못했어요</span>
+        <h1>기기 저장소를 확인한 뒤 다시 시도해주세요.</h1>
+        <button type="button" className="button button--primary" onClick={() => location.reload()}>
+          다시 불러오기
+        </button>
+      </main>
+    )
+  }
+
+  if (profile === null || isEditingProfile) {
+    return (
+      <OnboardingScreen
+        initialProfile={profile ?? undefined}
+        onComplete={completeOnboarding}
+        onCancel={profile === null ? undefined : () => setIsEditingProfile(false)}
+      />
+    )
+  }
+
+  if (session !== null) {
+    const question = session.queue[session.index]
+    if (session.completed || question === undefined) {
+      return (
+        <StudyComplete
+          reviewedCount={session.reviewedCount}
+          adsEnabled={runtimeConfig.adsEnabled}
+          onRestart={restartSession}
+          onHome={goHome}
+        />
+      )
+    }
+
+    return (
+      <StudyScreen
+        key={question.id}
+        question={question}
+        index={session.index}
+        total={session.queue.length}
+        scopeLabel={session.label}
+        adsEnabled={runtimeConfig.adsEnabled}
+        onExit={() => setSession(null)}
+        onReveal={revealCurrentQuestion}
+        onRate={rateCurrentQuestion}
+        onNext={nextQuestion}
+        onShare={shareCurrentQuestion}
+      />
+    )
+  }
+
+  return (
+    <div className="app-shell">
+      {activeTab === 'learn' ? (
+        <StudyHome
+          questions={questions}
+          profile={profile}
+          progress={progress}
+          adsEnabled={runtimeConfig.adsEnabled}
+          onGoalChange={changeGoal}
+          onStart={startScope}
+          onStartDaily={(question) => startSingle(question, 'daily')}
+          onOpenProfile={() => setIsEditingProfile(true)}
+        />
+      ) : null}
+      {activeTab === 'library' ? (
+        <LibraryScreen questions={questions} onStudyCategory={startScope} />
+      ) : null}
+      {activeTab === 'progress' ? (
+        <ProgressScreen
+          profile={profile}
+          progress={progress}
+          questions={questions}
+          appProfile={runtimeConfig.profile}
+          onEditProfile={() => setIsEditingProfile(true)}
+          onStudyQuestion={startSingle}
+        />
+      ) : null}
+      <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
+    </div>
+  )
+}
+
+export default App
