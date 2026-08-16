@@ -4,6 +4,7 @@ import { createLearnerProfile } from '../../domain/learning/learner-profile'
 import { createInitialProgress, recordReview } from '../../domain/learning/progress'
 import { LocalProfileRepository } from './local-profile-repository'
 import { LocalProgressRepository } from './local-progress-repository'
+import { LocalThemePreferenceRepository } from './local-theme-preference-repository'
 
 class MemoryKeyValueStore implements KeyValueStore {
   private readonly values = new Map<string, string>()
@@ -99,5 +100,17 @@ describe('device repositories', () => {
       questions: { 'valid-question': expect.any(Object) },
       activityDates: ['2026-08-16'],
     })
+  })
+
+  it('화면 모드를 저장하고 알 수 없는 값은 라이트로 복구한다', async () => {
+    const storage = new MemoryKeyValueStore()
+    const repository = new LocalThemePreferenceRepository(storage)
+
+    await expect(repository.load()).resolves.toBe('light')
+    await repository.save('dark')
+    await expect(repository.load()).resolves.toBe('dark')
+
+    await storage.setItem('attention-ai-theme-v1', 'sepia')
+    await expect(repository.load()).resolves.toBe('light')
   })
 })

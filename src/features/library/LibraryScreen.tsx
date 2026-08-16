@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import {
   type CategoryId,
   categories,
@@ -7,13 +8,21 @@ import {
   type StudyQuestion,
 } from '../../domain/learning/question'
 import { searchQuestions } from '../../domain/learning/session'
+import { AdSlot } from '../monetization/AdSlot'
 
 interface LibraryScreenProps {
   readonly questions: readonly StudyQuestion[]
+  readonly adsEnabled: boolean
+  readonly bannerAds: BannerAdProvider
   readonly onStudyCategory: (category: CategoryId) => void
 }
 
-export function LibraryScreen({ questions, onStudyCategory }: LibraryScreenProps) {
+export function LibraryScreen({
+  questions,
+  adsEnabled,
+  bannerAds,
+  onStudyCategory,
+}: LibraryScreenProps) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<CategoryId | 'all'>('all')
   const filteredQuestions = useMemo(
@@ -78,6 +87,8 @@ export function LibraryScreen({ questions, onStudyCategory }: LibraryScreenProps
           </button>
         )}
       </div>
+
+      <AdSlot enabled={adsEnabled} placement="library-inline-banner" provider={bannerAds} />
 
       {filteredQuestions.length === 0 ? (
         <section className="empty-state">

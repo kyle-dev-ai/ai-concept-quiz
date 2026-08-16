@@ -12,7 +12,7 @@
 - `src/domain` stays independent of React and browser APIs.
 - `src/content` owns static, reviewed learning content only.
 - `src/features` owns user-facing flows; cross-feature UI belongs in `src/shared`.
-- Browser persistence and future SDK providers live behind small adapters.
+- Browser persistence and SDK providers live under `src/infrastructure` behind small ports.
 - Prefer explicit functions and discriminated unions over general-purpose abstractions.
 
 ## Conventions

@@ -20,10 +20,10 @@ export function LevelGuideSheet({ score, onClose }: LevelGuideSheetProps) {
   const dialogRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow
+    const wasScrollLocked = document.body.classList.contains('modal-scroll-lock')
     const previouslyFocused =
       document.activeElement instanceof HTMLElement ? document.activeElement : null
-    document.body.style.overflow = 'hidden'
+    document.body.classList.add('modal-scroll-lock')
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -55,7 +55,9 @@ export function LevelGuideSheet({ score, onClose }: LevelGuideSheetProps) {
     dialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
     document.addEventListener('keydown', handleKeyDown)
     return () => {
-      document.body.style.overflow = previousOverflow
+      if (!wasScrollLocked) {
+        document.body.classList.remove('modal-scroll-lock')
+      }
       document.removeEventListener('keydown', handleKeyDown)
       previouslyFocused?.focus()
     }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import type { ShareResult } from '../../application/ports/challenge-share'
 import type { KnowledgeRating } from '../../domain/learning/progress'
 import { categoryById, difficultyLabel, type StudyQuestion } from '../../domain/learning/question'
@@ -10,9 +11,10 @@ interface StudyScreenProps {
   readonly total: number
   readonly scopeLabel: string
   readonly adsEnabled: boolean
+  readonly bannerAds: BannerAdProvider
   readonly onExit: () => void
   readonly onReveal: () => void
-  readonly onRate: (rating: KnowledgeRating) => void
+  readonly onRate: (rating: KnowledgeRating) => Promise<void>
   readonly onNext: () => void
   readonly onShare: () => Promise<ShareResult>
 }
@@ -34,6 +36,7 @@ export function StudyScreen({
   total,
   scopeLabel,
   adsEnabled,
+  bannerAds,
   onExit,
   onReveal,
   onRate,
@@ -42,16 +45,30 @@ export function StudyScreen({
 }: StudyScreenProps) {
   const [isRevealed, setIsRevealed] = useState(false)
   const [rating, setRating] = useState<KnowledgeRating | null>(null)
+  const [pendingRating, setPendingRating] = useState<KnowledgeRating | null>(null)
+  const [isSavingRating, setIsSavingRating] = useState(false)
+  const [ratingError, setRatingError] = useState(false)
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
 
   const progress = ((index + 1) / total) * 100
 
-  function rate(nextRating: KnowledgeRating) {
-    if (rating !== null) {
+  async function rate(nextRating: KnowledgeRating) {
+    if (rating !== null || isSavingRating) {
       return
     }
-    setRating(nextRating)
-    onRate(nextRating)
+
+    setIsSavingRating(true)
+    setPendingRating(nextRating)
+    setRatingError(false)
+    try {
+      await onRate(nextRating)
+      setRating(nextRating)
+    } catch {
+      setRatingError(true)
+    } finally {
+      setPendingRating(null)
+      setIsSavingRating(false)
+    }
   }
 
   async function share() {
@@ -67,7 +84,13 @@ export function StudyScreen({
   return (
     <main className="study-screen">
       <header className="study-header">
-        <button type="button" className="icon-button" onClick={onExit} aria-label="학습 나가기">
+        <button
+          type="button"
+          className="icon-button"
+          disabled={isSavingRating}
+          onClick={onExit}
+          aria-label="학습 나가기"
+        >
           ×
         </button>
         <div className="study-header__center">
@@ -78,9 +101,12 @@ export function StudyScreen({
         </div>
         <span className="study-header__spacer" aria-hidden="true" />
       </header>
-      <div className="study-progress" aria-hidden="true">
-        <i style={{ width: `${progress}%` }} />
-      </div>
+      <progress
+        className="study-progress"
+        max="100"
+        value={progress}
+        aria-label={`학습 진행률 ${Math.round(progress)}%`}
+      />
 
       <article className="question-card" data-revealed={isRevealed}>
         <div className="question-card__meta">
@@ -153,7 +179,10 @@ export function StudyScreen({
                   key={option.id}
                   type="button"
                   className={`rating-button rating-button--${option.id}`}
-                  onClick={() => rate(option.id)}
+                  data-pending={pendingRating === option.id}
+                  data-dimmed={pendingRating !== null && pendingRating !== option.id}
+                  disabled={isSavingRating}
+                  onClick={() => void rate(option.id)}
                 >
                   <span aria-hidden="true">{option.symbol}</span>
                   <strong>{option.label}</strong>
@@ -161,6 +190,12 @@ export function StudyScreen({
                 </button>
               ))}
             </div>
+            {isSavingRating ? <small role="status">기록하는 중…</small> : null}
+            {ratingError ? (
+              <small className="rating-panel__error" role="alert">
+                기록하지 못했어요. 다시 눌러주세요.
+              </small>
+            ) : null}
           </div>
         ) : (
           <div className="post-rating-actions">
@@ -188,7 +223,7 @@ export function StudyScreen({
           </div>
         )}
       </footer>
-      <AdSlot enabled={adsEnabled} placement="study-bottom-banner" />
+      <AdSlot enabled={adsEnabled} placement="study-bottom-banner" provider={bannerAds} />
     </main>
   )
 }

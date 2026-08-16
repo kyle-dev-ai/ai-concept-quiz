@@ -32,8 +32,8 @@ export const learningGoals: readonly LearningGoal[] = [
     label: 'AI 대학원 진학',
     shortLabel: '대학원',
     description: '구술에서 원리와 수식을 자기 말로 설명하는 힘을 만들어요.',
-    recommendation: 'Math → ML → DL → Transformer를 먼저 단단히',
-    recommendedCategories: ['math', 'ml', 'dl', 'transformer', 'llm'],
+    recommendation: 'Math → ML → DL → Transformer를 잡고 프로젝트 질문까지',
+    recommendedCategories: ['math', 'ml', 'dl', 'transformer', 'llm', 'rag', 'agent', 'ai-system'],
   },
   {
     id: 'career-switch',

@@ -11,6 +11,8 @@ if (rootElement === null) {
   throw new Error('Root element를 찾을 수 없습니다.')
 }
 
+appDependencies.themeController.apply('light')
+
 createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary telemetry={appDependencies.telemetry}>

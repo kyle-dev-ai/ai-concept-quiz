@@ -9,28 +9,41 @@ import { createInitialProgress } from './domain/learning/progress'
 function createTestDependencies() {
   const saveProfile = vi.fn(async () => undefined)
   const saveProgress = vi.fn(async () => undefined)
+  const saveThemePreference = vi.fn(async () => undefined)
+  const applyTheme = vi.fn()
   const track = vi.fn()
 
   const dependencies: AppDependencies = {
     questions: { list: async () => sampleQuestions },
     profiles: { load: async () => null, save: saveProfile },
     progress: { load: async () => createInitialProgress(), save: saveProgress },
+    themePreferences: { load: async () => 'light', save: saveThemePreference },
+    themeController: { apply: applyTheme, dispose: vi.fn() },
     telemetry: { track, captureException: vi.fn() },
     challengeShare: { share: async () => 'copied' },
+    bannerAds: { attach: () => () => undefined },
   }
 
-  return { dependencies, saveProfile, saveProgress, track }
+  return { dependencies, saveProfile, saveProgress, saveThemePreference, applyTheme, track }
 }
 
 describe('App learning flow', () => {
   it('최소 온보딩부터 답 공개, 자기평가, 점수 반영까지 이어진다', async () => {
     const user = userEvent.setup()
-    const { dependencies, saveProfile, saveProgress, track } = createTestDependencies()
+    const { dependencies, saveProfile, saveProgress, saveThemePreference, applyTheme, track } =
+      createTestDependencies()
     render(<App dependencies={dependencies} />)
 
     expect(
       await screen.findByRole('heading', { name: 'What are you working toward?' }),
     ).toBeInTheDocument()
+    expect(applyTheme).toHaveBeenCalledWith('light')
+
+    await user.click(screen.getByRole('button', { name: '화면 모드: 라이트' }))
+    await user.click(screen.getByRole('radio', { name: '다크' }))
+    await waitFor(() => expect(saveThemePreference).toHaveBeenCalledWith('dark'))
+    expect(applyTheme).toHaveBeenLastCalledWith('dark')
+    expect(screen.getByRole('button', { name: '화면 모드: 다크' })).toHaveFocus()
 
     await user.click(screen.getByRole('button', { name: /대학원 준비·재학/ }))
     await user.type(
@@ -65,15 +78,46 @@ describe('App learning flow', () => {
 
     await user.click(screen.getByRole('button', { name: /알았다/ }))
     await waitFor(() => expect(saveProgress).toHaveBeenCalled())
+    expect(await screen.findByText('기록 완료')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '학습 마치기' }))
 
     expect(await screen.findByRole('heading', { name: /1개 개념을/ })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '홈으로' }))
     await user.click(screen.getByRole('button', { name: '기록' }))
 
-    expect(screen.getByLabelText('설명력 점수 3점')).toBeInTheDocument()
+    expect(screen.getByLabelText('설명력 점수 1점')).toBeInTheDocument()
     expect(
       screen.getByText('최근 자기평가로 계산한 학습 진도이며 시험·지능 점수가 아니에요.'),
     ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '프로필' }))
+    expect(screen.getByRole('heading', { name: 'Your deck. Your pace.' })).toBeInTheDocument()
+    expect(screen.getByText('현재 학습자')).toBeInTheDocument()
+    expect(screen.getAllByText('대학원 준비·재학').length).toBeGreaterThan(0)
+    await user.click(screen.getByRole('button', { name: '학습 설정 변경' }))
+    expect(
+      await screen.findByRole('heading', { name: 'What are you working toward?' }),
+    ).toBeInTheDocument()
+  })
+
+  it('질문이나 기기 데이터 load 실패 시 복구 화면과 telemetry를 남긴다', async () => {
+    const { dependencies } = createTestDependencies()
+    const loadError = new Error('question bank unavailable')
+    dependencies.questions.list = async () => {
+      throw loadError
+    }
+
+    render(<App dependencies={dependencies} />)
+
+    expect(
+      await screen.findByRole('heading', {
+        name: '연결 상태와 기기 저장소를 확인한 뒤 다시 시도해주세요.',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '다시 불러오기' })).toBeInTheDocument()
+    expect(dependencies.telemetry.captureException).toHaveBeenCalledWith(loadError, {
+      area: 'bootstrap',
+      operation: 'load',
+    })
   })
 })

@@ -8,11 +8,13 @@ describe('createRuntimeConfig', () => {
         VITE_APP_PROFILE: 'standalone',
         VITE_CONTENT_SOURCE: 'static',
         VITE_ADS_ENABLED: 'false',
+        VITE_SENTRY_DSN: '',
       }),
     ).toEqual({
       profile: 'standalone',
       contentSource: 'static',
       adsEnabled: false,
+      sentryDsn: null,
       isStandalone: true,
       isAppsInToss: false,
     })
@@ -26,5 +28,16 @@ describe('createRuntimeConfig', () => {
         VITE_ADS_ENABLED: 'false',
       }),
     ).toThrow('지원하지 않는 VITE_APP_PROFILE')
+  })
+
+  it('오류 모니터링 DSN은 HTTPS만 허용한다', () => {
+    expect(() =>
+      createRuntimeConfig({
+        VITE_APP_PROFILE: 'prd',
+        VITE_CONTENT_SOURCE: 'static',
+        VITE_ADS_ENABLED: 'false',
+        VITE_SENTRY_DSN: 'http://public@example.com/1',
+      }),
+    ).toThrow('VITE_SENTRY_DSN은 HTTPS URL')
   })
 })

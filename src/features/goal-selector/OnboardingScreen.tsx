@@ -71,7 +71,7 @@ export function OnboardingScreen({ initialProfile, onComplete, onCancel }: Onboa
   }
 
   return (
-    <main className="onboarding">
+    <main className="onboarding" data-engaged={groupId !== null}>
       <div className="onboarding__topline">
         <span className="brand-mark" aria-hidden="true">
           A!
@@ -84,6 +84,16 @@ export function OnboardingScreen({ initialProfile, onComplete, onCancel }: Onboa
           What are you <br />
           working toward?
         </h1>
+        <div className="onboarding__signal" data-active={groupId !== null} aria-hidden="true">
+          <div>
+            <i />
+            <b />
+            <i />
+            <b />
+            <i />
+          </div>
+          <span>{groupId === null ? 'FIND YOUR START' : 'START FOUND'}</span>
+        </div>
       </header>
 
       <fieldset className="onboarding__section">
@@ -171,7 +181,7 @@ export function OnboardingScreen({ initialProfile, onComplete, onCancel }: Onboa
             일단 둘러보기
           </button>
         ) : (
-          <button type="button" className="text-button" onClick={onCancel}>
+          <button type="button" className="text-button" disabled={isSaving} onClick={onCancel}>
             취소
           </button>
         )}

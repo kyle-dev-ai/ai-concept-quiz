@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import { type LearningGoalId, learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
 import {
@@ -26,10 +27,10 @@ interface StudyHomeProps {
   readonly profile: LearnerProfile
   readonly progress: LearningProgress
   readonly adsEnabled: boolean
-  readonly onGoalChange: (goalId: LearningGoalId) => void
+  readonly bannerAds: BannerAdProvider
+  readonly onGoalChange: (goalId: LearningGoalId) => Promise<void>
   readonly onStart: (scope: StudyScope) => void
   readonly onStartDaily: (question: StudyQuestion) => void
-  readonly onOpenProfile: () => void
 }
 
 export function StudyHome({
@@ -37,10 +38,10 @@ export function StudyHome({
   profile,
   progress,
   adsEnabled,
+  bannerAds,
   onGoalChange,
   onStart,
   onStartDaily,
-  onOpenProfile,
 }: StudyHomeProps) {
   const goal = learningGoalById[profile.learningGoalId]
   const learnerGroup = learnerGroupById[profile.groupId]
@@ -83,10 +84,6 @@ export function StudyHome({
               <circle cx="10" cy="10" r="7.5" />
               <path d="M10 8.7v5M10 6.1v.2" />
             </svg>
-          </button>
-          <button type="button" className="profile-button" onClick={onOpenProfile}>
-            <span aria-hidden="true">{profile.nickname.slice(-1)}</span>
-            <span className="sr-only">학습 설정 열기</span>
           </button>
         </div>
       </header>
@@ -185,7 +182,7 @@ export function StudyHome({
         </div>
       </section>
 
-      <AdSlot enabled={adsEnabled} placement="learn-home-inline" />
+      <AdSlot enabled={adsEnabled} placement="learn-home-inline" provider={bannerAds} />
 
       <section className="home-section" aria-labelledby="category-title">
         <div className="section-heading">

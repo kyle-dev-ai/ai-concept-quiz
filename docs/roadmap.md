@@ -6,11 +6,11 @@
 
 목표는 “답을 보기 전 설명하고 자기평가하는 흐름을 반복해서 쓰는가”를 확인하는 것이다.
 
-- 39개 curated 질문, 목표·학습자 추천, 성장 점수·레벨, 용어집
+- 127개 versioned 질문, 목표·학습자 추천, 성장 점수·레벨, 용어집
 - localStorage / Apps in Toss Storage adapter
 - standalone PWA와 Apps in Toss build
 - AI-native schema, prompt, golden-set gate
-- 광고·remote telemetry·로그인·backend는 비활성
+- 광고·로그인·backend는 비활성, Sentry error adapter는 DSN이 있을 때만 opt-in
 
 다음 단계 조건:
 
@@ -19,12 +19,12 @@
 - 본인 주 4회 사용 또는 7일 재방문 사용자 5명 이상
 - 콘텐츠 오류와 주요 이탈 지점이 수기 테스트에서 정리됨
 
-## Phase 1 — content operations and observability
+## Phase 1 — content operations and measured usage
 
 - Notion CSV export → schema validation → candidate JSON → eval → human approval → generated corpus
 - 150개 핵심 개념과 source/review metadata
 - HTTPS static hosting은 외부 재방문 테스트가 필요할 때 provider subdomain으로 시작
-- privacy-safe product event와 remote error tracking adapter 검토
+- Sentry error inbox와 Apps performance dashboard 운영, privacy-safe product event는 별도 결정
 - weak concepts 우선 복습과 간단한 spaced repetition 실험
 
 Backend/API 전환 조건 중 하나:
@@ -41,7 +41,7 @@ Custom domain 조건:
 ## Phase 2 — retention and monetization
 
 - daily review queue, streak recovery, share card와 onboarding copy를 event funnel로 검증
-- session 중간이 아닌 완료 지점부터 광고 placement A/B test
+- Apps in Toss 공식 통합 광고만 사용하고 banner는 빈 UI 영역, 전면형은 완료 경계에서 placement A/B test
 - frequency cap, provider failure fallback, consent/privacy, 사업자·세무·스토어 정책 검토
 - 광고가 session completion과 7-day retention을 해치면 즉시 중단
 
@@ -51,6 +51,7 @@ Custom domain 조건:
 - 의미 있는 MAU와 session 수로 예상 수익을 계산할 수 있음
 - 광고 없는 control 대비 학습 지표 하락 허용 범위 합의
 - Apps in Toss 최신 광고·개인정보·수익화 정책 재확인
+- 사업자·정산 등록과 수익형 교육 category 자격 적용 여부 확인
 
 ## Phase 3 — measured runtime AI
 

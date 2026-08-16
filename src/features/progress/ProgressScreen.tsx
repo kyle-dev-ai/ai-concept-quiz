@@ -1,4 +1,4 @@
-import { appMetadata } from '../../app/config/app-metadata'
+import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import { learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
 import {
@@ -9,14 +9,16 @@ import {
   summarizeProgress,
 } from '../../domain/learning/progress'
 import { categoryById, type StudyQuestion } from '../../domain/learning/question'
+import { AppFooter } from '../../shared/components/AppFooter'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
+import { AdSlot } from '../monetization/AdSlot'
 
 interface ProgressScreenProps {
   readonly profile: LearnerProfile
   readonly progress: LearningProgress
   readonly questions: readonly StudyQuestion[]
-  readonly appProfile: string
-  readonly onEditProfile: () => void
+  readonly adsEnabled: boolean
+  readonly bannerAds: BannerAdProvider
   readonly onStudyQuestion: (question: StudyQuestion) => void
 }
 
@@ -24,8 +26,8 @@ export function ProgressScreen({
   profile,
   progress,
   questions,
-  appProfile,
-  onEditProfile,
+  adsEnabled,
+  bannerAds,
   onStudyQuestion,
 }: ProgressScreenProps) {
   const summary = summarizeProgress(progress)
@@ -72,9 +74,12 @@ export function ProgressScreen({
               : `다음 레벨까지 ${level.nextScore - masteryScore}점`}
           </p>
         </div>
-        <div className="mastery-card__bar" aria-hidden="true">
-          <i style={{ width: `${levelProgress}%` }} />
-        </div>
+        <progress
+          className="mastery-card__bar"
+          max="100"
+          value={levelProgress}
+          aria-label={`현재 레벨 진행률 ${levelProgress}%`}
+        />
       </section>
       <p className="score-caption">
         최근 자기평가로 계산한 학습 진도이며 시험·지능 점수가 아니에요.
@@ -111,6 +116,8 @@ export function ProgressScreen({
         </div>
       </section>
 
+      <AdSlot enabled={adsEnabled} placement="progress-inline-banner" provider={bannerAds} />
+
       <section className="progress-section" aria-labelledby="review-title">
         <div className="section-heading">
           <div>
@@ -136,21 +143,7 @@ export function ProgressScreen({
         )}
       </section>
 
-      <section className="profile-summary">
-        <div>
-          <span>내 목표</span>
-          <strong>
-            {profile.goalNote || learningGoalById[profile.learningGoalId].recommendation}
-          </strong>
-        </div>
-        <button type="button" className="text-button" onClick={onEditProfile}>
-          학습 설정 변경
-        </button>
-      </section>
-
-      <footer className="app-version">
-        {appMetadata.name} v{appMetadata.version} · {appProfile}
-      </footer>
+      <AppFooter />
     </main>
   )
 }

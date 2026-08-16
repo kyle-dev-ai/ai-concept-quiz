@@ -68,6 +68,21 @@ describe('study session', () => {
     expect(queue.map((question) => question.id)).toEqual(['ml-foundation', 'agent-foundation'])
   })
 
+  it('대학원 목표는 이론부터 AI 시스템까지 모든 카테고리를 추천한다', () => {
+    const goal = learningGoalById['graduate-school']
+
+    expect(goal.recommendedCategories).toEqual([
+      'math',
+      'ml',
+      'dl',
+      'transformer',
+      'llm',
+      'rag',
+      'agent',
+      'ai-system',
+    ])
+  })
+
   it('같은 날짜에는 같은 daily question을 고른다', () => {
     const date = new Date(2026, 7, 16)
     expect(getDailyQuestion(questions, date)?.id).toBe(getDailyQuestion(questions, date)?.id)

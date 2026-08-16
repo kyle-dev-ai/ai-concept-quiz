@@ -117,7 +117,16 @@ export function calculateMasteryScore(progress: LearningProgress, questionCount:
 }
 
 export function getLearnerLevel(score: number): LearnerLevel {
-  return [...learnerLevels].reverse().find((level) => score >= level.minScore) ?? learnerLevels[0]
+  const level = [...learnerLevels].reverse().find((candidate) => score >= candidate.minScore)
+  const firstLevel = learnerLevels[0]
+
+  if (level !== undefined) {
+    return level
+  }
+  if (firstLevel === undefined) {
+    throw new Error('학습 레벨 설정이 비어 있습니다.')
+  }
+  return firstLevel
 }
 
 export function getLearnerLevelNumber(score: number): number {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { runtimeConfig } from './app/config/runtime-config'
 import type { AppDependencies } from './app/dependencies'
 import { appDependencies } from './app/dependencies'
@@ -17,8 +17,11 @@ import {
 } from './domain/learning/progress'
 import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
 import { createStudyQueue } from './domain/learning/session'
+import type { ThemePreference } from './domain/preferences/theme'
 import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
 import { LibraryScreen } from './features/library/LibraryScreen'
+import { ThemeSwitcher } from './features/preferences/ThemeSwitcher'
+import { ProfileScreen } from './features/profile/ProfileScreen'
 import { ProgressScreen } from './features/progress/ProgressScreen'
 import { StudyComplete } from './features/study/StudyComplete'
 import { StudyHome } from './features/study/StudyHome'
@@ -49,6 +52,7 @@ function App({ dependencies = appDependencies }: AppProps) {
   const [progress, setProgress] = useState<LearningProgress>(createInitialProgress)
   const [activeTab, setActiveTab] = useState<AppTab>('learn')
   const [session, setSession] = useState<StudySession | null>(null)
+  const [themePreference, setThemePreference] = useState<ThemePreference>('light')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [loadError, setLoadError] = useState(false)
@@ -61,8 +65,9 @@ function App({ dependencies = appDependencies }: AppProps) {
       dependencies.questions.list(),
       dependencies.profiles.load(),
       dependencies.progress.load(),
+      dependencies.themePreferences.load(),
     ])
-      .then(([loadedQuestions, loadedProfile, loadedProgress]) => {
+      .then(([loadedQuestions, loadedProfile, loadedProgress, loadedThemePreference]) => {
         if (!isActive) {
           return
         }
@@ -75,10 +80,17 @@ function App({ dependencies = appDependencies }: AppProps) {
         setQuestions(loadedQuestions)
         setProfile(loadedProfile)
         setProgress(alignedProgress)
+        dependencies.themeController.apply(loadedThemePreference)
+        setThemePreference(loadedThemePreference)
         setIsReady(true)
 
         if (alignedProgress !== loadedProgress) {
-          void dependencies.progress.save(alignedProgress)
+          void dependencies.progress.save(alignedProgress).catch((error: unknown) => {
+            dependencies.telemetry.captureException(error, {
+              area: 'progress',
+              operation: 'align-goal',
+            })
+          })
         }
       })
       .catch((error: unknown) => {
@@ -91,6 +103,7 @@ function App({ dependencies = appDependencies }: AppProps) {
 
     return () => {
       isActive = false
+      dependencies.themeController.dispose()
     }
   }, [dependencies])
 
@@ -101,21 +114,8 @@ function App({ dependencies = appDependencies }: AppProps) {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [viewIdentity])
 
-  function saveProgress(nextProgress: LearningProgress) {
-    setProgress(nextProgress)
-    void dependencies.progress.save(nextProgress).catch((error: unknown) => {
-      dependencies.telemetry.captureException(error, { area: 'progress', operation: 'save' })
-    })
-  }
-
-  function saveProfile(nextProfile: LearnerProfile) {
-    setProfile(nextProfile)
-    void dependencies.profiles.save(nextProfile).catch((error: unknown) => {
-      dependencies.telemetry.captureException(error, { area: 'profile', operation: 'save' })
-    })
-  }
-
   async function completeOnboarding(value: OnboardingValue) {
+    const isUpdatingProfile = profile !== null
     const nextProfile = createLearnerProfile({
       ...value,
       createdAt: profile === null ? undefined : new Date(profile.createdAt),
@@ -135,16 +135,54 @@ function App({ dependencies = appDependencies }: AppProps) {
     setProfile(nextProfile)
     setProgress(nextProgress)
     setIsEditingProfile(false)
-    setActiveTab('learn')
+    setActiveTab(isUpdatingProfile ? 'profile' : 'learn')
   }
 
-  function changeGoal(goalId: LearningGoalId) {
+  async function changeTheme(nextPreference: ThemePreference): Promise<void> {
+    if (nextPreference === themePreference) {
+      return
+    }
+
+    try {
+      await dependencies.themePreferences.save(nextPreference)
+      dependencies.themeController.apply(nextPreference)
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'appearance', operation: 'save' })
+      throw error
+    }
+
+    setThemePreference(nextPreference)
+  }
+
+  function withThemeSwitcher(screen: ReactNode) {
+    return (
+      <>
+        <ThemeSwitcher preference={themePreference} disabled={!isReady} onChange={changeTheme} />
+        {screen}
+      </>
+    )
+  }
+
+  async function changeGoal(goalId: LearningGoalId): Promise<void> {
     if (profile === null) {
       return
     }
 
-    saveProfile({ ...profile, learningGoalId: goalId })
-    saveProgress(withSelectedGoal(progress, goalId))
+    const nextProfile = { ...profile, learningGoalId: goalId }
+    const nextProgress = withSelectedGoal(progress, goalId)
+
+    try {
+      await Promise.all([
+        dependencies.profiles.save(nextProfile),
+        dependencies.progress.save(nextProgress),
+      ])
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'goal', operation: 'save' })
+      throw error
+    }
+
+    setProfile(nextProfile)
+    setProgress(nextProgress)
     dependencies.telemetry.track({ name: 'goal_selected', goalId })
   }
 
@@ -197,7 +235,7 @@ function App({ dependencies = appDependencies }: AppProps) {
     dependencies.telemetry.track({ name: 'study_started', scope: kind, questionCount: 1 })
   }
 
-  function rateCurrentQuestion(rating: KnowledgeRating) {
+  async function rateCurrentQuestion(rating: KnowledgeRating): Promise<void> {
     if (session === null) {
       return
     }
@@ -206,8 +244,22 @@ function App({ dependencies = appDependencies }: AppProps) {
       return
     }
 
-    saveProgress(recordReview(progress, question.id, rating))
-    setSession({ ...session, reviewedCount: session.reviewedCount + 1 })
+    const nextProgress = recordReview(progress, question.id, rating)
+    try {
+      await dependencies.progress.save(nextProgress)
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'progress', operation: 'rate' })
+      throw error
+    }
+
+    setProgress(nextProgress)
+    setSession((currentSession) => {
+      const currentQuestion = currentSession?.queue[currentSession.index]
+      if (currentSession === null || currentQuestion?.id !== question.id) {
+        return currentSession
+      }
+      return { ...currentSession, reviewedCount: currentSession.reviewedCount + 1 }
+    })
     dependencies.telemetry.track({
       name: 'review_recorded',
       questionId: question.id,
@@ -276,55 +328,56 @@ function App({ dependencies = appDependencies }: AppProps) {
   }
 
   if (!isReady) {
-    return (
+    return withThemeSwitcher(
       <main className="loading-screen" aria-busy="true">
         <span className="brand-mark">A!</span>
         <p>오늘의 질문을 섞고 있어요</p>
         <div aria-hidden="true">
-          <i />
-          <i />
-          <i />
+          <i className="loading-node" />
+          <i className="loading-node loading-node--middle" />
+          <i className="loading-node loading-node--last" />
         </div>
-      </main>
+      </main>,
     )
   }
 
   if (loadError) {
-    return (
+    return withThemeSwitcher(
       <main className="fatal-error">
         <span className="eyebrow">불러오지 못했어요</span>
-        <h1>기기 저장소를 확인한 뒤 다시 시도해주세요.</h1>
+        <h1>연결 상태와 기기 저장소를 확인한 뒤 다시 시도해주세요.</h1>
         <button type="button" className="button button--primary" onClick={() => location.reload()}>
           다시 불러오기
         </button>
-      </main>
+      </main>,
     )
   }
 
   if (profile === null || isEditingProfile) {
-    return (
+    return withThemeSwitcher(
       <OnboardingScreen
         initialProfile={profile ?? undefined}
         onComplete={completeOnboarding}
         onCancel={profile === null ? undefined : () => setIsEditingProfile(false)}
-      />
+      />,
     )
   }
 
   if (session !== null) {
     const question = session.queue[session.index]
     if (session.completed || question === undefined) {
-      return (
+      return withThemeSwitcher(
         <StudyComplete
           reviewedCount={session.reviewedCount}
           adsEnabled={runtimeConfig.adsEnabled}
+          bannerAds={dependencies.bannerAds}
           onRestart={restartSession}
           onHome={goHome}
-        />
+        />,
       )
     }
 
-    return (
+    return withThemeSwitcher(
       <StudyScreen
         key={question.id}
         question={question}
@@ -332,16 +385,17 @@ function App({ dependencies = appDependencies }: AppProps) {
         total={session.queue.length}
         scopeLabel={session.label}
         adsEnabled={runtimeConfig.adsEnabled}
+        bannerAds={dependencies.bannerAds}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}
         onRate={rateCurrentQuestion}
         onNext={nextQuestion}
         onShare={shareCurrentQuestion}
-      />
+      />,
     )
   }
 
-  return (
+  return withThemeSwitcher(
     <div className="app-shell">
       {activeTab === 'learn' ? (
         <StudyHome
@@ -349,27 +403,40 @@ function App({ dependencies = appDependencies }: AppProps) {
           profile={profile}
           progress={progress}
           adsEnabled={runtimeConfig.adsEnabled}
+          bannerAds={dependencies.bannerAds}
           onGoalChange={changeGoal}
           onStart={startScope}
           onStartDaily={(question) => startSingle(question, 'daily')}
-          onOpenProfile={() => setIsEditingProfile(true)}
         />
       ) : null}
       {activeTab === 'library' ? (
-        <LibraryScreen questions={questions} onStudyCategory={startScope} />
+        <LibraryScreen
+          questions={questions}
+          adsEnabled={runtimeConfig.adsEnabled}
+          bannerAds={dependencies.bannerAds}
+          onStudyCategory={startScope}
+        />
       ) : null}
       {activeTab === 'progress' ? (
         <ProgressScreen
           profile={profile}
           progress={progress}
           questions={questions}
-          appProfile={runtimeConfig.profile}
-          onEditProfile={() => setIsEditingProfile(true)}
+          adsEnabled={runtimeConfig.adsEnabled}
+          bannerAds={dependencies.bannerAds}
           onStudyQuestion={startSingle}
         />
       ) : null}
+      {activeTab === 'profile' ? (
+        <ProfileScreen
+          profile={profile}
+          adsEnabled={runtimeConfig.adsEnabled}
+          bannerAds={dependencies.bannerAds}
+          onEdit={() => setIsEditingProfile(true)}
+        />
+      ) : null}
       <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
-    </div>
+    </div>,
   )
 }
 

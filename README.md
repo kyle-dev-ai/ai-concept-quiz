@@ -2,7 +2,7 @@
 
 AI 개념을 답부터 읽지 않고 10초 동안 내 말로 설명해보는 모바일 우선 학습 앱이다. Apps in Toss 출시를 1순위로 하되, 같은 React 앱을 로컬 브라우저와 standalone PWA에서도 사용할 수 있다.
 
-현재 버전은 `1.0.0` MVP다. 서버, 로그인, 실시간 AI 호출, 광고 SDK 없이 39개의 검수 가능한 샘플 질문과 기기 내 진도만 사용한다.
+현재 버전은 `1.0.0` MVP다. 서버, 로그인, 실시간 AI 호출, 광고 SDK 없이 127개의 versioned 질문과 기기 내 진도만 사용한다. Sentry는 DSN을 설정한 출시 후보에서 JavaScript 오류만 받는 opt-in adapter다.
 
 ## 핵심 경험
 
@@ -12,8 +12,10 @@ AI 개념을 답부터 읽지 않고 10초 동안 내 말로 설명해보는 모
 - 답을 보기 전 소리 내어 설명하고 `알았다 / 애매했다 / 몰랐다`로 기록한다.
 - 마스코트 `텐이`, 연속 학습, 5개 성장 레벨과 0–100 설명력 점수를 제공한다.
 - 용어집 검색, 카테고리 필터, 약한 질문 다시 보기, 친구에게 문제 내기를 제공한다.
+- 학습·용어집·기록·프로필의 네 화면을 floating glass navigation으로 이동한다.
+- 모든 화면에서 라이트·다크·기기 설정을 바로 바꾼다. 신규 사용자는 라이트가 기본이고 이후 선택은 기기에 유지한다.
 
-설명력 점수는 검토한 39개 질문 전체를 분모로 `알았다=1`, `애매했다=0.5`, `몰랐다=0`을 합산해 반올림한다. 시험·지능·절대 실력 점수가 아니라 이 기기에 기록된 학습 진도다.
+설명력 점수는 현재 127개 질문 전체를 분모로 `알았다=1`, `애매했다=0.5`, `몰랐다=0`을 합산해 반올림한다. 시험·지능·절대 실력 점수가 아니라 이 기기에 기록된 학습 진도다.
 
 ## 기술 기준
 
@@ -23,6 +25,7 @@ AI 개념을 답부터 읽지 않고 10초 동안 내 말로 설명해보는 모
 - Biome 2 formatter/linter
 - Vitest 4 + Testing Library
 - standalone 전용 `vite-plugin-pwa`
+- opt-in Sentry JavaScript error monitoring
 - npm과 exact dependency versions
 
 공식 TDS WebView template은 현재 React 18 범위를 사용하므로 MVP는 React 19와 자체 design tokens를 사용한다. TDS가 React 19를 공식 지원할 때 UI adapter 계층에서 다시 평가한다.
@@ -47,29 +50,37 @@ LAN 개발 서버에는 도메인이 필요 없다. 집 밖에서도 계속 사�
 
 | 프로파일 | 용도 | 사용자 진도·설정 | 정적 콘텐츠 | 오프라인 |
 |---|---|---|---|---|
-| `local` | 개발·LAN 휴대폰 테스트 | browser `localStorage` | JS bundle | 개발 서버 의존 |
-| `standalone` | 설치형 웹/PWA | browser `localStorage` | service worker cache | 첫 로드 뒤 지원 |
-| `prd` | Apps in Toss | 공식 native `Storage` adapter | `.ait` bundle | 플랫폼 정책에 따름 |
+| `local` | 개발·LAN 휴대폰 테스트 | browser `localStorage` | versioned JSON asset | 개발 서버 의존 |
+| `standalone` | 설치형 웹/PWA | browser `localStorage` | versioned JSON + service worker cache | 첫 로드 뒤 지원 |
+| `prd` | Apps in Toss | 공식 native `Storage` adapter | versioned JSON in `.ait` | 플랫폼 정책에 따름 |
 
-현재 별도 DB는 없다. 질문은 앱 bundle에, 닉네임·목표·자기평가·학습일은 선택한 프로파일의 기기 저장소에만 남는다. 브라우저 site data, Toss 앱 또는 기기를 삭제하면 사라질 수 있고 기기 간 동기화되지 않는다.
+현재 별도 DB는 없다. 질문은 typed corpus에서 build-time에 만든 versioned JSON asset으로 앱에 포함되고, 닉네임·목표·자기평가·학습일·화면 모드는 선택한 프로파일의 기기 저장소에만 남는다. 브라우저 site data, Toss 앱 또는 기기를 삭제하면 사라질 수 있고 기기 간 동기화되지 않는다.
 
-환경값은 `.env.development`, `.env.standalone`, `.env.production`에 분리돼 있다. 광고 flag는 모든 MVP 프로파일에서 `false`다.
+환경값은 `.env.development`, `.env.standalone`, `.env.production`에 분리돼 있다. 광고 flag는 모든 MVP 프로파일에서 `false`다. 6개 placement와 실패 시 자동 collapse contract만 있고 공식 광고 SDK·ID는 아직 연결하지 않았다. `VITE_SENTRY_DSN`도 기본값이 비어 있어 local/preview에서는 SDK를 불러오거나 외부로 요청하지 않는다.
+
+Sentry를 사용할 때는 commit되지 않는 `.env.production.local` 또는 `.env.standalone.local`에 client DSN만 넣는다. auth token과 Slack webhook은 browser 환경변수에 넣지 않는다.
 
 ## 명령어
 
 ```bash
 npm run check             # Biome format/lint gate
+npm run check:architecture # import boundary, export, CSS token gate
 npm run typecheck         # TypeScript project check
 npm run test              # domain, adapter, component regression tests
 npm run eval              # content contract + golden-set release gate
 npm run eval:fingerprint  # manifest/cases/corpus SHA-256
+npm run build:content     # typed corpus → cache-safe versioned JSON asset
+npm run check:bundle      # JS/CSS/.ait budget과 platform 격리 확인
 npm run build:standalone  # dist-standalone PWA
 npm run build:web         # dist production web bundle
 npm run build:ait         # Apps in Toss package
-npm run verify            # check → types → tests → eval → web/.ait build
+npm run build             # Apps web + standalone + .ait + bundle budget
+npm run verify            # check → types → tests → eval → 전체 release build
 ```
 
 `npm run deploy`는 외부 배포이므로 명시적 승인 없이 실행하지 않는다.
+
+현재 CI/CD와 공개 배포 대상은 없다. local `npm run verify`가 release pipeline의 기준이며, remote repository가 정해지면 GitHub Actions quality CI를 먼저 추가한다. Apps in Toss는 console/Sandbox/Toss app test를 거쳐 `.ait`를 승격하고, standalone은 선택한 HTTPS static host에 `dist-standalone/`을 배포한다.
 
 ## AI-native 개발 루프
 
@@ -83,7 +94,7 @@ interview/spec → versioned prompt → candidate → schema
 - 제품 원천 기준: `docs/specs/`, `CONTEXT.md`, `docs/adr/`
 - AI 출력 계약: `schemas/study-question.v1.schema.json`
 - versioned 작성 prompt: `prompts/question-authoring.v1.md`
-- 앱에 들어가는 검수 corpus: `src/content/sample-questions.ts`
+- 앱에 들어가는 검수 corpus: `src/content/sample-questions.ts`, `src/content/roadmap-questions/`
 - 독립 평가 기준: `assets/evals/eval-manifest.v1.json`, `golden-set.v1.jsonl`
 - deterministic grader: `src/evaluation/content-evaluator.ts`
 
@@ -100,17 +111,28 @@ AI 출력은 candidate일 뿐 사실의 원천이 아니다. 100% gate와 사람
 ```text
 src/app                  composition root, runtime config
 src/domain/learning      순수 목표·세션·진도·점수 규칙
+src/domain/preferences   화면 모드 같은 기기 preference 규칙
 src/application/ports    content/storage/share/telemetry 계약
-src/content              현재 static repository와 검수 질문
+src/content              검수 질문, versioned asset metadata와 lazy repository
 src/evaluation           provider-neutral deterministic graders
-src/features             onboarding/study/library/progress/ad UI
-src/shared               storage·telemetry adapters와 공용 UI
+src/features             onboarding/study/library/progress/profile/ad UI
+src/infrastructure       browser/Toss storage, theme, share, Sentry, unavailable-ad adapters
+src/shared               cross-feature UI
 assets/evals             versioned golden suites
 schemas / prompts        AI candidate contract와 작성 정책
 docs                     spec, ADR, roadmap, release evidence
 ```
 
-도메인은 React, browser API, Apps SDK를 import하지 않는다. 콘텐츠 API, native storage, remote telemetry, 광고 provider는 port/adapter 경계 뒤에서 교체한다. 지금 필요하지 않은 backend나 범용 framework는 넣지 않았다.
+도메인은 React, browser API, Apps SDK, Sentry를 import하지 않는다. 콘텐츠 API, native storage, error monitoring, 광고 provider는 port/adapter 경계 뒤에서 교체한다. platform storage는 build mode에서 선택하므로 standalone bundle에는 Apps SDK가 들어가지 않는다. 지금 필요하지 않은 backend나 범용 framework는 넣지 않았다.
+
+## 배포 구조
+
+- Apps in Toss: `dist/` → `ai-concept-quiz.ait` → console의 Sandbox/review/release
+- standalone/domain: `dist-standalone/` → HTTPS static host
+- 두 artifact는 같은 commit과 SemVer에서 만들지만 저장소는 서로 독립적이다.
+- custom domain은 나중에 붙일 수 있고 Apps in Toss와 동시에 운영할 수 있다.
+
+자세한 hosting/cache/rollback 계약은 [dual delivery](docs/deployment/dual-delivery.md), 오류 운영은 [observability](docs/observability.md)와 [incident runbook](docs/runbooks/client-incident.md)에 있다.
 
 ## 콘텐츠 추가
 
@@ -132,6 +154,9 @@ Notion은 Phase 1에서 작성 UI로 사용할 수 있지만 source of truth는 
 - [Backlog](TODO.md)
 - [Versioning](docs/release/versioning.md)
 - [Release checklist](docs/release/release-checklist.md)
-- [Current verification](docs/work/ai-concept-quiz-mvp/verification.md)
+- [Current verification](docs/work/mvp-release-hardening/verification.md)
+- [Release hardening spec](docs/specs/mvp-release-hardening.md)
+- [Apps in Toss policy notes](docs/release/apps-in-toss-policy-notes.md)
+- [Dual delivery](docs/deployment/dual-delivery.md)
 
 Apps in Toss 콘솔 등록, Sandbox 실기기 검증, static hosting, 광고 활성화, 원격 저장소 push는 아직 수행하지 않는다.

@@ -2,10 +2,14 @@
 
 ## v1.0.0 launch gate
 
-- [ ] 39개 질문을 사람이 최종 사실 검수
+- [ ] 127개 질문을 사람이 최종 사실·수식·난이도 검수
 - [ ] Apps in Toss 콘솔에서 `appName`, display name, icon 확정
 - [ ] Sandbox App iOS/Android 실기기 QA
+- [ ] Sandbox에서 system/light/dark, VoiceOver/TalkBack, 200% text를 확인
 - [ ] 최신 출시·개인정보·공유 정책 재확인
+- [ ] 서비스 전용 고객센터 email/contact를 만들고 Apps 콘솔 공통 navigation에 등록
+- [ ] Sentry project/DSN과 email alert를 설정하고 privacy-safe test error 1건 확인
+- [ ] source map을 credential이 있는 환경에서 공식 upload flow로 전송
 - [x] `.ait` checksum과 verification packet 기록
 - [ ] 승인 후에만 upload/deploy와 `v1.0.0` tag 생성
 
@@ -28,7 +32,11 @@
 
 ## Reliability and data
 
-- [ ] public acquisition 전 remote error tracking ADR
+- [x] opt-in Sentry error adapter와 privacy scrubber
+- [x] mobile bundle budget과 client incident runbook
+- [x] 전역 light/dark/system preference와 strict release CSP
+- [ ] Apps console FPS/crash/load/memory dashboard release baseline
+- [ ] Sentry quota/alert owner/source-map upload 외부 설정
 - [ ] privacy-safe event dictionary와 retention funnel
 - [ ] storage quota/corruption/migration browser test
 - [ ] static content update 또는 cloud sync 요구가 생기면 API/DB spec
@@ -38,10 +46,13 @@
 
 - [ ] MAU·session·retention baseline과 광고 예상 수익 계산
 - [ ] Apps in Toss 최신 광고 정책과 사업자·세무 조건 확인
-- [ ] session-complete placement provider adapter
-- [ ] `study-bottom-banner`에 320×50/adaptive banner provider adapter 연결
-- [ ] AdMob 등 후보 provider의 Apps in Toss 지원·심사·동의 요건을 활성화 직전에 확인
-- [ ] frequency cap, failure fallback, no-ad control A/B test
+- [ ] 수익화 가능한 사업자·정산 상태를 먼저 확인
+- [ ] 수익형 교육 서비스 자격 조건이 이 앱에 적용되는지 console/review 사전 확인
+- [ ] Apps in Toss 공식 Toss Ads/AdMob 통합 adapter와 운영 광고 그룹 ID 연결
+- [x] 홈·용어집·기록·프로필·학습 하단 banner와 세션 완료 전면형 후보 6개 placement 확보
+- [x] No Fill·실패·미지원 시 구좌 자동 collapse contract와 regression test
+- [ ] console에서 앱 category 기반 광고 그룹 category 확인; 특정 입시·이직 소재는 보장하지 않음
+- [ ] WebView 5.241 미만 fallback, 실제 QR test, frequency cap, no-ad control A/B test
 - [ ] 유료 콘텐츠 또는 구독은 반복 사용자 문제 확인 후 별도 검토
 
 ## Growth and community
@@ -58,5 +69,8 @@
 ## Platform expansion
 
 - [ ] custom domain은 retention/brand 병목 확인 뒤 신청
+- [ ] standalone hosting provider를 고른 뒤 HTTPS, SPA fallback, cache header, rollback 설정
+- [ ] remote repository를 만든 뒤 GitHub Actions CI 도입 여부 결정
+- [ ] CI 도입 시 quality gate만 먼저 실행하고 공개 CD는 protected approval 뒤 분리
 - [ ] push/deep link/widget 요구가 생기면 Capacitor vs React Native ADR
 - [ ] 유지 가능한 MAU/수익 뒤 App Store·Play Store release train 검토

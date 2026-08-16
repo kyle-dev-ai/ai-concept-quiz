@@ -3,10 +3,10 @@ import { categoryIds } from '../domain/learning/question'
 import { sampleQuestions } from './sample-questions'
 
 describe('sampleQuestions', () => {
-  it('39개의 중복 없는 샘플 ID를 제공한다', () => {
+  it('127개의 중복 없는 질문 ID를 제공한다', () => {
     const ids = sampleQuestions.map((question) => question.id)
 
-    expect(sampleQuestions).toHaveLength(39)
+    expect(sampleQuestions).toHaveLength(127)
     expect(new Set(ids).size).toBe(ids.length)
   })
 
@@ -24,6 +24,26 @@ describe('sampleQuestions', () => {
     const usedCategories = new Set(sampleQuestions.map((question) => question.category))
 
     expect(categoryIds.every((category) => usedCategories.has(category))).toBe(true)
+  })
+
+  it('입시 핵심 범위를 의도한 카테고리 비율로 유지한다', () => {
+    const categoryCounts = Object.fromEntries(
+      categoryIds.map((category) => [
+        category,
+        sampleQuestions.filter((question) => question.category === category).length,
+      ]),
+    )
+
+    expect(categoryCounts).toEqual({
+      math: 20,
+      ml: 21,
+      dl: 16,
+      transformer: 19,
+      llm: 17,
+      rag: 13,
+      agent: 12,
+      'ai-system': 9,
+    })
   })
 
   it('각 질문에 답과 두 개 이상의 핵심 포인트가 있다', () => {

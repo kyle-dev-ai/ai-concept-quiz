@@ -7,6 +7,11 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "#platform-key-value-store": ["./src/infrastructure/storage/browser-key-value-store.ts"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",

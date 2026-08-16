@@ -12,6 +12,11 @@ describe('OnboardingScreen', () => {
     render(<OnboardingScreen onComplete={onComplete} />)
 
     await user.click(screen.getByRole('button', { name: /대학원 준비·재학/ }))
+    expect(document.querySelector('.onboarding')).toHaveAttribute('data-engaged', 'true')
+    expect(screen.getByRole('button', { name: /대학원 준비·재학/ })).toHaveAttribute(
+      'data-selected',
+      'true',
+    )
     await user.click(screen.getByRole('button', { name: '저장하고 시작하기' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('저장하지 못했어요')

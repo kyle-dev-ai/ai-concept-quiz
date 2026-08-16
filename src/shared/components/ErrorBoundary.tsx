@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Component, type ReactNode } from 'react'
 import type { Telemetry } from '../../application/ports/telemetry'
 
 interface ErrorBoundaryProps {
@@ -17,10 +17,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { hasError: true }
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  public componentDidCatch(error: Error): void {
     this.props.telemetry.captureException(error, {
       area: 'react-error-boundary',
-      operation: errorInfo.componentStack ?? undefined,
+      operation: 'render',
     })
   }
 

@@ -13,6 +13,7 @@ dist-ssr
 dist-standalone
 *.local
 /specs/
+/public/generated/
 .playwright-cli/
 output/
 

@@ -1,6 +1,7 @@
 import type { StudyQuestion } from '../domain/learning/question'
+import { roadmapQuestions } from './roadmap-question-bank.ts'
 
-export const sampleQuestions = [
+const coreQuestions = [
   {
     id: 'math-vector-dot-product',
     category: 'math',
@@ -621,4 +622,9 @@ export const sampleQuestions = [
     followUp: 'LLM-as-a-judge를 사용할 때 편향과 재현성은 어떻게 검증하나요?',
     prerequisites: ['agent-memory-evaluation', 'ml-train-validation-test'],
   },
+] as const satisfies readonly StudyQuestion[]
+
+export const sampleQuestions = [
+  ...coreQuestions,
+  ...roadmapQuestions,
 ] as const satisfies readonly StudyQuestion[]
