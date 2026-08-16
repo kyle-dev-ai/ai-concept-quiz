@@ -31,8 +31,8 @@
 | AI evaluation | Node 24 + `scripts/eval-content.mjs` | GO | 39 questions, 17 cases, contract/golden/category 100% |
 | Content fingerprint | deterministic SHA-256 | PASS | `150eb920a15a7364984ea42dea6b01f730d031b47b32744fed7f6e2ee228762d` |
 | Production web build | Node 24 + Vite production build | PASS | 95 modules; main 274.01 kB / 86.64 kB gzip; CSS 34.44 kB / 7.40 kB gzip |
-| Apps in Toss package | Node 24 + Apps CLI build | PASS | `ai-concept-quiz.ait`, deployment ID `01a00916-473a-707f-96a0-c86b89a59b02` |
-| Artifact integrity | `shasum -a 256 ai-concept-quiz.ait` | PASS | `d26ea990e181917e1ebaf3692b805d63879324ef3499a6bf459ccedc2bc27f8b`, 122,748 bytes |
+| Apps in Toss package | Node 24 + Apps CLI build | PASS | `ai-concept-quiz.ait`, deployment ID `01a0091b-d2d5-7e6e-acd6-4c7d824ef788` |
+| Artifact integrity | `shasum -a 256 ai-concept-quiz.ait` | PASS | `e66b522efb211e81b9926ee6594191b557366a0d3cd4bbfbeeaad6ca5b2b2933`, 122,746 bytes |
 | Standalone PWA | Node 24 + Vite standalone build | PASS | manifest, service worker, 7 precache entries / 369.33 KiB |
 | Production dependencies | `npm audit --omit=dev` | PASS | 0 vulnerabilities |
 | All dependencies | `npm audit` | PASS | 0 vulnerabilities |
