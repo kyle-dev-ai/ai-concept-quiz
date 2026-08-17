@@ -57,7 +57,29 @@
   LLM 5문항(구조화 출력, 프롬프트 접두 캐싱, TTFT·TPOT, 프롬프트 규칙 비용, 가드 배치),
   AI System 8문항(오프라인·온라인 평가, LLM-as-judge, 평가 증거, 기준선 게이트, 트레이스 계층,
   프롬프트 버전 관리, 비용 귀속, 임계값 측정) — 질문별 golden case 25개
-- Dataset result: version `1.3.0`, 8개 category, 총 162개 질문
+- Dataset result: version `1.3.0`, 8개 category, 총 162개 질문 (당시 기준)
+
+## source-2026-08-17-notion-ml-dl-study-gap
+
+- Source: 사용자가 붙여넣은 Notion 학습 노트 (8/16 ML 기초, 8/17 DL·Neural Network)
+- Read date: 2026-08-17
+- 대조 결과: 노트가 다룬 개념(AI/ML/DL 관계, BERT vs GPT, 지도·비지도·자기지도, Feature/Label,
+  Train/Validation/Test, Parameter/Hyperparameter, Overfitting/Underfitting, Loss·MSE·MAE·
+  Cross Entropy, Gradient·Gradient Descent·Learning Rate, Perceptron·Weight/Bias·Activation,
+  Forward/Backpropagation·Chain Rule, SGD/Adam, PyTorch 학습 loop)는 **기존 문항에 모두 존재**해
+  중복 추가하지 않았다.
+- Author: Claude(AI candidate)가 작성, 표준 교과 수준. 사람 사실 검수 대기
+- Output: 노트의 학습 흐름이 끝나는 지점 바로 다음의 공백 12문항
+  - DL 7: `dl-early-stopping`, `dl-weight-decay-adamw`, `dl-learning-rate-schedule`,
+    `dl-momentum-optimization`, `dl-gradient-clipping`, `dl-representation-learning`,
+    `dl-transfer-learning`
+  - Math 2: `math-convexity-saddle-point`, `math-central-limit-theorem`
+  - ML 3: `ml-feature-scaling`, `ml-data-augmentation`, `ml-dimensionality-reduction-compare`
+  - 질문별 golden case 12개
+- 근거: 노트가 optimizer를 SGD/Adam 소개까지만 다루고 AdamW·스케줄·momentum·clipping을
+  남겨둔 점, "DL은 유용한 표현을 직접 학습"이라는 서술이 표현 학습·전이학습으로 이어지지 않은 점,
+  통계와 최적화 이론(중심극한정리, convexity·안장점)이 비어 있던 점
+- Dataset result: version `1.4.0`, 8개 category, 총 174개 질문
 
 ## source-2026-08-16-public-admissions-research
 

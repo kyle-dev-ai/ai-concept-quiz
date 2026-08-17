@@ -9,7 +9,7 @@ const manifest: ContentEvalManifest = {
   capability: 'AI 개념 학습 콘텐츠 품질',
   locale: 'ko-KR',
   timeZone: 'Asia/Seoul',
-  expectedQuestionCount: 162,
+  expectedQuestionCount: 174,
   expectedCategories: ['math', 'ml', 'dl', 'transformer', 'llm', 'rag', 'agent', 'ai-system'],
   repetitions: 1,
   graders: [{ id: 'content-contract', version: '1.0.0', kind: 'deterministic' }],

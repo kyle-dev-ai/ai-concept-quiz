@@ -14,6 +14,10 @@
 - Dataset `1.3.0`: AI 실무 공통 개념 25문항 추가(임베딩·검색 5, 에이전트 메모리·도구 7,
   LLM 추론·설계 5, 평가·관측성 8)과 질문별 golden case 25개. 총 162문항.
   회사·프로젝트 종속 정보와 인프라 실무 문항은 앱에 반영하지 않았다.
+- Dataset `1.4.0`: 학습 노트 대조 후 공백 12문항 추가 — 최적화·학습 운영(early stopping,
+  AdamW, 학습률 스케줄, momentum, gradient clipping), 표현 학습과 전이학습,
+  최적화 이론(convexity·안장점)과 중심극한정리, 전처리(feature scaling, augmentation,
+  차원 축소 비교). 질문별 golden case 12개. 총 174문항.
 
 ## [1.0.0] - 2026-08-16
 

@@ -234,4 +234,55 @@ export const mlRoadmapQuestions = [
     followUp: 'k를 키우면 bias와 variance는 각각 어느 쪽으로 움직이나요?',
     prerequisites: ['math-vector-dot-product', 'ml-overfitting-bias-variance'],
   },
+  {
+    id: 'ml-feature-scaling',
+    category: 'ml',
+    difficulty: 'foundation',
+    term: 'Feature Scaling · Standardization',
+    prompt: '입력 feature의 단위를 맞춰주는 작업이 어떤 모델에서 특히 중요한가요?',
+    shortAnswer:
+      '거리로 유사도를 재거나 gradient로 학습하는 모델에서 중요합니다. 나이와 연봉처럼 범위가 크게 다르면 큰 값을 가진 feature가 거리와 gradient를 지배해 다른 feature가 무시됩니다. 반면 트리 계열은 값의 크기가 아니라 대소 비교로 분기하므로 영향이 거의 없습니다.',
+    deepAnswer:
+      '평균 0, 분산 1로 맞추는 표준화와 0~1 범위로 옮기는 정규화가 대표적이며, 이상치가 있으면 최소·최대에 의존하는 방식이 크게 흔들립니다. 중요한 것은 변환 기준을 train 데이터에서만 계산해 validation과 test에 그대로 적용해야 한다는 점이며, 전체 데이터로 기준을 만들면 미래 정보가 새어 들어가는 leakage가 됩니다.',
+    keyPoints: [
+      '거리 기반·gradient 기반 모델은 스케일에 민감, 트리는 둔감',
+      '변환 기준은 train에서만 계산해야 leakage를 막음',
+    ],
+    followUp: '스케일링 기준을 전체 데이터로 계산하면 어떤 문제가 생기나요?',
+    prerequisites: ['math-mean-variance-standard-deviation', 'ml-feature-label-prediction'],
+  },
+  {
+    id: 'ml-data-augmentation',
+    category: 'ml',
+    difficulty: 'intermediate',
+    term: 'Data Augmentation · Invariance',
+    prompt: '데이터 증강이 과적합을 줄이는 원리와 조심할 점은 무엇인가요?',
+    shortAnswer:
+      '정답이 바뀌지 않는 변형을 가해 데이터를 늘리면서, 모델에게 "이 정도 변화에는 답이 달라지지 않는다"는 성질을 가르치는 것입니다. 그래서 단순히 양을 늘리는 것이 아니라 우리가 아는 불변성을 주입하는 규제로 봐야 합니다.',
+    deepAnswer:
+      '변형이 정답을 바꾸면 오히려 잘못된 라벨을 학습시키므로, 좌우 반전이 의미를 바꾸는 글자나 의료 영상처럼 도메인에 따라 허용 범위가 다릅니다. 또 실제로 등장하지 않는 왜곡을 과하게 넣으면 train 분포가 배포 환경과 멀어집니다. 증강은 train에만 적용하고 validation과 test는 원본으로 두어야 성능을 정직하게 측정할 수 있습니다.',
+    keyPoints: [
+      '라벨이 보존되는 변형으로 불변성을 주입하는 규제',
+      '증강은 train에만 적용해야 평가가 정직해짐',
+    ],
+    followUp: '숫자 6 이미지를 상하 반전해 증강하면 어떤 문제가 생기나요?',
+    prerequisites: ['ml-overfitting-bias-variance'],
+  },
+  {
+    id: 'ml-dimensionality-reduction-compare',
+    category: 'ml',
+    difficulty: 'intermediate',
+    term: 'PCA vs t-SNE · UMAP',
+    prompt: 'PCA와 t-SNE 같은 시각화용 차원 축소는 용도가 어떻게 다른가요?',
+    shortAnswer:
+      'PCA는 선형 변환이라 결과를 되돌리거나 다른 모델의 입력으로 쓰기 좋고 전체 분산 구조를 보존합니다. t-SNE나 UMAP은 비선형으로 이웃 관계를 살려 2차원에 보기 좋게 펼치는 시각화 도구라 그 좌표를 feature로 그대로 쓰기는 부적절합니다.',
+    deepAnswer:
+      '시각화 방법의 그림에서 군집 사이의 거리나 덩어리 크기는 대체로 의미가 없고, 설정값이나 난수에 따라 모양이 크게 달라져 같은 데이터도 다르게 보입니다. 그래서 "잘 갈라져 보인다"를 성능 근거로 삼으면 안 되고 실제 지표로 확인해야 합니다. 전처리와 압축이 목적이면 PCA 계열을, 사람 눈으로 구조를 탐색하는 것이 목적이면 시각화 방법을 선택합니다.',
+    keyPoints: [
+      'PCA는 전처리·압축용, t-SNE·UMAP은 탐색적 시각화용',
+      '시각화 그림의 군집 간 거리는 해석하면 안 됨',
+    ],
+    followUp: 't-SNE 그림에서 두 군집이 멀리 떨어져 보이면 실제로 많이 다른 데이터인가요?',
+    prerequisites: ['math-eigenvector-pca', 'ml-clustering-kmeans'],
+  },
 ] as const satisfies readonly StudyQuestion[]

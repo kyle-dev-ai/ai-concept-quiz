@@ -285,4 +285,38 @@ export const mathRoadmapQuestions = [
       'math-probability-distribution-expectation',
     ],
   },
+  {
+    id: 'math-convexity-saddle-point',
+    category: 'math',
+    difficulty: 'advanced',
+    term: 'Convexity · Local Minimum · Saddle Point',
+    prompt: '신경망의 loss가 convex가 아니라는 것은 학습에 어떤 의미인가요?',
+    shortAnswer:
+      'Convex 함수는 국소 최솟값이 곧 전역 최솟값이라 어디서 시작해도 같은 곳에 도달하지만, 신경망은 그렇지 않아 초기값과 경로에 따라 다른 해에 수렴합니다. 그래서 전역 최적을 보장할 수 없고 충분히 좋은 해를 찾는 문제로 다룹니다.',
+    deepAnswer:
+      '고차원에서는 모든 방향으로 올라가는 나쁜 국소 최솟값보다, 어떤 방향은 올라가고 어떤 방향은 내려가는 안장점과 평평한 구간이 더 흔하다고 보고됩니다. 기울기가 0에 가까워 진행이 느려지는 것이 주된 어려움이며, mini-batch의 noise와 momentum이 이런 구간을 빠져나오는 데 도움이 됩니다. Hessian의 고윳값 부호를 보면 그 지점이 최솟값인지 안장점인지 구분할 수 있습니다.',
+    keyPoints: [
+      'Convex가 아니면 전역 최적 보장이 사라짐',
+      '고차원에서는 나쁜 국소 최솟값보다 안장점·평탄 구간이 문제',
+    ],
+    followUp: '같은 구조를 다른 초기값으로 두 번 학습했더니 성능이 달랐다면 무엇을 의미하나요?',
+    prerequisites: ['math-jacobian-hessian-curvature', 'dl-gradient-descent-learning-rate'],
+  },
+  {
+    id: 'math-central-limit-theorem',
+    category: 'math',
+    difficulty: 'intermediate',
+    term: 'Central Limit Theorem · Standard Error',
+    prompt: '중심극한정리는 모델 성능을 측정할 때 어떤 근거가 되나요?',
+    shortAnswer:
+      '원래 데이터 분포가 어떻든 표본 평균의 분포는 표본 수가 커질수록 정규분포에 가까워진다는 정리입니다. 그래서 평가 점수 같은 평균값에 신뢰구간을 붙여 "이 차이가 우연일 수 있는가"를 판단할 수 있습니다.',
+    deepAnswer:
+      '표본 평균의 흔들림은 표본 수의 제곱근에 반비례해 줄어들므로, 오차를 절반으로 줄이려면 표본을 네 배로 늘려야 합니다. 이 때문에 작은 평가 세트에서 나온 1~2%p 차이는 우연일 가능성이 큽니다. 다만 표본이 서로 독립이고 분산이 유한해야 하며, 같은 사용자나 같은 문서에서 나온 표본이 섞이면 실제보다 오차를 작게 착각하게 됩니다.',
+    keyPoints: [
+      '표본 평균의 분포가 정규에 가까워져 신뢰구간이 가능',
+      '오차는 표본 수의 제곱근에 반비례해 감소',
+    ],
+    followUp: '평가 세트 100개에서 정확도가 2%p 올랐다면 개선이라고 말할 수 있나요?',
+    prerequisites: ['math-mean-variance-standard-deviation', 'math-gaussian-distribution'],
+  },
 ] as const satisfies readonly StudyQuestion[]

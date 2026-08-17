@@ -242,4 +242,123 @@ export const dlRoadmapQuestions = [
     followUp: 'GAN 대비 diffusion의 학습이 안정적인 이유와 그 대가는 무엇인가요?',
     prerequisites: ['math-gaussian-distribution', 'dl-gan-generator-discriminator'],
   },
+  {
+    id: 'dl-early-stopping',
+    category: 'dl',
+    difficulty: 'foundation',
+    term: 'Early Stopping · Patience',
+    prompt: 'Early Stopping은 무엇을 보고 학습을 멈추며 왜 규제 효과가 있나요?',
+    shortAnswer:
+      'Validation 성능이 더 이상 좋아지지 않고 일정 횟수 이상 정체하거나 나빠지면 학습을 멈춥니다. Train loss는 계속 내려가지만 validation이 꺾이는 지점부터가 과적합 구간이라, 그 전에 멈추는 것 자체가 모델 복잡도를 제한하는 규제로 작동합니다.',
+    deepAnswer:
+      'Validation 성능은 매 epoch 출렁이므로 한 번 나빠졌다고 바로 멈추지 않고 몇 번까지 참을지를 정해두며, 멈춘 시점이 아니라 가장 좋았던 시점의 파라미터를 복원해야 의미가 있습니다. 멈추는 기준으로 쓴 데이터로 최종 성능까지 보고하면 그 데이터에 유리한 지점을 고른 셈이라 성능이 부풀려지므로 test set은 따로 남겨야 합니다.',
+    keyPoints: [
+      'Validation이 꺾이는 지점 전에 멈춰 과적합을 제한',
+      '멈춘 시점이 아니라 최고 성능 시점의 파라미터를 복원',
+    ],
+    followUp: 'Validation 성능이 좋아졌다 나빠졌다를 반복하면 멈춤 기준을 어떻게 정하나요?',
+    prerequisites: ['ml-train-validation-test', 'ml-overfitting-bias-variance'],
+  },
+  {
+    id: 'dl-weight-decay-adamw',
+    category: 'dl',
+    difficulty: 'advanced',
+    term: 'Weight Decay · AdamW',
+    prompt: 'Weight Decay와 L2 Regularization은 왜 Adam에서 같지 않게 동작하나요?',
+    shortAnswer:
+      '단순 경사하강법에서는 L2 벌점을 loss에 더하는 것과 가중치를 조금씩 줄이는 것이 사실상 같습니다. 하지만 Adam은 gradient를 파라미터별 크기로 나눠 쓰기 때문에 L2로 더한 항까지 그 스케일에 휘둘려, 의도한 만큼 감쇠가 걸리지 않습니다.',
+    deepAnswer:
+      'AdamW는 그래서 감쇠를 gradient에 섞지 않고 파라미터를 직접 줄이는 별도 단계로 분리해, 적응적 스케일과 무관하게 일정한 감쇠가 걸리도록 합니다. 실무에서 Adam에 L2를 넣고 효과가 없다고 판단하는 흔한 오해가 여기서 나옵니다. 또 bias나 정규화 층의 스케일 파라미터에는 보통 감쇠를 걸지 않는데, 이들은 크기를 줄여야 할 이유가 다르기 때문입니다.',
+    keyPoints: [
+      'SGD에서는 같지만 적응적 optimizer에서는 달라짐',
+      'AdamW는 감쇠를 gradient와 분리해 적용',
+    ],
+    followUp: 'Bias와 normalization 파라미터에는 weight decay를 빼는 이유는 무엇인가요?',
+    prerequisites: ['ml-regularization-l1-l2', 'dl-backprop-sgd-adam'],
+  },
+  {
+    id: 'dl-learning-rate-schedule',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Learning Rate Schedule · Warmup',
+    prompt: '학습률을 처음부터 끝까지 고정하지 않고 바꾸는 이유는 무엇인가요?',
+    shortAnswer:
+      '초반에는 크게 움직여야 빠르게 좋은 영역으로 가지만, 후반에는 같은 크기로 움직이면 최적점 주변을 계속 지나쳐 수렴하지 못하기 때문입니다. 그래서 뒤로 갈수록 학습률을 줄여 미세하게 조정합니다.',
+    deepAnswer:
+      '반대로 아주 처음에는 학습률을 0에서 서서히 올리는 warmup을 두기도 합니다. 초기에는 적응적 optimizer의 통계 추정이 불안정하고 파라미터도 무작위 상태라, 첫 몇 스텝의 큰 업데이트가 학습을 망칠 수 있기 때문입니다. Batch size를 키우면 대체로 학습률도 함께 키우게 되므로 둘은 따로 볼 수 없는 값이며, 스케줄 자체가 최종 성능을 바꾸므로 비교 실험에서는 같은 스케줄로 맞춰야 공정합니다.',
+    keyPoints: [
+      '초반은 크게, 후반은 작게 움직여야 수렴',
+      'Warmup은 초기 불안정한 큰 업데이트를 막는 장치',
+    ],
+    followUp: '학습 후반에 학습률을 줄이지 않으면 loss 곡선이 어떤 모양이 되나요?',
+    prerequisites: ['dl-gradient-descent-learning-rate', 'dl-mini-batch-gradient'],
+  },
+  {
+    id: 'dl-momentum-optimization',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Momentum · Oscillation',
+    prompt: 'Momentum은 경사하강법의 어떤 문제를 완화하나요?',
+    shortAnswer:
+      '이전 gradient들을 누적한 방향을 함께 쓰기 때문에, 방향이 계속 바뀌는 축에서는 서로 상쇄되어 진동이 줄고 방향이 일관된 축에서는 속도가 붙습니다. 좁고 긴 골짜기 모양의 loss에서 지그재그로 왔다 갔다 하는 낭비를 줄여줍니다.',
+    deepAnswer:
+      '기울기가 축마다 심하게 다른 상황에서 순수 경사하강법은 가파른 축을 따라 튕기느라 완만한 축으로는 거의 못 나아갑니다. Momentum은 최근 gradient의 지수 이동 평균을 쓰는 것과 같아 이 불균형을 완화하며, 값이 너무 크면 최적점을 지나쳐 흔들릴 수 있어 학습률과 함께 조정해야 합니다. Adam은 이 1차 모멘트에 더해 크기의 2차 모멘트까지 사용해 파라미터별로 보폭을 조절합니다.',
+    keyPoints: [
+      '진동하는 축은 상쇄되고 일관된 축은 가속',
+      '최근 gradient의 이동 평균을 쓰는 것과 같은 효과',
+    ],
+    followUp: 'Momentum 계수를 1에 가깝게 키우면 어떤 부작용이 생길 수 있나요?',
+    prerequisites: ['dl-backprop-sgd-adam', 'math-gradient-partial-derivative'],
+  },
+  {
+    id: 'dl-gradient-clipping',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Gradient Clipping · Norm',
+    prompt: 'Gradient Clipping은 무엇을 막고 어떤 한계가 있나요?',
+    shortAnswer:
+      '한 스텝의 gradient 크기가 정해둔 한계를 넘으면 방향은 유지한 채 크기만 줄여, 한 번의 폭주 업데이트가 학습을 망치는 것을 막습니다. 손실이 갑자기 튀거나 값이 발산하는 학습을 안정시키는 데 쓰입니다.',
+    deepAnswer:
+      '크기를 자르는 방식은 방향을 보존하지만 각 성분을 따로 자르는 방식은 방향까지 바뀌므로 구현을 구분해야 합니다. 다만 clipping은 증상을 억제할 뿐이라 학습률이 너무 크거나 초기화·정규화가 잘못된 근본 원인을 같이 찾아야 하고, 한계값을 너무 낮게 잡으면 정상적인 큰 gradient까지 눌러 학습이 느려집니다.',
+    keyPoints: [
+      '크기만 줄여 한 번의 폭주 업데이트를 차단',
+      '원인 해결이 아니라 증상 억제라는 한계',
+    ],
+    followUp: 'Clipping을 걸었더니 학습이 오히려 느려졌다면 무엇을 확인해야 하나요?',
+    prerequisites: ['dl-vanishing-exploding-gradient'],
+  },
+  {
+    id: 'dl-representation-learning',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Representation Learning · Hidden Layer',
+    prompt: '사람이 특징을 설계하는 것과 신경망이 표현을 학습하는 것은 무엇이 다른가요?',
+    shortAnswer:
+      '고전적인 방식은 사람이 도메인 지식으로 어떤 값을 입력으로 쓸지 직접 정하지만, 신경망은 hidden layer를 거치며 과제에 유용한 표현을 스스로 만들어냅니다. 그래서 hidden layer는 계산 층이 아니라 학습되는 특징 추출기라고 보는 것이 정확합니다.',
+    deepAnswer:
+      '층이 깊어질수록 단순한 패턴이 조합돼 더 추상적인 특징이 되고, 이 표현은 다른 과제에 재사용할 수 있어 전이학습의 근거가 됩니다. 대신 표현을 데이터로부터 얻는 만큼 더 많은 데이터와 계산이 필요하고 무엇을 학습했는지 해석하기 어렵습니다. 데이터가 적고 의미가 분명한 정형 데이터에서는 사람이 만든 특징과 트리 계열이 여전히 강한 이유이기도 합니다.',
+    keyPoints: [
+      'Hidden layer는 학습되는 특징 추출기',
+      '데이터·계산 비용과 해석 가능성을 대가로 지불',
+    ],
+    followUp: '정형 데이터에서 딥러닝이 트리 모델을 이기지 못하는 경우가 많은 이유는 무엇인가요?',
+    prerequisites: ['ml-feature-label-prediction', 'dl-perceptron-neural-network'],
+  },
+  {
+    id: 'dl-transfer-learning',
+    category: 'dl',
+    difficulty: 'intermediate',
+    term: 'Transfer Learning · Fine-Tuning',
+    prompt: '사전학습된 모델을 새 과제에 쓸 때 전체를 다시 학습하지 않는 이유는 무엇인가요?',
+    shortAnswer:
+      '앞쪽 층이 배운 일반적인 표현은 새 과제에도 대체로 쓸모가 있어 처음부터 배울 필요가 없기 때문입니다. 데이터가 적으면 앞쪽을 고정하고 출력 쪽만 새로 학습하고, 데이터가 충분하고 도메인이 다르면 더 많은 층을 함께 미세조정합니다.',
+    deepAnswer:
+      '적은 데이터로 전체를 큰 학습률로 다시 학습하면 기존에 배운 표현이 망가져 오히려 성능이 떨어질 수 있으므로, 사전학습된 층에는 더 작은 학습률을 쓰는 방식이 흔합니다. 원본 과제와 새 과제의 데이터 성격이 많이 다르면 전이 효과가 줄고 때로는 해가 되므로, 처음부터 학습한 baseline과 비교해 이득을 확인해야 합니다.',
+    keyPoints: [
+      '앞쪽의 일반적 표현을 재사용해 데이터·계산을 절약',
+      '데이터 양과 도메인 차이에 따라 고정 범위를 조절',
+    ],
+    followUp: '새 데이터가 아주 적을 때 전체를 미세조정하면 어떤 문제가 생기나요?',
+    prerequisites: ['dl-representation-learning', 'ml-train-validation-test'],
+  },
 ] as const satisfies readonly StudyQuestion[]
