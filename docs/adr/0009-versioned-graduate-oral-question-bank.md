@@ -9,7 +9,7 @@
 
 ## Decision
 
-- Dataset `1.7.0`은 8개 category의 197개 정적 Q&A로 구성한다.
+- Dataset `1.8.0`은 8개 category의 198개 정적 Q&A로 구성한다.
 - 사용자 Notion의 `2026.08`과 `2026 Plan`을 학습 범위의 원천으로 삼는다.
 - 최근 학교 공식 페이지는 전형 방식과 curriculum 확인에만 사용한다.
 - 공개된 1인칭 후기는 반복되는 topic과 질문 깊이의 참고 신호로만 사용한다.
@@ -21,8 +21,8 @@
 
 ## Consequences
 
-- 한 기기의 기존 진도는 stable question ID 기준으로 유지되지만 전체 분모가 39에서 197로 늘어 mastery score가 낮아질 수 있다.
+- 한 기기의 기존 진도는 stable question ID 기준으로 유지되지만 전체 분모가 39에서 198로 늘어 mastery score가 낮아질 수 있다.
 - 공개 후기와 deterministic string grader는 사실 검수와 실제 출제 가능성을 보장하지 않는다.
-- 출시 전 사람 검수자는 수학 기호, 조건, model별 예외와 한국어 표현을 197개 전체에서 확인해야 한다.
+- 출시 전 사람 검수자는 수학 기호, 조건, model별 예외와 한국어 표현을 198개 전체에서 확인해야 한다.
 - 이후 콘텐츠 수정은 dataset version과 changelog를 올리고 동일 golden regression을 통과해야 한다.
 - 질문 본문을 initial JavaScript와 분리해 WebView parse 비용을 낮추지만 첫 실행에는 local asset fetch가 추가되므로 bootstrap 오류와 runtime schema를 검증한다.

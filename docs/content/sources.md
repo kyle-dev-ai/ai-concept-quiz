@@ -131,7 +131,16 @@
   - `agent-vs-workflow`: 선수를 `llm-pretraining-next-token`에서 `agent-loop-basics`로
   - `llm-logits-softmax-probability`: hidden state·logit·softmax를 다루므로 중급으로 조정
 - 결과: `ai-basics` 목표에 `agent` 복원, 입문자 덱의 덱 밖 선수 요구 4건 → **0건**
-- Dataset result: version `1.7.0`, 8개 category, 총 197개 질문
+- 자체 검수 반영(2026-08-17): 기초 9문항을 `audit-content`로 재검수해 사실 2건과 진입로 결함을 수정했다.
+  - `agent-tool-calling-basics`: 실행 주체를 "앱"으로 단정하던 것을 서버 실행형 내장 도구까지 포함하도록 정정
+  - `transformer-attention-intuition`: attention 비중이 학습 파라미터인 것처럼 읽히던 서술을
+    "비중을 매기는 기준은 학습, 비중 값은 매번 계산"으로 분리
+  - `agent-what-is-an-agent` 신설: 197문항 어디에도 Agent를 평이하게 정의하는 문항이 없었다
+  - `transformer-contextual-meaning`: 선수를 `transformer-embedding`에서
+    `transformer-attention-intuition`으로 바꿔 진입로 안에 넣고, 핵심 포인트의 미정의어 "층" 제거
+  - 선수 순서 교정: 동기(`agent-why-tools-needed`) → 메커니즘(`agent-tool-calling-basics`) → 반복
+  - 반박 검증에서 기각된 3건(chunk 컨텍스트 한계, 문장 절단 원인, 자신감-정확도)은 원문 유지
+- Dataset result: version `1.8.0`, 8개 category, 총 198개 질문
 
 ## source-2026-08-16-public-admissions-research
 

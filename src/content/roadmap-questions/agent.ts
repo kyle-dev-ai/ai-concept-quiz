@@ -145,18 +145,38 @@ export const agentRoadmapQuestions = [
     prerequisites: ['agent-vs-workflow', 'system-evaluation-observability'],
   },
   {
+    id: 'agent-what-is-an-agent',
+    category: 'agent',
+    difficulty: 'foundation',
+    term: 'AI Agent',
+    prompt: '챗봇과 AI Agent는 무엇이 다른가요?',
+    shortAnswer:
+      '챗봇은 물어보면 답하고 끝납니다. Agent는 목표를 받으면 스스로 무엇을 할지 정하고, 필요하면 검색하거나 계산하면서 여러 단계를 거친 뒤 결과를 내놓습니다.',
+    deepAnswer:
+      '핵심은 다음에 무엇을 할지 사람이 아니라 모델이 정한다는 점입니다. 그래서 같은 질문에도 매번 다른 경로로 답할 수 있고, 몇 단계를 거칠지 미리 알 수 없습니다. 사람이 일일이 시키지 않아도 된다는 것이 장점이지만, 무슨 일이 일어날지 예측하기 어렵고 확인할 것도 그만큼 늘어납니다.',
+    keyPoints: [
+      '다음 행동을 사람이 아니라 모델이 정한다',
+      '경로가 매번 달라 결과를 예측하기 어렵다',
+    ],
+    followUp: '순서가 항상 똑같은 일이라면 Agent로 만들 이유가 있을까요?',
+    prerequisites: [],
+  },
+  {
     id: 'agent-tool-calling-basics',
     category: 'agent',
     difficulty: 'foundation',
     term: 'Tool Calling · Function Calling',
     prompt: 'LLM은 글만 만들어내는데 어떻게 검색이나 계산 같은 실제 작업을 하나요?',
     shortAnswer:
-      '모델이 직접 실행하는 게 아닙니다. 어떤 도구를 어떤 값으로 부를지 정해진 형식으로 적어 내면, 앱이 그것을 읽고 실제로 실행한 뒤 결과를 다시 모델에게 돌려줍니다.',
+      '모델이 직접 실행하는 게 아닙니다. 어떤 도구를 어떤 값으로 부를지 정해진 형식으로 적어 내면, 앱이나 제공사 서버가 그것을 대신 실행한 뒤 결과를 다시 모델에게 돌려줍니다.',
     deepAnswer:
       '이 방식을 tool calling 또는 function calling이라고 부릅니다. 실행 권한이 앱에 있으니 위험한 요청은 앱이 거절할 수 있고, 반대로 앱이 넘겨주지 않은 도구는 모델이 쓸 방법이 없습니다. 모델은 도구 설명만 보고 고르기 때문에 설명이 부실하면 엉뚱한 도구를 부릅니다.',
-    keyPoints: ['모델은 호출을 요청할 뿐 실행은 앱이 한다', '쓸 수 있는 도구와 권한은 앱이 정한다'],
+    keyPoints: [
+      '모델은 호출을 요청할 뿐 실행은 모델 밖에서 한다',
+      '쓸 수 있는 도구와 권한은 앱이 정한다',
+    ],
     followUp: '모델이 존재하지 않는 도구를 부르려 하면 무엇이 그것을 막나요?',
-    prerequisites: [],
+    prerequisites: ['agent-why-tools-needed'],
   },
   {
     id: 'agent-loop-basics',
@@ -170,7 +190,7 @@ export const agentRoadmapQuestions = [
       '이 반복을 agent loop라고 하며, 도는 횟수가 미리 정해져 있지 않고 상황에 따라 달라집니다. 그래서 답이 늦어지거나 비용이 예상보다 커질 수 있고, 잘못된 방향으로 계속 돌 수도 있습니다. 최대 횟수나 시간 같은 제동 장치를 함께 두는 이유입니다.',
     keyPoints: ['필요한 만큼 돌고 스스로 멈춘다', '반복 횟수가 고정이 아니라 제동 장치가 필요'],
     followUp: '같은 검색을 계속 반복하는 Agent는 무엇이 잘못된 걸까요?',
-    prerequisites: ['agent-tool-calling-basics'],
+    prerequisites: ['agent-what-is-an-agent', 'agent-tool-calling-basics'],
   },
   {
     id: 'agent-why-tools-needed',

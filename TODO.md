@@ -2,7 +2,7 @@
 
 ## v1.0.0 launch gate
 
-- [ ] 197개 질문을 사람이 최종 사실·수식·난이도 검수
+- [ ] 198개 질문을 사람이 최종 사실·수식·난이도 검수
 - [ ] Apps in Toss 콘솔에서 `appName`, display name, icon 확정 (v3는 콘솔 등록; config는 `primaryColor`만)
 - [ ] 콘솔에서 비게임 webview type(partner)과 앱 내 기능 1개 이상 등록
 - [x] 비게임 가이드에 따라 pinch zoom 비활성화 (`index.html` viewport)
