@@ -45,7 +45,12 @@
 - [ ] static content update 또는 cloud sync 요구가 생기면 API/DB spec
 - [ ] account를 도입할 때 export/delete/conflict resolution 정책
 
-## Monetization
+## 보류 — 대학원 준비를 1순위로 두는 동안
+
+수익화와 커뮤니티는 진행하지 않는다. 광고 수익은 이 사용 규모에서 의미가 없고,
+사업자·세무·정책 확인 비용이 기대 수익을 넘는다. 아래 두 절은 방향이 바뀔 때 다시 연다.
+
+## Monetization (보류)
 
 - [ ] MAU·session·retention baseline과 광고 예상 수익 계산
 - [ ] Apps in Toss 최신 광고 정책과 사업자·세무 조건 확인
@@ -59,7 +64,7 @@
 - [ ] 질문 은행 gzip이 128 KiB에 닿으면 예산을 올리지 말고 카테고리별 분할 로딩 도입
 - [ ] 유료 콘텐츠 또는 구독은 반복 사용자 문제 확인 후 별도 검토
 
-## Growth and community
+## Growth and community (보류)
 
 - [ ] 대학원 합격·AI 이직 후기의 카드 schema 정의: 목표, 준비 기간, 학습 경로, 도움 된 질문, 결과
 - [ ] 운영자가 검수한 익명 후기부터 static content 또는 Notion export로 제공

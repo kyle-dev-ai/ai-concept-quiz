@@ -206,6 +206,8 @@ function App({ dependencies = appDependencies }: AppProps) {
       scope,
       learningGoalById[profile.learningGoalId],
       learnerGroupById[profile.groupId],
+      Math.random,
+      progress,
     )
 
     if (queue.length === 0) {

@@ -16,6 +16,7 @@ import {
   type StudyQuestion,
   type StudyScope,
 } from '../../domain/learning/question'
+import { planReview } from '../../domain/learning/review'
 import {
   getDailyQuestion,
   maxSessionLength,
@@ -51,6 +52,9 @@ export function StudyHome({
   const learnerGroup = learnerGroupById[profile.groupId]
   const recommendedQuestions = questionsForScope(questions, 'recommended', goal, learnerGroup)
   const dailyQuestion = getDailyQuestion(recommendedQuestions)
+  const reviewPlan = planReview(recommendedQuestions, progress)
+  const sessionSize = Math.min(recommendedQuestions.length, maxSessionLength)
+  const dueInSession = Math.min(reviewPlan.due.length, Math.ceil(maxSessionLength * 0.6))
   const summary = summarizeProgress(progress)
   const masteryScore = calculateMasteryScore(progress, questions.length)
   const level = getLearnerLevel(masteryScore)
@@ -181,7 +185,9 @@ export function StudyHome({
             className="button button--ink button--wide"
             onClick={() => onStart('recommended')}
           >
-            추천 {Math.min(recommendedQuestions.length, maxSessionLength)}문제 시작
+            {dueInSession > 0
+              ? `복습 ${dueInSession}문제 포함해서 ${sessionSize}문제 시작`
+              : `추천 ${sessionSize}문제 시작`}
           </button>
         </div>
       </section>

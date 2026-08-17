@@ -1,6 +1,8 @@
 import type { LearningGoal } from './goal'
 import type { LearnerGroup } from './learner-profile'
+import type { LearningProgress } from './progress'
 import type { CategoryId, StudyQuestion, StudyScope } from './question'
+import { orderByReview } from './review'
 
 export type RandomSource = () => number
 
@@ -53,9 +55,19 @@ export function createStudyQueue(
   goal: LearningGoal,
   learnerGroup?: LearnerGroup,
   random: RandomSource = Math.random,
+  progress?: LearningProgress,
+  now = new Date(),
 ): StudyQuestion[] {
   const scoped = shuffleQuestions(questionsForScope(questions, scope, goal, learnerGroup), random)
-  return scoped.slice(0, maxSessionLength)
+
+  // `all`은 화면에 "순서 없이 꺼내기"라고 적혀 있으므로 섞은 순서를 그대로 둔다.
+  // 나머지 덱은 복습할 때가 된 문항을 앞으로 올린다. 같은 순위 안의 순서는 셔플이 정한다.
+  const ordered =
+    progress === undefined || scope === 'all'
+      ? scoped
+      : orderByReview(scoped, progress, maxSessionLength, now)
+
+  return ordered.slice(0, maxSessionLength)
 }
 
 export function getDailyQuestion(
