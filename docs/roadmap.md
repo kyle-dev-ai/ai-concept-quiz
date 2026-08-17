@@ -6,7 +6,7 @@
 
 목표는 “답을 보기 전 설명하고 자기평가하는 흐름을 반복해서 쓰는가”를 확인하는 것이다.
 
-- 185개 versioned 질문, 목표·학습자 추천, 성장 점수·레벨, 용어집
+- 188개 versioned 질문, 목표·학습자 추천, 성장 점수·레벨, 용어집
 - localStorage / Apps in Toss Storage adapter
 - standalone PWA와 Apps in Toss build
 - AI-native schema, prompt, golden-set gate

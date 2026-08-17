@@ -22,6 +22,9 @@
   padding mask, weight tying, label smoothing, dropout 위치)과 현대 구조(GQA·MQA,
   FlashAttention, MoE, RMSNorm, sliding window attention, scaling law).
   질문별 golden case 11개. 총 185문항.
+- Dataset `1.6.0`: AI System 기초 3문항 추가 — 일반 API와의 구조적 차이, 토큰이 비용·지연의
+  공통 단위, 비결정적 출력의 테스트 전략. 이 카테고리에 기초 문항이 없어 진입로가 없던 문제를
+  해소했다. 질문별 golden case 3개. 총 188문항.
 
 ## [1.0.0] - 2026-08-16
 

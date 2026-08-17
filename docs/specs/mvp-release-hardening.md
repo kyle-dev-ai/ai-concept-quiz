@@ -32,7 +32,7 @@
 - Sentry 조직·프로젝트 생성, DSN·auth token 발급 또는 외부 alert 전송 테스트
 - 실제 광고 SDK, 광고 그룹, 결제 또는 수익 정산 활성화
 - product analytics, 로그인, backend, DB 또는 cloud sync 추가
-- 185개 Q&A의 최종 사람 사실·수식·난이도 검수
+- 188개 Q&A의 최종 사람 사실·수식·난이도 검수
 
 ## Acceptance criteria
 
@@ -68,7 +68,7 @@
 - 각 profile initial JavaScript gzip: 125 KiB 이하.
 - 각 profile total JavaScript gzip: 300 KiB 이하. 이 중 약 156 KiB는 DSN이 설정될 때만 받는 optional Sentry chunk다.
 - 각 profile CSS gzip: 12 KiB 이하.
-- 185개 정적 질문과 현재 화면 단위에서는 runtime list virtualization을 도입하지 않는다. Library filtering은 memoization하며 실제 저사양 WebView에서 scroll 성능을 확인한다.
+- 188개 정적 질문과 현재 화면 단위에서는 runtime list virtualization을 도입하지 않는다. Library filtering은 memoization하며 실제 저사양 WebView에서 scroll 성능을 확인한다.
 - memory 결과는 desktop Chromium proxy로만 판정하며 iOS/Android WebView 실기기 확인을 출시 gate로 유지한다.
 
 ## Rollback

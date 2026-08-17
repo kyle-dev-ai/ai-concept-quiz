@@ -98,7 +98,18 @@
   - 질문별 golden case 11개
 - 서술 원칙: FlashAttention은 근사가 아니라 IO 최적화, sliding window는 결과가 달라지는 근사로
   명확히 구분했다. Scaling law는 특정 조건의 경험 법칙임을 명시했다.
-- Dataset result: version `1.5.0`, 8개 category, 총 185개 질문
+- Dataset result: version `1.5.0`, 8개 category, 총 185개 질문 (당시 기준)
+
+## source-2026-08-17-ai-system-foundation
+
+- Source: 카테고리별 난이도 분포 점검에서 AI System만 기초 문항이 0개라 진입로가 없던 문제
+- Author: Claude(AI candidate)가 작성, 표준 문서 수준. 사람 사실 검수 대기
+- Output 3문항: `system-llm-service-difference`(일반 API와의 구조적 차이),
+  `system-token-cost-latency-unit`(토큰이 비용·지연의 공통 단위),
+  `system-nondeterminism-testing`(비결정적 출력의 테스트 전략) — 질문별 golden case 3개
+- 중복 회피: 기존 `system-latency-cost`(중급, 조절 레버), `system-cost-attribution`(중급, 귀속 단위),
+  `system-evaluation-observability`(심화, 관측 설계)와 층위를 분리했다.
+- Dataset result: version `1.6.0`, 8개 category, 총 188개 질문
 
 ## source-2026-08-16-public-admissions-research
 

@@ -249,4 +249,52 @@ export const aiSystemRoadmapQuestions = [
     followUp: '모델을 새 버전으로 교체했는데 기존 임계값을 그대로 두면 무엇이 달라질 수 있나요?',
     prerequisites: ['ml-confusion-matrix-threshold', 'system-offline-online-eval'],
   },
+  {
+    id: 'system-llm-service-difference',
+    category: 'ai-system',
+    difficulty: 'foundation',
+    term: 'LLM Service · Design Difference',
+    prompt: 'LLM을 쓰는 기능은 일반적인 API 기능과 무엇이 구조적으로 다른가요?',
+    shortAnswer:
+      '응답이 초 단위로 느리고, 같은 입력에도 매번 다른 답이 나올 수 있으며, 요청마다 비용이 달라집니다. 그래서 기다리게 하지 않는 화면 설계, 결과가 흔들린다는 전제의 검증, 요청 단위 비용 관리가 처음부터 필요합니다.',
+    deepAnswer:
+      '일반 API는 빠르고 같은 입력에 같은 출력을 주며 요청당 비용이 거의 일정해서, 성공 여부만 보면 대체로 충분합니다. LLM 기능은 HTTP 200이어도 내용이 틀릴 수 있어 성공률과 품질을 따로 봐야 하고, 입력 길이에 따라 비용과 지연이 함께 늘어 트래픽이 늘면 요금이 선형 이상으로 커질 수 있습니다. 실패도 예외가 아니라 일상이라 대체 응답이나 기권 경로를 기본값으로 준비해야 합니다.',
+    keyPoints: ['느림·비결정성·가변 비용이라는 세 가지 차이', 'HTTP 성공과 답이 맞다는 것은 별개'],
+    followUp: '응답이 몇 초 걸린다는 사실은 화면 설계를 어떻게 바꾸나요?',
+    prerequisites: [],
+  },
+  {
+    id: 'system-token-cost-latency-unit',
+    category: 'ai-system',
+    difficulty: 'foundation',
+    term: 'Token · Cost and Latency Unit',
+    prompt: 'LLM 서비스에서 토큰이 왜 비용과 시간을 함께 재는 단위가 되나요?',
+    shortAnswer:
+      '모델은 토큰 단위로 입력을 읽고 토큰 단위로 답을 만들기 때문에, 토큰 수가 요금과 처리 시간을 동시에 결정합니다. 그래서 프롬프트를 줄이거나 답변 길이를 제한하는 것이 비용 절감이자 속도 개선이 됩니다.',
+    deepAnswer:
+      '입력 토큰과 출력 토큰은 성격이 달라 단가도 보통 다르고, 출력은 하나씩 순서대로 만들어지므로 길이가 늘수록 지연이 거의 비례해 커집니다. 반면 입력은 한 번에 처리돼 같은 토큰 수라도 시간에 미치는 영향이 다릅니다. 한글은 같은 의미라도 영어보다 토큰 수가 더 나올 수 있어 글자 수로 비용을 어림하면 어긋납니다.',
+    keyPoints: [
+      '토큰이 요금과 처리 시간을 함께 결정하는 공통 단위',
+      '입력과 출력은 단가도 지연에 미치는 영향도 다름',
+    ],
+    followUp: '답변 최대 길이를 절반으로 줄이면 비용과 지연 중 어느 쪽이 더 크게 줄어드나요?',
+    prerequisites: ['llm-tokenization-context-window'],
+  },
+  {
+    id: 'system-nondeterminism-testing',
+    category: 'ai-system',
+    difficulty: 'foundation',
+    term: 'Non-Determinism · Testing Strategy',
+    prompt: '같은 입력에 매번 다른 답이 나오는 기능은 어떻게 테스트하나요?',
+    shortAnswer:
+      '기대 문장과 정확히 같은지 비교하는 방식은 쓸 수 없으므로, 반드시 포함해야 할 내용과 절대 나오면 안 되는 내용, 형식과 길이 같은 성질을 검사합니다. 한 번의 결과로 판단하지 않고 여러 번 실행한 통과 비율로 봅니다.',
+    deepAnswer:
+      '무작위성을 없애는 설정을 써도 완전히 같은 출력이 보장되지는 않는데, 계산 순서나 실행 환경, 모델 버전 갱신에 따라 결과가 미세하게 달라질 수 있기 때문입니다. 그래서 테스트를 통과·실패의 이분법보다 통과율과 허용 범위로 다루고, 실패한 사례는 지우지 말고 검사 사례로 모아둡니다. 결정론적으로 만들 수 있는 부분은 코드로 고정해 검사할 표면을 줄이는 것도 중요한 전략입니다.',
+    keyPoints: [
+      '정확 일치 대신 필수·금지 내용과 형식을 검사',
+      '무작위성을 꺼도 완전한 재현은 보장되지 않음',
+    ],
+    followUp: '테스트가 열 번 중 아홉 번 통과한다면 이 기능은 통과인가요, 실패인가요?',
+    prerequisites: ['llm-temperature-top-p'],
+  },
 ] as const satisfies readonly StudyQuestion[]
