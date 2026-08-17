@@ -23,6 +23,13 @@
 - Use CSS design tokens from `src/index.css`; do not scatter raw brand colors through components.
 - Do not add dependencies without a concrete behavior or verification need.
 
+## Content review
+
+- `npm run eval`은 형식과 회귀만 본다. 사실 정확성은 잡지 못한다.
+- 콘텐츠를 추가한 뒤와 출시 전에는 `audit-content` 스킬로 사실·말투·범용성을 검수한다.
+- `npm run audit:style`은 길이, 반복 표현, 문항 간 복제, 난이도 공백처럼 셀 수 있는 것만 본다.
+- 검수 결과는 `docs/content/audit-*.md`에 남기고 `docs/content/sources.md`의 배치 상태를 갱신한다.
+
 ## Verification
 
 Run before handoff:

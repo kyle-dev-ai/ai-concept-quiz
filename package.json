@@ -24,6 +24,7 @@
     "eval:fingerprint": "node scripts/eval-content.mjs --fingerprint",
     "build:content": "node scripts/build-question-bank.mjs",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
+    "audit:style": "node scripts/audit-content-style.mjs",
     "prebuild:web": "npm run build:content",
     "build:web": "tsc -b && vite build --mode production",
     "prebuild:standalone": "npm run build:content",
