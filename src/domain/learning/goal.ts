@@ -24,10 +24,10 @@ export const learningGoals: readonly LearningGoal[] = [
     label: 'AI 기초·교양',
     shortLabel: 'AI 입문',
     description: '비개발자도 자주 듣는 AI 용어부터 부담 없이 시작해요.',
-    recommendation: 'ML의 큰 그림을 잡고 LLM → AI System으로 가볍게',
-    // Agent와 RAG는 기초 문항이 사실상 없어 입문자 덱에서 도달 불가능한 선수 참조를 만든다.
-    // AI System 기초 문항이 배경 없이 읽을 수 있어 입문 경로로 더 적합하다.
-    recommendedCategories: ['ml', 'llm', 'ai-system'],
+    recommendation: 'ML의 큰 그림을 잡고 LLM → Agent → AI System으로 가볍게',
+    // Agent는 도구 호출·loop 기초 문항이 생긴 뒤 복원했다. RAG는 기초가 생겼지만
+    // 입문 덱이 너무 넓어지지 않게 다음 단계로 남긴다.
+    recommendedCategories: ['ml', 'llm', 'agent', 'ai-system'],
   },
   {
     id: 'graduate-school',

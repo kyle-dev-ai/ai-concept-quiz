@@ -109,7 +109,29 @@
   `system-nondeterminism-testing`(비결정적 출력의 테스트 전략) — 질문별 golden case 3개
 - 중복 회피: 기존 `system-latency-cost`(중급, 조절 레버), `system-cost-attribution`(중급, 귀속 단위),
   `system-evaluation-observability`(심화, 관측 설계)와 층위를 분리했다.
-- Dataset result: version `1.6.0`, 8개 category, 총 188개 질문
+- Dataset result: version `1.6.0`, 8개 category, 총 188개 질문 (당시 기준)
+
+## source-2026-08-17-foundation-entry-ramp
+
+- Source: `audit-1.6.0-20260817.md` 범용성 검수의 P1-5 — transformer·rag·agent에 배경 없이
+  읽을 수 있는 기초 문항이 각각 1·0·0개라 카테고리 진입로가 없던 문제
+- Author: Claude(AI candidate)가 작성, 표준 문서 수준. 사람 사실 검수 대기
+- 저작 원칙: 정의되지 않은 용어를 쓰지 않고, 선수 개념이 없어도 첫 문단이 읽히도록 작성.
+  검수에서 지적된 문장 리듬 단조로움을 고려해 문장 수와 길이를 일부러 흩었다.
+- Output 9문항
+  - Agent 3: `agent-tool-calling-basics`(도구 호출은 앱이 실행), `agent-loop-basics`,
+    `agent-why-tools-needed`
+  - RAG 3: `rag-why-vector-search`, `rag-chunk-basics`, `rag-why-show-source`
+  - Transformer 2: `transformer-attention-intuition`, `transformer-contextual-meaning`
+  - LLM 1: `llm-why-hallucination`
+  - 질문별 golden case 9개
+- 함께 정리한 선수 그래프(P1-6 일부)
+  - `llm-tokenization-context-window`: token은 embedding보다 앞선 개념이라 선수 제거
+  - `llm-temperature-top-p`: 사전학습을 몰라도 설명 가능해 선수 제거
+  - `agent-vs-workflow`: 선수를 `llm-pretraining-next-token`에서 `agent-loop-basics`로
+  - `llm-logits-softmax-probability`: hidden state·logit·softmax를 다루므로 중급으로 조정
+- 결과: `ai-basics` 목표에 `agent` 복원, 입문자 덱의 덱 밖 선수 요구 4건 → **0건**
+- Dataset result: version `1.7.0`, 8개 category, 총 197개 질문
 
 ## source-2026-08-16-public-admissions-research
 

@@ -18,7 +18,7 @@ export const llmRoadmapQuestions = [
   {
     id: 'llm-logits-softmax-probability',
     category: 'llm',
-    difficulty: 'foundation',
+    difficulty: 'intermediate',
     term: 'Vocabulary Logits · Token Probability',
     prompt: 'LLM의 마지막 hidden state가 다음 token 확률분포로 바뀌는 과정을 설명해보세요.',
     shortAnswer:
@@ -186,6 +186,20 @@ export const llmRoadmapQuestions = [
     followUp:
       'Autoregressive training은 여러 위치를 병렬 계산하면서 inference는 왜 한 token씩 진행하나요?',
     prerequisites: ['math-conditional-probability-bayes', 'transformer-causal-mask'],
+  },
+  {
+    id: 'llm-why-hallucination',
+    category: 'llm',
+    difficulty: 'foundation',
+    term: 'Hallucination · Plausibility',
+    prompt: 'AI가 아주 자신 있게 틀린 답을 지어내는 일은 왜 생기나요?',
+    shortAnswer:
+      '모델은 사실을 찾아보는 장치가 아니라 다음에 올 말로 그럴듯한 것을 고르는 장치이기 때문입니다. 아는 게 없어도 문장은 매끄럽게 이어지므로, 모르는 자리도 그럴듯한 말로 채워집니다.',
+    deepAnswer:
+      '그래서 말투의 자신감은 정확도와 아무 상관이 없습니다. 이것을 hallucination이라 부르며 학습 데이터에 드문 내용, 최신 정보, 숫자와 고유명사에서 특히 잘 생깁니다. 완전히 없애는 방법은 아직 없어서 근거 문서를 함께 주거나 모르면 모른다고 답하게 하는 식으로 줄입니다.',
+    keyPoints: ['사실 조회가 아니라 그럴듯한 말 잇기가 원리', '자신 있는 말투와 정확도는 무관하다'],
+    followUp: '모델이 확신에 찬 문장으로 답했다면 그 답은 더 믿을 만한가요?',
+    prerequisites: [],
   },
   {
     id: 'llm-structured-output-json',

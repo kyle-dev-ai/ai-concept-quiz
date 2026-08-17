@@ -143,6 +143,48 @@ export const ragRoadmapQuestions = [
     prerequisites: ['rag-end-to-end-pipeline', 'system-evaluation-observability'],
   },
   {
+    id: 'rag-why-vector-search',
+    category: 'rag',
+    difficulty: 'foundation',
+    term: 'Vector Search · Embedding',
+    prompt: '단어가 정확히 일치하지 않아도 문서를 찾아내는 검색은 어떻게 가능한가요?',
+    shortAnswer:
+      '문장을 의미가 담긴 숫자 배열, 즉 embedding으로 바꿔 저장해두기 때문입니다. 질문도 같은 방식으로 바꾼 뒤 가장 가까운 것을 찾으면 "연차"로 물어도 "휴가"가 적힌 문서가 걸립니다.',
+    deepAnswer:
+      '이것을 벡터 검색이라고 부릅니다. 표기가 달라도 뜻이 비슷하면 찾아낸다는 점이 키워드 검색과 가장 다릅니다. 대신 제품 코드나 사람 이름처럼 글자 그대로 맞아야 하는 검색에는 오히려 약해서, 실무에서는 키워드 검색과 함께 쓰는 경우가 많습니다.',
+    keyPoints: ['의미를 벡터로 바꿔 가까운 것을 찾는다', '정확히 일치해야 하는 검색에는 약하다'],
+    followUp: '제품 코드 "A-1024"를 찾을 때 벡터 검색만 쓰면 어떤 문제가 생길까요?',
+    prerequisites: [],
+  },
+  {
+    id: 'rag-chunk-basics',
+    category: 'rag',
+    difficulty: 'foundation',
+    term: 'Chunk · Vector DB',
+    prompt: '문서를 통째로 모델에게 주지 않고 잘라서 넣는 이유는 무엇인가요?',
+    shortAnswer:
+      '모델이 한 번에 읽을 수 있는 양에 한계가 있고, 200쪽 문서에서 정작 필요한 건 한두 문단이기 때문입니다. 그래서 문서를 조각으로 나눠 두고 질문과 관련된 조각만 골라 넣습니다.',
+    deepAnswer:
+      '이 조각을 chunk라고 합니다. 조각이 너무 크면 관계없는 내용이 딸려 들어와 답이 흐려지고, 너무 작으면 문장이 중간에서 끊겨 뜻이 사라집니다. 그래서 보통 문단이나 제목 단위로 자르고 앞뒤를 조금 겹치게 둡니다. 나눈 조각과 그 벡터를 모아 두는 저장소가 vector DB입니다.',
+    keyPoints: ['필요한 부분만 넣으려고 조각낸다', '너무 크면 잡음, 너무 작으면 문맥 손실'],
+    followUp: '표가 중간에서 잘린 조각이 검색되면 어떤 답이 나올까요?',
+    prerequisites: ['rag-why-vector-search'],
+  },
+  {
+    id: 'rag-why-show-source',
+    category: 'rag',
+    difficulty: 'foundation',
+    term: 'Citation · Verifiability',
+    prompt: 'AI 답변에 출처 문서를 함께 보여주는 것이 왜 중요한가요?',
+    shortAnswer:
+      '사용자가 그 답을 믿을지 스스로 판단할 수 있게 되기 때문입니다. 원문을 확인하면 틀린 답이 금방 드러나고, 맞는 답이라도 근거가 있어야 업무에 쓸 수 있습니다.',
+    deepAnswer:
+      '만드는 쪽에도 이득이 있습니다. 답이 틀렸을 때 검색이 잘못된 것인지 읽고 정리하는 단계가 잘못된 것인지 나눠 볼 수 있기 때문입니다. 다만 출처를 붙였다고 그 내용을 실제로 근거로 삼았다는 보장은 없어서, 표시된 문서에 정말 그 말이 있는지 확인하는 검사가 따로 필요합니다.',
+    keyPoints: ['사용자가 직접 검증할 수 있게 됨', '출처 표시가 곧 근거 사용의 증거는 아님'],
+    followUp: '출처는 붙어 있는데 그 문서에 없는 내용이 답에 적혀 있다면 어디가 잘못된 걸까요?',
+    prerequisites: [],
+  },
+  {
     id: 'rag-asymmetric-embedding',
     category: 'rag',
     difficulty: 'intermediate',

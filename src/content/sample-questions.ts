@@ -416,7 +416,7 @@ const coreQuestions = [
       '긴 context는 용량이지 정확한 활용 보장이 아님',
     ],
     followUp: '같은 의미의 프롬프트라도 언어에 따라 비용이 달라질 수 있는 이유는 무엇인가요?',
-    prerequisites: ['transformer-embedding'],
+    prerequisites: [],
   },
   {
     id: 'llm-pretraining-next-token',
@@ -447,7 +447,7 @@ const coreQuestions = [
       '둘은 학습된 지식을 바꾸지 않고 decoding 분포만 조절합니다. 낮은 temperature도 hallucination을 제거하지 못하며, 분류·추출처럼 재현성이 중요한 task와 창작 task는 다른 설정과 평가가 필요합니다.',
     keyPoints: ['Temperature는 분포의 sharpness 조절', 'Top-p는 확률 질량 기준으로 후보 집합 제한'],
     followUp: 'Greedy decoding과 beam search는 sampling과 무엇이 다른가요?',
-    prerequisites: ['llm-pretraining-next-token'],
+    prerequisites: [],
   },
   {
     id: 'llm-peft-lora',
@@ -555,7 +555,7 @@ const coreQuestions = [
       'Agent는 유연성을 얻는 대신 비용, latency, 재현성, 권한 오용 위험을 늘립니다. 실제 시스템은 바깥 guardrail과 핵심 transaction은 workflow로 고정하고 제한된 구간에만 agentic decision을 허용하는 hybrid가 흔합니다.',
     keyPoints: ['동적 의사결정 권한의 위치가 핵심 차이', '유연성이 필요하지 않으면 workflow 우선'],
     followUp: '사용자의 돈을 이체하는 단계는 Agent에게 어느 정도 맡겨야 하나요?',
-    prerequisites: ['llm-pretraining-next-token'],
+    prerequisites: ['agent-loop-basics'],
   },
   {
     id: 'agent-react-tool-planning',

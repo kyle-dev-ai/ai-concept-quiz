@@ -71,9 +71,7 @@ describe('study session', () => {
       learnerGroupById.general,
     )
 
-    // ai-basics는 agent를 추천하지 않는다. agent에는 배경 없이 읽을 수 있는 기초 문항이
-    // 사실상 없어 입문자 덱에 넣으면 덱 밖 선수 개념을 요구하게 된다.
-    expect(queue.map((question) => question.id)).toEqual(['ml-foundation'])
+    expect(queue.map((question) => question.id)).toEqual(['ml-foundation', 'agent-foundation'])
   })
 
   it('추천 queue는 세션 상한을 넘지 않는다', () => {

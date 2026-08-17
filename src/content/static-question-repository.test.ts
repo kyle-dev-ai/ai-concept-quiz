@@ -11,11 +11,11 @@ describe('StaticQuestionRepository', () => {
     }))
     const repository = new StaticQuestionRepository(
       fetchQuestionBank,
-      '/generated/question-bank.1.6.0.json',
+      '/generated/question-bank.1.7.0.json',
     )
 
-    await expect(repository.list()).resolves.toHaveLength(188)
-    expect(fetchQuestionBank).toHaveBeenCalledWith('/generated/question-bank.1.6.0.json', {
+    await expect(repository.list()).resolves.toHaveLength(197)
+    expect(fetchQuestionBank).toHaveBeenCalledWith('/generated/question-bank.1.7.0.json', {
       cache: 'force-cache',
     })
   })

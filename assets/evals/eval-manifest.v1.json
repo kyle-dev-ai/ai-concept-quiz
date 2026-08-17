@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
   "suiteId": "ai-concept-content-ko-v1",
-  "datasetVersion": "1.6.0",
+  "datasetVersion": "1.7.0",
   "capability": "한국어 AI 개념을 10초 핵심 답변과 심화 설명으로 정확하게 학습시키는 콘텐츠",
   "locale": "ko-KR",
   "timeZone": "Asia/Seoul",
-  "expectedQuestionCount": 188,
+  "expectedQuestionCount": 197,
   "expectedCategories": ["math", "ml", "dl", "transformer", "llm", "rag", "agent", "ai-system"],
   "repetitions": 1,
   "graders": [
