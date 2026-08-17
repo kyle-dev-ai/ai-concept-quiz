@@ -4,6 +4,10 @@ import type { CategoryId, StudyQuestion, StudyScope } from './question'
 
 export type RandomSource = () => number
 
+// 한 세션에 담는 최대 문항 수. 콘텐츠가 늘어도 세션은 끝이 보여야 한다.
+// 이 상한이 없으면 대학원 목표에서 전체 문항이 한 세션이 되어 완료가 불가능해진다.
+export const maxSessionLength = 25
+
 export function questionsForScope(
   questions: readonly StudyQuestion[],
   scope: StudyScope,
@@ -50,7 +54,8 @@ export function createStudyQueue(
   learnerGroup?: LearnerGroup,
   random: RandomSource = Math.random,
 ): StudyQuestion[] {
-  return shuffleQuestions(questionsForScope(questions, scope, goal, learnerGroup), random)
+  const scoped = shuffleQuestions(questionsForScope(questions, scope, goal, learnerGroup), random)
+  return scoped.slice(0, maxSessionLength)
 }
 
 export function getDailyQuestion(

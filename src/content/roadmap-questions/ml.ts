@@ -180,7 +180,7 @@ export const mlRoadmapQuestions = [
   {
     id: 'ml-logistic-regression',
     category: 'ml',
-    difficulty: 'foundation',
+    difficulty: 'intermediate',
     term: 'Logistic Regression',
     prompt: 'Logistic Regression은 선형 모델인데 어떻게 분류 확률을 만들어내나요?',
     shortAnswer:
@@ -237,7 +237,7 @@ export const mlRoadmapQuestions = [
   {
     id: 'ml-feature-scaling',
     category: 'ml',
-    difficulty: 'foundation',
+    difficulty: 'intermediate',
     term: 'Feature Scaling · Standardization',
     prompt: '입력 feature의 단위를 맞춰주는 작업이 어떤 모델에서 특히 중요한가요?',
     shortAnswer:

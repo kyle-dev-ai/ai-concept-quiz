@@ -16,7 +16,11 @@ import {
   type StudyQuestion,
   type StudyScope,
 } from '../../domain/learning/question'
-import { getDailyQuestion, questionsForScope } from '../../domain/learning/session'
+import {
+  getDailyQuestion,
+  maxSessionLength,
+  questionsForScope,
+} from '../../domain/learning/session'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
 import { GoalSelector } from '../goal-selector/GoalSelector'
 import { AdSlot } from '../monetization/AdSlot'
@@ -177,7 +181,7 @@ export function StudyHome({
             className="button button--ink button--wide"
             onClick={() => onStart('recommended')}
           >
-            추천 {recommendedQuestions.length}문제 시작
+            추천 {Math.min(recommendedQuestions.length, maxSessionLength)}문제 시작
           </button>
         </div>
       </section>

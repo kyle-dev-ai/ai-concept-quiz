@@ -234,7 +234,7 @@ export const dlRoadmapQuestions = [
     shortAnswer:
       'Forward 과정은 데이터에 Gaussian noise를 여러 단계에 걸쳐 더해 결국 순수 noise로 만듭니다. 모델은 각 단계에서 섞인 noise를 예측하도록 학습하고, 생성할 때는 순수 noise에서 시작해 단계적으로 denoising하며 데이터를 만들어냅니다.',
     deepAnswer:
-      '학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 classifier-free guidance로 반영하며 이미지·영상·음성 생성의 사실상 표준이 되었습니다.',
+      '학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 cross-attention 같은 경로로 모델에 주입하고, 생성할 때 classifier-free guidance로 그 조건을 얼마나 강하게 따를지 조절합니다.',
     keyPoints: [
       'Forward는 점진적 noise 추가, reverse는 학습된 denoising',
       '한 번에 생성하지 않고 반복 denoising',

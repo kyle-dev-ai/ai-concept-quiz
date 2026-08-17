@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { learningGoalById } from './goal'
 import { learnerGroupById } from './learner-profile'
 import type { StudyQuestion } from './question'
-import { createStudyQueue, getDailyQuestion, questionsForScope, searchQuestions } from './session'
+import {
+  createStudyQueue,
+  getDailyQuestion,
+  maxSessionLength,
+  questionsForScope,
+  searchQuestions,
+} from './session'
 
 const questions: readonly StudyQuestion[] = [
   {
@@ -65,7 +71,26 @@ describe('study session', () => {
       learnerGroupById.general,
     )
 
-    expect(queue.map((question) => question.id)).toEqual(['ml-foundation', 'agent-foundation'])
+    // ai-basics는 agent를 추천하지 않는다. agent에는 배경 없이 읽을 수 있는 기초 문항이
+    // 사실상 없어 입문자 덱에 넣으면 덱 밖 선수 개념을 요구하게 된다.
+    expect(queue.map((question) => question.id)).toEqual(['ml-foundation'])
+  })
+
+  it('추천 queue는 세션 상한을 넘지 않는다', () => {
+    const many = Array.from({ length: maxSessionLength + 10 }, (_, index) => ({
+      ...(questions[0] as StudyQuestion),
+      id: `ml-extra-${index}`,
+    }))
+
+    const queue = createStudyQueue(
+      many,
+      'all',
+      learningGoalById['graduate-school'],
+      learnerGroupById['graduate-learner'],
+      () => 0,
+    )
+
+    expect(queue).toHaveLength(maxSessionLength)
   })
 
   it('대학원 목표는 이론부터 AI 시스템까지 모든 카테고리를 추천한다', () => {

@@ -25,6 +25,12 @@
 - Dataset `1.6.0`: AI System 기초 3문항 추가 — 일반 API와의 구조적 차이, 토큰이 비용·지연의
   공통 단위, 비결정적 출력의 테스트 전략. 이 카테고리에 기초 문항이 없어 진입로가 없던 문제를
   해소했다. 질문별 golden case 3개. 총 188문항.
+- 검수 반영: 사실 오류 8건 수정(요약 재귀 인과 역전, convex 최소점, CFG 역할, 임베딩
+  정규화 동치 조건, label smoothing calibration 방향, MoE 파라미터 범위, weight tying
+  절감량, 초선형 비용 메커니즘)
+- 학습 경로 수정: `ai-basics` 추천 카테고리를 agent에서 ai-system으로 교체해 입문자 덱의
+  도달 불가 선수 참조를 제거, `career-switch`에 transformer 추가, 직장인 추천 난이도에서
+  advanced 제거, 세션 상한 25문항 도입
 
 ## [1.0.0] - 2026-08-16
 

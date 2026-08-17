@@ -57,7 +57,9 @@ export const learnerGroups: readonly LearnerGroup[] = [
     id: 'professional',
     label: '직장인',
     description: '실무 의사결정 중심',
-    recommendedDifficulties: ['foundation', 'intermediate', 'advanced'],
+    // 직장인이라고 AI 배경이 있는 것은 아니다. 심화까지 열어두면 처음 여는 사람이
+    // 곧바로 심화 문항을 만나 이탈한다. 심화는 카테고리 덱에서 따로 볼 수 있다.
+    recommendedDifficulties: ['foundation', 'intermediate'],
   },
   {
     id: 'general',

@@ -2,7 +2,8 @@
 
 - 검수 범위: 사람 검수 대기 61문항 (dataset 1.2.0~1.6.0 배치)
 - 방법: `audit-content` 스킬 — 기계 검사 1회, 검수 에이전트 5종, 사실 지적 반박 검증 3회
-- **판정: 보류.** 문항 서술 자체는 공개 수준이지만 배치 구조가 출시 기준에 미달한다.
+- **판정: 보류 → 조건부(2026-08-17 조치 후).** 사실 오류 8건과 P0 4건을 반영했다.
+  남은 P1·P2(기초 문항 저작, 중복 정리, 길이·말투)는 미조치다.
 
 ## 요약
 
@@ -110,6 +111,21 @@ agent 19문항 중 7개(37%)가 메모리다. `agent-memory-write-policy` 본문
 ### 용어
 
 신규 61문항의 영문자 비율 0.092 vs 기존 0.333. trace/span, cascade, guardrail, lost in the middle, Chinchilla가 본문에 없다. 면접 준비 앱인데 면접관이 쓸 단어가 답변 스크립트에 없다.
+
+## 5-0. 반영 완료 (2026-08-17)
+
+사실 오류 8건 + 선택 1건, P0 4건을 적용하고 `npm run verify`를 통과했다.
+
+| 조치 | 내용 |
+|---|---|
+| 사실 8건 | 아래 1·2절의 수정안을 그대로 반영 |
+| P0-1 | `ai-basics` 카테고리 `['ml','llm','agent']` → `['ml','llm','ai-system']` |
+| P0-2 | `ml-logistic-regression`·`ml-feature-scaling` foundation → intermediate |
+| P0-3 | `maxSessionLength = 25` 도입, `createStudyQueue`가 상한을 적용. 홈 버튼 라벨도 상한 반영 |
+| P0-4 | `professional` 추천 난이도에서 advanced 제거 |
+| 덤 | `career-switch`에 `transformer` 추가 (P1-8을 함께 처리) |
+
+부수 변경: 골든 케이스 3건 갱신(문구 1, 난이도 2), `session.test.ts`에 세션 상한 회귀 테스트 추가.
 
 ## 5. 출시 전 조치
 
