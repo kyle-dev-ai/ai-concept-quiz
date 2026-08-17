@@ -18,6 +18,10 @@
   AdamW, 학습률 스케줄, momentum, gradient clipping), 표현 학습과 전이학습,
   최적화 이론(convexity·안장점)과 중심극한정리, 전처리(feature scaling, augmentation,
   차원 축소 비교). 질문별 golden case 12개. 총 174문항.
+- Dataset `1.5.0`: Transformer 원서 구간 선행 보강 11문항 — 원 논문(층당 복잡도 비교,
+  padding mask, weight tying, label smoothing, dropout 위치)과 현대 구조(GQA·MQA,
+  FlashAttention, MoE, RMSNorm, sliding window attention, scaling law).
+  질문별 golden case 11개. 총 185문항.
 
 ## [1.0.0] - 2026-08-16
 

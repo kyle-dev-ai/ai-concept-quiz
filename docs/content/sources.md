@@ -79,7 +79,26 @@
 - 근거: 노트가 optimizer를 SGD/Adam 소개까지만 다루고 AdamW·스케줄·momentum·clipping을
   남겨둔 점, "DL은 유용한 표현을 직접 학습"이라는 서술이 표현 학습·전이학습으로 이어지지 않은 점,
   통계와 최적화 이론(중심극한정리, convexity·안장점)이 비어 있던 점
-- Dataset result: version `1.4.0`, 8개 category, 총 174개 질문
+- Dataset result: version `1.4.0`, 8개 category, 총 174개 질문 (당시 기준)
+
+## source-2026-08-17-transformer-paper-and-modern
+
+- Source: 학습 일정의 8/23~27 "Transformer 원서" 구간을 선행 보강. 원 논문(Attention Is All You
+  Need, 2017)에서 구술로 자주 묻는 항목과, 원서 이후 표준이 된 현대 구조를 함께 다룬다.
+- Author: Claude(AI candidate)가 작성, 논문·공식 문서 수준. 사람 사실 검수 대기
+- 중복 회피: √dₖ scaling과 multi-head 표현 부분공간, positional encoding 방식 비교, 제곱 비용,
+  RoPE, residual, pre/post-norm, cross-attention, BERT vs GPT는 기존 문항에 이미 존재해 제외했다.
+- Output 11문항
+  - 원 논문 5: `transformer-layer-complexity-comparison`(층당 복잡도·순차 연산·최대 경로 길이),
+    `transformer-padding-mask`, `transformer-weight-tying`, `transformer-label-smoothing`,
+    `transformer-dropout-placement`
+  - 현대 구조 6: `transformer-gqa-mqa`, `transformer-flash-attention`,
+    `transformer-mixture-of-experts`, `transformer-rmsnorm`,
+    `transformer-sliding-window-attention`, `llm-scaling-laws`
+  - 질문별 golden case 11개
+- 서술 원칙: FlashAttention은 근사가 아니라 IO 최적화, sliding window는 결과가 달라지는 근사로
+  명확히 구분했다. Scaling law는 특정 조건의 경험 법칙임을 명시했다.
+- Dataset result: version `1.5.0`, 8개 category, 총 185개 질문
 
 ## source-2026-08-16-public-admissions-research
 

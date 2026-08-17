@@ -46,7 +46,7 @@ AI가 생성한 초안이나 대화 기록 자체는 원천 기준이 아니다.
 - CLI gate: `npm run eval`
 - Experiment fingerprint: `npm run eval:fingerprint`
 
-현재 하네스는 174개 전체 질문의 구조, ID, 카테고리 범위, prerequisite 참조와 위험한 markup을 검사한다. 별도의 golden cases는 핵심 주장과 대표 오개념을 development, regression, challenge suite로 나눠 검사한다. 모든 gate는 100% 통과해야 한다.
+현재 하네스는 185개 전체 질문의 구조, ID, 카테고리 범위, prerequisite 참조와 위험한 markup을 검사한다. 별도의 golden cases는 핵심 주장과 대표 오개념을 development, regression, challenge suite로 나눠 검사한다. 모든 gate는 100% 통과해야 한다.
 
 현재는 모델을 호출하지 않으므로 trial은 결정론적 1회이며 `pass@1`과 `pass^1`이 같다. LLM 기반 자유서술 피드백이 추가되면 candidate/baseline을 같은 fingerprint로 반복 실행하고, provider error와 system failure를 분리하며, semantic judge는 사람 라벨로 calibration한 뒤에만 추가한다.
 

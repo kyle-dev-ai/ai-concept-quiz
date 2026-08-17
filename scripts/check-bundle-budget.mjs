@@ -9,9 +9,12 @@ const budgets = Object.freeze({
   totalJavaScriptGzip: 300 * kibibyte,
   cssGzip: 12 * kibibyte,
   // 질문 은행은 initial JS와 분리된 versioned asset이고 force-cache로 한 번만 받는다.
-  // dataset 1.3.0(162문항)에서 55 KiB가 되어 48에서 올렸다.
-  // 200문항을 넘기기 전에 카테고리별 분할 로딩을 검토한다.
-  questionBankGzip: 64 * kibibyte,
+  // 콘텐츠가 늘어 총량이 커지는 것은 의도된 변화라 총량만으로 막으면 매번 예산을 올리게 된다.
+  // 그래서 첫 로딩이 실제로 문제가 되는 지점을 절대 상한으로 두고,
+  // 문항당 평균으로 개별 문항이 비대해지는 회귀를 따로 잡는다.
+  // 절대 상한에 닿으면 그때는 예산을 올리지 말고 카테고리별 분할 로딩을 도입한다.
+  questionBankGzip: 128 * kibibyte,
+  questionBankGzipPerQuestion: 0.42 * kibibyte,
   appsPackage: 1 * 1024 * kibibyte,
 })
 const evalManifest = JSON.parse(readFileSync('assets/evals/eval-manifest.v1.json', 'utf8'))
@@ -98,8 +101,10 @@ function inspectQuestionBank(label, directory) {
   const content = JSON.parse(readFileSync(filePath, 'utf8'))
   const compressedSize = gzipSize(filePath)
 
+  const perQuestion = compressedSize / content.length
+
   console.info(
-    `${label} question bank: ${content.length} questions, ${formatKibibytes(compressedSize)} gzip`,
+    `${label} question bank: ${content.length} questions, ${formatKibibytes(compressedSize)} gzip (문항당 ${formatKibibytes(perQuestion)})`,
   )
 
   if (!Array.isArray(content) || content.length !== evalManifest.expectedQuestionCount) {
@@ -108,7 +113,14 @@ function inspectQuestionBank(label, directory) {
     )
   }
   if (compressedSize > budgets.questionBankGzip) {
-    fail(`${label} question bank gzip이 ${formatKibibytes(budgets.questionBankGzip)}를 넘었습니다.`)
+    fail(
+      `${label} question bank gzip이 ${formatKibibytes(budgets.questionBankGzip)}를 넘었습니다. 예산을 올리지 말고 분할 로딩을 도입하세요.`,
+    )
+  }
+  if (perQuestion > budgets.questionBankGzipPerQuestion) {
+    fail(
+      `${label} question bank 문항당 gzip이 ${formatKibibytes(budgets.questionBankGzipPerQuestion)}를 넘었습니다.`,
+    )
   }
 }
 

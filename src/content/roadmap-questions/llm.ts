@@ -270,4 +270,21 @@ export const llmRoadmapQuestions = [
     followUp: '사용자에게 이미 보인 문장을 지우는 방식은 왜 좋은 해결이 아닌가요?',
     prerequisites: ['llm-grounding-abstention'],
   },
+  {
+    id: 'llm-scaling-laws',
+    category: 'llm',
+    difficulty: 'advanced',
+    term: 'Scaling Laws · Compute Allocation',
+    prompt: '모델을 키울 때 파라미터만 늘리면 안 되고 데이터도 함께 늘려야 하는 이유는 무엇인가요?',
+    shortAnswer:
+      '주어진 계산 예산에서 손실은 파라미터 수와 학습 데이터 양에 따라 비교적 규칙적으로 낮아지는데, 한쪽만 키우면 다른 쪽이 병목이 되어 이득이 줄기 때문입니다. 같은 예산이면 파라미터와 데이터를 균형 있게 배분한 쪽이 더 좋은 모델이 됩니다.',
+    deepAnswer:
+      '초기에는 파라미터를 키우는 데 치중해 데이터가 부족한 상태로 학습된 모델이 많았고, 이후 균형 배분을 강조한 분석이 나오면서 같은 크기라도 더 오래 학습하는 쪽으로 흐름이 바뀌었습니다. 다만 이 관계는 특정 조건에서 관측된 경험 법칙이라 데이터 품질, 구조, 과제가 달라지면 계수가 달라지고, 사전학습 손실이 낮다고 특정 능력이 자동으로 좋아진다는 보장도 없습니다. 추론 비용까지 고려하면 조금 작은 모델을 더 오래 학습시키는 편이 운영에 유리할 수 있습니다.',
+    keyPoints: [
+      '같은 계산 예산에서는 파라미터와 데이터의 균형이 중요',
+      '경험 법칙이라 조건이 바뀌면 관계도 달라짐',
+    ],
+    followUp: '학습 비용이 아니라 추론 비용을 중시하면 모델 크기 선택이 어떻게 달라지나요?',
+    prerequisites: ['llm-pretraining-next-token', 'ml-overfitting-bias-variance'],
+  },
 ] as const satisfies readonly StudyQuestion[]

@@ -2,7 +2,7 @@
 
 ## v1.0.0 launch gate
 
-- [ ] 174개 질문을 사람이 최종 사실·수식·난이도 검수
+- [ ] 185개 질문을 사람이 최종 사실·수식·난이도 검수
 - [ ] Apps in Toss 콘솔에서 `appName`, display name, icon 확정 (v3는 콘솔 등록; config는 `primaryColor`만)
 - [ ] 콘솔에서 비게임 webview type(partner)과 앱 내 기능 1개 이상 등록
 - [x] 비게임 가이드에 따라 pinch zoom 비활성화 (`index.html` viewport)
@@ -56,6 +56,7 @@
 - [x] No Fill·실패·미지원 시 구좌 자동 collapse contract와 regression test
 - [ ] console에서 앱 category 기반 광고 그룹 category 확인; 특정 입시·이직 소재는 보장하지 않음
 - [ ] WebView 5.241 미만 fallback, 실제 QR test, frequency cap, no-ad control A/B test
+- [ ] 질문 은행 gzip이 128 KiB에 닿으면 예산을 올리지 말고 카테고리별 분할 로딩 도입
 - [ ] 유료 콘텐츠 또는 구독은 반복 사용자 문제 확인 후 별도 검토
 
 ## Growth and community
