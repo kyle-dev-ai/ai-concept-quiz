@@ -187,4 +187,87 @@ export const llmRoadmapQuestions = [
       'Autoregressive training은 여러 위치를 병렬 계산하면서 inference는 왜 한 token씩 진행하나요?',
     prerequisites: ['math-conditional-probability-bayes', 'transformer-causal-mask'],
   },
+  {
+    id: 'llm-structured-output-json',
+    category: 'llm',
+    difficulty: 'intermediate',
+    term: 'Structured Output · JSON Schema',
+    prompt: '모델이 정해진 JSON 형식으로 답하게 만들 때 무엇을 함께 준비해야 하나요?',
+    shortAnswer:
+      '스키마를 명시해 형식을 제약하더라도 값이 의미상 틀릴 수 있으므로, 형식 검증과 값 검증을 모두 준비해야 합니다. 검증에 실패했을 때 오류 내용을 알려주고 한 번 더 시도하는 경로도 필요합니다.',
+    deepAnswer:
+      '제약 디코딩을 지원하는 API를 쓰면 스키마 위반 자체는 구조적으로 막히지만, 길이 초과로 잘리거나 거부 응답이 오는 경우는 남아 형식 검증이 여전히 필요합니다. 형식이 맞다는 것과 내용이 맞다는 것은 별개여서 스키마를 통과한 값이 존재하지 않는 항목을 가리키는 경우가 흔하므로, 열거형이나 참조 대상은 실제 목록과 대조하고 자유 텍스트 필드는 길이 상한을 둡니다. 재시도를 무한히 하면 비용이 커지므로 횟수 상한과 실패 시의 안전한 기본 동작을 정해둬야 합니다.',
+    keyPoints: ['형식 검증과 값 검증은 별개의 문제', '재시도 상한과 실패 시 기본 동작을 미리 정의'],
+    followUp: '스키마는 통과했는데 존재하지 않는 항목 이름이 들어왔다면 어디서 걸러야 하나요?',
+    prerequisites: ['agent-tool-schema-validation'],
+  },
+  {
+    id: 'llm-prompt-prefix-caching',
+    category: 'llm',
+    difficulty: 'intermediate',
+    term: 'Prompt Caching · Prefix Reuse',
+    prompt: '매번 같은 지시문을 보내는데도 비용이 그대로 든다면 무엇을 활용할 수 있나요?',
+    shortAnswer:
+      '프롬프트 앞부분이 이전 요청과 동일하면 그 부분의 계산 결과를 재사용해 비용과 첫 응답 지연을 줄이는 캐싱을 쓸 수 있습니다. 대신 앞부분이 달라지면 그 지점부터 캐시가 무효가 되므로 변하는 내용은 뒤쪽에 배치해야 합니다.',
+    deepAnswer:
+      '그래서 시간이나 사용자 이름처럼 매번 바뀌는 값을 지시문 맨 앞에 넣으면 캐시 이득이 사라집니다. 도구 목록이나 시스템 지시문처럼 고정적인 요소를 앞에 모으고 대화와 검색 결과를 뒤로 보내는 구성이 유리하며, 이 순서 자체가 성능 설계의 일부가 됩니다. 다만 제공자마다 캐시가 걸리는 최소 접두 길이가 있어 짧은 프롬프트는 아예 대상이 되지 않고, 첫 호출에 기록 비용을 더 받는 경우도 있어 한 번만 쓰는 프롬프트에는 오히려 손해입니다. 캐시 유효 시간도 짧아 트래픽이 뜸하면 이득이 작습니다.',
+    keyPoints: [
+      '동일한 접두 부분의 계산을 재사용',
+      '변하는 값을 앞에 두면 그 지점부터 캐시가 무효화',
+    ],
+    followUp: '프롬프트 맨 앞에 현재 시각을 넣으면 어떤 일이 생기나요?',
+    prerequisites: ['llm-kv-cache-prefill-decode', 'system-exact-semantic-cache'],
+  },
+  {
+    id: 'llm-ttft-tpot',
+    category: 'llm',
+    difficulty: 'intermediate',
+    term: 'TTFT · Time Per Output Token',
+    prompt: 'LLM 응답 속도를 전체 응답 시간 하나로만 재면 안 되는 이유는 무엇인가요?',
+    shortAnswer:
+      '사용자는 첫 글자가 언제 나오는지와 그 뒤 얼마나 매끄럽게 이어지는지를 다르게 느끼기 때문입니다. 그래서 첫 토큰까지의 지연과 토큰 사이 간격을 나눠 재야 어디를 고쳐야 할지 알 수 있습니다.',
+    deepAnswer:
+      '첫 토큰 지연은 프롬프트 길이와 대기, 검색 같은 앞단계에 좌우되고, 토큰 간 지연은 생성 단계의 처리량과 동시 부하에 좌우돼 원인과 처방이 다릅니다. 전체 시간만 보면 두 문제가 섞여 잘못된 최적화를 하게 됩니다. 응답을 조금씩 보여주는 방식은 총 시간을 줄이지 않아도 체감을 크게 개선하지만, 대신 사용자가 중간 결과를 보게 되므로 잘못된 답이 먼저 보이는 문제도 함께 고려해야 합니다.',
+    keyPoints: [
+      '첫 토큰 지연과 토큰 간 간격은 원인이 다름',
+      '점진적 표시는 총 시간이 아니라 체감을 개선',
+    ],
+    followUp: '첫 토큰은 빠른데 중간부터 느려진다면 어느 단계를 의심하나요?',
+    prerequisites: ['llm-kv-cache-prefill-decode', 'system-latency-cost'],
+  },
+  {
+    id: 'llm-prompt-rule-cost',
+    category: 'llm',
+    difficulty: 'advanced',
+    term: 'Prompt Budget · Deterministic Guard',
+    prompt:
+      '모델이 규칙을 어겼을 때 시스템 프롬프트에 문장을 추가하는 대응이 왜 마지막 선택지인가요?',
+    shortAnswer:
+      '지시는 확률적이라 지켜진다는 보장이 없고, 규칙이 쌓일수록 서로 충돌해 모델이 무엇을 따를지 예측하기 어려워지기 때문입니다. 코드로 막을 수 있는 것은 코드가 결정론적으로 막는 편이 확실합니다.',
+    deepAnswer:
+      '그래서 낮은 계층부터 시도하는 순서를 정해두는 방식이 흔히 권장됩니다. 먼저 코드에서 아예 불가능하게 만들 수 있는지 보고, 안 되면 출력 후처리로 걸러내고, 그다음 도구나 API가 잘못된 값을 받지 않도록 계약을 좁히고, 마지막에 프롬프트를 손댑니다. 시스템 프롬프트는 매 요청에 실려 토큰 비용도 늘지만 접두 캐싱으로 상당 부분 줄일 수 있으므로, 진짜 문제는 비용보다 보장 수준입니다. 프롬프트를 고쳤다면 그 규칙이 실제로 지켜지는지 확인하는 평가 사례를 반드시 함께 추가해야 합니다.',
+    keyPoints: [
+      '프롬프트 지시는 확률적 보장이라 강제가 아님',
+      '코드, 후처리, 계약, 프롬프트 순으로 낮은 계층부터 시도',
+    ],
+    followUp: '프롬프트 지시로 막은 규칙이 지켜지는지 어떻게 확인하나요?',
+    prerequisites: ['llm-tokenization-context-window', 'system-prompt-versioning'],
+  },
+  {
+    id: 'llm-guard-placement',
+    category: 'llm',
+    difficulty: 'advanced',
+    term: 'Guard Placement · Enforcement Point',
+    prompt: '같은 검사라도 어느 단계에 두느냐에 따라 보장 수준이 달라지는 이유는 무엇인가요?',
+    shortAnswer:
+      '출력을 조금씩 내보내기 시작한 뒤에 검사하면 이미 사용자가 본 내용은 되돌릴 수 없기 때문입니다. 반드시 막아야 하는 것은 내보내기 전에 검사하거나, 검사할 수 있을 만큼 모아두었다가 내보내야 합니다.',
+    deepAnswer:
+      '조각 단위로 검사하면 금지된 표현이 조각 경계에 걸쳐 나뉘어 탐지를 빠져나가는 문제도 생기므로, 직전 조각의 끝부분을 함께 이어 붙여 검사하거나 문장 단위로 모아 검사합니다. 다만 모아서 검사할수록 첫 글자가 보이는 시점이 늦어지므로 보장 수준과 체감 속도를 맞바꾸는 결정이 됩니다. 한 지점에서 걸렀다고 다른 지점까지 안전해지는 것은 아니어서 저장·로그·화면처럼 흐름이 갈라지는 곳마다 검사를 따로 두어야 하며, 반드시 지켜야 하는 규칙을 권고 위치에 두면 대부분 지켜지지만 가끔 뚫리는 상태가 됩니다.',
+    keyPoints: [
+      '내보낸 뒤의 검사는 회수가 불가능',
+      '조각 경계에 걸친 패턴은 의미 단위로 모아야 탐지 가능',
+    ],
+    followUp: '사용자에게 이미 보인 문장을 지우는 방식은 왜 좋은 해결이 아닌가요?',
+    prerequisites: ['llm-grounding-abstention'],
+  },
 ] as const satisfies readonly StudyQuestion[]

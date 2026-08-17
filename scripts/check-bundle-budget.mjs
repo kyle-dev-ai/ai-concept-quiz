@@ -8,7 +8,10 @@ const budgets = Object.freeze({
   requiredJavaScriptGzip: 125 * kibibyte,
   totalJavaScriptGzip: 300 * kibibyte,
   cssGzip: 12 * kibibyte,
-  questionBankGzip: 48 * kibibyte,
+  // 질문 은행은 initial JS와 분리된 versioned asset이고 force-cache로 한 번만 받는다.
+  // dataset 1.3.0(162문항)에서 55 KiB가 되어 48에서 올렸다.
+  // 200문항을 넘기기 전에 카테고리별 분할 로딩을 검토한다.
+  questionBankGzip: 64 * kibibyte,
   appsPackage: 1 * 1024 * kibibyte,
 })
 const evalManifest = JSON.parse(readFileSync('assets/evals/eval-manifest.v1.json', 'utf8'))

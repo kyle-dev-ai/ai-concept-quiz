@@ -42,7 +42,22 @@
   질문별 golden case 10개
 - 같은 batch에서 기존 문항 정밀도 수정 6건: eigenvector 방향·부호, 연속분포 적분,
   attention mask 큰 음수 표현, FFN SwiGLU 변형 주석, double descent 주석, epoch당 iteration 수
-- Dataset result: version `1.2.0`, 8개 category, 총 137개 질문
+- Dataset result: version `1.2.0`, 8개 category, 총 137개 질문 (당시 기준)
+
+## source-2026-08-17-ai-common-practice-concepts
+
+- Source: 사용자의 에이전트 플랫폼·학습 자료에서 확인한 개념 중 공개 문서로 검증 가능한 일반 지식만 추출
+- Author: Claude(AI candidate)가 작성, 표준 문서·교과 수준으로 재작성. 사람 사실 검수 대기
+- 검토 문서: `~/IdeaProjects/study/APPS_IN_TOSS_CONTENT_REAL_20260817.md` (앱 반영 후보 25문항)
+- 제외 기준: 회사·서비스·프로젝트 식별자, 내부 API 계약, 저장소 키 규칙, 프롬프트 원문,
+  위협 탐지 규칙과 임계값, 실측 성능 수치, 인프라 주소, 개인정보 관련 도메인은 반영하지 않는다.
+  스트리밍 프로토콜·큐·배포·부하테스트 등 AI 공통 지식이 아닌 실무 문항도 앱에서 제외했다.
+- Output: RAG 5문항(비대칭 임베딩, 차원 절단·정규화, 한국어 어휘 검색, 컨텍스트 예산, 인덱스 신선도),
+  Agent 7문항(메모리 저장·요약·검색·망각, 도구 결과 예산, 도구 표준 프로토콜, 계단식 라우팅),
+  LLM 5문항(구조화 출력, 프롬프트 접두 캐싱, TTFT·TPOT, 프롬프트 규칙 비용, 가드 배치),
+  AI System 8문항(오프라인·온라인 평가, LLM-as-judge, 평가 증거, 기준선 게이트, 트레이스 계층,
+  프롬프트 버전 관리, 비용 귀속, 임계값 측정) — 질문별 golden case 25개
+- Dataset result: version `1.3.0`, 8개 category, 총 162개 질문
 
 ## source-2026-08-16-public-admissions-research
 

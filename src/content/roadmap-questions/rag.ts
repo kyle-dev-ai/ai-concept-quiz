@@ -142,4 +142,89 @@ export const ragRoadmapQuestions = [
     followUp: '정답 chunk가 top-k에는 있지만 reranking 뒤 사라졌다면 어떤 실험을 하겠습니까?',
     prerequisites: ['rag-end-to-end-pipeline', 'system-evaluation-observability'],
   },
+  {
+    id: 'rag-asymmetric-embedding',
+    category: 'rag',
+    difficulty: 'intermediate',
+    term: 'Asymmetric Embedding · Query vs Document',
+    prompt: '같은 임베딩 모델인데 질문과 문서를 서로 다른 방식으로 인코딩하는 이유는 무엇인가요?',
+    shortAnswer:
+      '질문과 문서는 길이도 표현도 달라서 같은 방식으로 임베딩하면 의미가 같아도 벡터가 멀어질 수 있습니다. 그래서 모델에 "이건 질문", "이건 문서"라고 역할을 알려주는 방식으로 인코딩해 서로 잘 맞는 공간에 놓습니다.',
+    deepAnswer:
+      '짧은 질문은 핵심 단어 위주이고 문서는 배경 설명이 많아 표면 형태가 크게 다릅니다. 중요한 것은 그 모델이 학습할 때 쓴 표기 규칙을 그대로 재현하는 것이며, 양쪽에 모두 역할을 붙이는 모델도 있고 질문에만 붙이는 모델도 있어 문서마다 확인해야 합니다. 색인할 때와 검색할 때 역할을 반대로 주거나 한쪽을 빠뜨리면 검색 품질이 조용히 떨어지므로, 두 경로가 같은 규칙을 쓰는지 테스트로 고정해두는 것이 좋습니다.',
+    keyPoints: [
+      '질문과 문서는 표면 형태가 달라 같은 인코딩이 불리함',
+      '색인 시점과 검색 시점의 역할이 어긋나면 품질이 조용히 하락',
+    ],
+    followUp: '색인은 문서용으로 했는데 검색도 문서용으로 인코딩했다면 어떤 증상이 나타날까요?',
+    prerequisites: ['rag-embedding-model-index'],
+  },
+  {
+    id: 'rag-embedding-truncation-normalize',
+    category: 'rag',
+    difficulty: 'advanced',
+    term: 'Matryoshka Truncation · L2 Normalization',
+    prompt: '임베딩 차원을 줄여 저장 비용을 아낄 때 무엇을 함께 확인해야 하나요?',
+    shortAnswer:
+      '앞쪽 차원만 잘라 써도 되도록 학습된 Matryoshka 계열 모델이어야 성능이 유지되고, 자른 벡터는 길이가 1이 아니게 되므로 다시 정규화해야 합니다. 코사인은 크기에 영향받지 않지만 내적이나 유클리드 거리는 단위 길이를 전제하므로 이때 순위가 왜곡됩니다.',
+    deepAnswer:
+      '차원을 줄이면 저장 용량과 검색 속도는 좋아지지만 미세한 의미 구분이 흐려져 상위 순위가 뒤바뀔 수 있으므로, 줄인 차원에서 검색 품질 지표를 다시 측정해야 합니다. 절단을 전제로 학습되지 않은 모델이라면 그냥 자르지 말고 PCA 같은 차원 축소를 쓰는 편이 안전합니다. 정규화 여부와 거리 함수는 짝이 맞아야 하고, 색인은 정규화하고 질의는 안 하는 불일치가 흔한 실수이며, 색인된 벡터의 규칙을 바꾸면 전체 재색인이 필요합니다.',
+    keyPoints: [
+      '차원 절단을 전제로 학습된 모델인지 먼저 확인',
+      '내적·유클리드 인덱스는 단위 길이를 전제하므로 정규화 필요',
+    ],
+    followUp: '차원을 절반으로 줄였는데 검색 품질이 거의 같았다면 그것을 어떻게 확인했나요?',
+    prerequisites: ['rag-asymmetric-embedding', 'math-vector-dot-product'],
+  },
+  {
+    id: 'rag-korean-lexical-tokenization',
+    category: 'rag',
+    difficulty: 'intermediate',
+    term: 'Korean Tokenization · Lexical Search',
+    prompt: '한국어에서 단어 단위 키워드 검색이 영어보다 어려운 이유는 무엇인가요?',
+    shortAnswer:
+      '한국어는 교착어라 체언에는 조사가, 용언 어간에는 어미가 붙어 같은 단어가 여러 형태로 나타나기 때문입니다. 공백 기준으로 자르면 "학습을"과 "학습은"이 달라져 매칭이 실패하므로, 형태소 분석기를 쓰거나 글자 n-gram으로 쪼갭니다.',
+    deepAnswer:
+      '형태소 분석은 정확하지만 사전과 실행 비용이 필요하고 신조어에 약하며, n-gram은 사전 없이 견고하지만 색인이 커지고 의미 없는 조각도 매칭돼 잡음이 늘어납니다. 어느 쪽이든 어휘 검색은 표기가 다르면 못 찾으므로 의미 기반 벡터 검색과 함께 쓰는 편이 안전합니다. 영어 기준으로 튜닝된 검색 설정을 그대로 가져오면 한국어에서 성능이 떨어질 수 있다는 점도 함께 봐야 합니다.',
+    keyPoints: [
+      '조사·어미 결합 때문에 공백 분리만으로는 매칭 실패',
+      '형태소 분석과 n-gram은 정확도와 견고함의 trade-off',
+    ],
+    followUp: 'n-gram 방식이 형태소 분석보다 유리해지는 상황은 언제인가요?',
+    prerequisites: ['rag-bm25-ranking'],
+  },
+  {
+    id: 'rag-context-budget-allocation',
+    category: 'rag',
+    difficulty: 'intermediate',
+    term: 'Context Budget',
+    prompt: '제한된 컨텍스트를 지시문, 대화 이력, 검색 결과에 어떻게 나눠 담아야 하나요?',
+    shortAnswer:
+      '고정으로 반드시 필요한 지시문을 먼저 확보하고, 남은 공간을 검색 결과와 최근 대화에 배분한 뒤, 넘치면 오래된 대화부터 요약하거나 버립니다. 배분 비율은 과제 성격에 따라 달라져 실험으로 정합니다.',
+    deepAnswer:
+      '검색 결과를 무조건 많이 넣는다고 정확도가 오르지 않고, 관련 없는 문단이 늘면 오히려 핵심이 묻혀 답이 나빠질 수 있습니다. 또 긴 컨텍스트에서는 중간에 있는 정보가 상대적으로 덜 반영되는 경향이 보고되어 중요한 근거를 앞이나 뒤에 배치하는 것이 유리할 수 있습니다. 예산 초과는 예외 상황이 아니라 일상이므로 무엇을 먼저 버릴지 우선순위를 미리 정해둬야 합니다.',
+    keyPoints: [
+      '고정 지시문 확보 후 남은 공간을 배분하는 순서',
+      '검색 결과는 많을수록 좋은 것이 아님',
+    ],
+    followUp: '검색 문서 수를 5개에서 20개로 늘렸는데 정확도가 떨어졌다면 무엇을 의심하나요?',
+    prerequisites: ['rag-context-packing-citation', 'llm-tokenization-context-window'],
+  },
+  {
+    id: 'rag-index-freshness',
+    category: 'rag',
+    difficulty: 'intermediate',
+    term: 'Index Freshness · Reindexing',
+    prompt: '원본 문서가 바뀌었는데 인덱스가 그대로면 어떤 문제가 생기나요?',
+    shortAnswer:
+      '모델이 예전 내용을 근거로 확신 있게 답해 사용자가 틀린 정보를 사실로 받아들입니다. 그래서 변경된 문서만 감지해 다시 색인하고, 삭제된 문서는 인덱스에서도 제거하는 경로가 필요합니다.',
+    deepAnswer:
+      '전체 재색인은 단순하지만 비용과 시간이 커서 자주 하기 어렵고, 변경분만 갱신하려면 문서 식별자와 버전을 안정적으로 관리해야 합니다. 임베딩 모델을 교체하면 기존 벡터와 의미 공간이 달라 전체 재색인이 필요하다는 점도 함께 봐야 합니다. 답변에 근거 문서의 시점을 함께 보여주면 오래된 정보로 인한 오해를 줄일 수 있습니다.',
+    keyPoints: [
+      '갱신·삭제가 인덱스에 반영되지 않으면 확신에 찬 오답이 발생',
+      '임베딩 모델 교체는 전체 재색인을 요구',
+    ],
+    followUp: '문서 삭제가 인덱스에 반영되지 않으면 사용자에게 어떤 일이 생기나요?',
+    prerequisites: ['rag-embedding-model-index', 'rag-chunking-vector-db'],
+  },
 ] as const satisfies readonly StudyQuestion[]
