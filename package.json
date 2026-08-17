@@ -25,6 +25,7 @@
     "build:content": "node scripts/build-question-bank.mjs",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
     "audit:style": "node scripts/audit-content-style.mjs",
+    "check:content": "npm run build:content && node scripts/check-content-structure.mjs",
     "prebuild:web": "npm run build:content",
     "build:web": "tsc -b && vite build --mode production",
     "prebuild:standalone": "npm run build:content",
@@ -32,7 +33,7 @@
     "build:ait": "ait build",
     "build:release": "npm run build:web && npm run build:standalone && npm run build:ait && npm run check:bundle",
     "build": "npm run build:release",
-    "verify": "npm run check && npm run check:architecture && npm run typecheck && npm run test && npm run eval && npm run build",
+    "verify": "npm run check && npm run check:architecture && npm run typecheck && npm run test && npm run eval && npm run check:content && npm run build",
     "preview": "vite preview --mode production",
     "preview:standalone": "vite preview --mode standalone --host 0.0.0.0",
     "deploy": "ait deploy"
