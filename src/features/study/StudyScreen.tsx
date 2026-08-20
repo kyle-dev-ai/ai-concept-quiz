@@ -62,7 +62,7 @@ export function StudyScreen({
   adsEnabled,
   bannerAds,
   speech,
-  revealDelaySeconds = 10,
+  revealDelaySeconds = 15,
   onExit,
   onReveal,
   onRate,

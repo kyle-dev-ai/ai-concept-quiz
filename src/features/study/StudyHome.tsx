@@ -107,7 +107,7 @@ export function StudyHome({
             explain it?
           </p>
           <p>
-            답을 보기 전에 10초만 말해보세요.
+            답을 보기 전에 15초만 말해보세요.
             <br />
             막힌 부분만 다시 보면 돼요.
           </p>
