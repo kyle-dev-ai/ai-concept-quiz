@@ -20,6 +20,8 @@ import {
   type StudyQuestion,
   type StudyScope,
 } from '../../domain/learning/question'
+import type { DailyQuote } from '../../domain/learning/quote'
+import { quoteOfTheDay } from '../../domain/learning/quote'
 import { planReview } from '../../domain/learning/review'
 import {
   getDailyQuestion,
@@ -46,6 +48,7 @@ interface StudyHomeProps {
   readonly onStartDaily: (question: StudyQuestion) => void
   /** 방금 연속 기록이 하루 늘었는지. 불꽃을 한 번 터뜨릴 때 쓴다. */
   readonly streakJustGrew?: boolean
+  readonly quotes: readonly DailyQuote[]
 }
 
 export function StudyHome({
@@ -58,6 +61,7 @@ export function StudyHome({
   onStart,
   onStartDaily,
   streakJustGrew = false,
+  quotes,
 }: StudyHomeProps) {
   const goal = learningGoalById[profile.learningGoalId]
   const learnerGroup = learnerGroupById[profile.groupId]
@@ -76,6 +80,7 @@ export function StudyHome({
   const weakCount = weakQuestions(questions, progress).length
   const reviewedToday = countReviewedOn(progress)
   const { ref: categoryGridRef, isInView: isCategoryGridInView } = useInView<HTMLDivElement>()
+  const quote = quoteOfTheDay(quotes)
   const briefing = dailyBriefing({
     nickname: profile.nickname,
     reviewedToday,
@@ -232,6 +237,16 @@ export function StudyHome({
           </span>
         </button>
       ) : null}
+
+      {quote === undefined ? null : (
+        <figure className="daily-quote home-enter home-enter--quote">
+          <blockquote>{quote.text}</blockquote>
+          <figcaption>
+            {quote.author}
+            {quote.source === undefined ? null : <small>{quote.source}</small>}
+          </figcaption>
+        </figure>
+      )}
 
       <section className="home-section" aria-labelledby="goal-title">
         <div className="section-heading">

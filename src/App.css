@@ -1001,6 +1001,45 @@
   animation-delay: 140ms;
 }
 
+.home-enter--quote {
+  animation-delay: 240ms;
+}
+
+/* 오늘의 문장 */
+.daily-quote {
+  margin: 20px 0 0;
+  padding: 18px 20px;
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius-small);
+  background: var(--paper-bright);
+}
+
+.daily-quote blockquote {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.daily-quote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.daily-quote figcaption small {
+  color: var(--muted-light);
+  font-size: 11px;
+  font-weight: 500;
+}
+
 .home-enter--weak {
   animation-delay: 210ms;
 }

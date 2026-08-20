@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { runtimeConfig } from './app/config/runtime-config'
 import type { AppDependencies } from './app/dependencies'
 import { appDependencies } from './app/dependencies'
+import { dailyQuotes } from './content/daily-quotes'
 import { type LearningGoalId, learningGoalById } from './domain/learning/goal'
 import {
   createLearnerProfile,
@@ -524,6 +525,7 @@ function App({ dependencies = appDependencies }: AppProps) {
           onStart={startScope}
           onStartDaily={(question) => startSingle(question, 'daily')}
           streakJustGrew={streakJustGrew}
+          quotes={dailyQuotes}
         />
       ) : null}
       {activeTab === 'library' ? (
