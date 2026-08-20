@@ -74,7 +74,9 @@ describe('App learning flow', () => {
     )
     await user.click(screen.getByRole('button', { name: '저장하고 시작하기' }))
 
-    expect(await screen.findByRole('heading', { name: 'Can you explain it?' })).toBeInTheDocument()
+    // 홈 첫 화면은 오늘 상태에 따라 문장이 바뀐다. 아직 아무것도 안 한 상태다.
+    expect(await screen.findByRole('heading', { name: '오늘 첫 개념' })).toBeInTheDocument()
+    expect(screen.getByText(/좋은|늦은 밤|마무리/)).toBeInTheDocument()
     expect(saveProfile).toHaveBeenCalledTimes(1)
     expect(screen.getByLabelText('설명력 점수 0점, LV1 씨앗 질문가')).toHaveTextContent('0/100')
     // 오늘의 상태는 목표 링과 불꽃으로 보여준다.

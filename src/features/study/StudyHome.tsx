@@ -1,5 +1,6 @@
 import { type CSSProperties, useState } from 'react'
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
+import { dailyBriefing } from '../../domain/learning/briefing'
 import { type LearningGoalId, learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
 import {
@@ -75,6 +76,13 @@ export function StudyHome({
   const weakCount = weakQuestions(questions, progress).length
   const reviewedToday = countReviewedOn(progress)
   const { ref: categoryGridRef, isInView: isCategoryGridInView } = useInView<HTMLDivElement>()
+  const briefing = dailyBriefing({
+    nickname: profile.nickname,
+    reviewedToday,
+    goal: dailyReviewGoal,
+    dueCount,
+    streak,
+  })
   const recommendedCategories = new Set(goal.recommendedCategories)
   const [isLevelGuideOpen, setIsLevelGuideOpen] = useState(false)
 
@@ -112,37 +120,27 @@ export function StudyHome({
       </header>
 
       <section className="home-hero home-enter" aria-labelledby="home-title">
-        <div className="home-hero__copy">
-          <span className="eyebrow">한 문제씩</span>
-          <h1 id="home-title" className="sr-only">
-            Can you explain it?
-          </h1>
-          <p className="home-hero__watermark" aria-hidden="true">
-            Can you <br />
-            explain it?
-          </p>
-          <p>
-            답을 보기 전에 15초만 말해보세요.
-            <br />
-            막힌 부분만 다시 보면 돼요.
-          </p>
+        <div className="home-hero__glow" aria-hidden="true" />
 
-          {/* 지금 들어와야 할 이유를 히어로에서 바로 보여준다. */}
-          <div className="home-hero__today">
-            {dueCount > 0 ? (
-              <button
-                type="button"
-                className="due-chip due-chip--action"
-                onClick={() => onStart('recommended')}
-              >
-                <span aria-hidden="true">●</span>
-                복습할 개념 {dueCount}개
-              </button>
-            ) : (
-              <span className="due-chip">밀린 복습 없음</span>
-            )}
-          </div>
+        <div className="home-hero__copy">
+          <span className="eyebrow">{briefing.greeting}</span>
+          <h1 id="home-title" className="home-hero__headline" data-tone={briefing.tone}>
+            {briefing.headline}
+          </h1>
+          <p>{briefing.detail}</p>
+
+          <button
+            type="button"
+            className="button button--primary button--large home-hero__start"
+            onClick={() => onStart('recommended')}
+          >
+            {dueCount > 0 ? `복습 ${dueCount}개 포함해 시작` : '바로 시작하기'}
+            <span className="round-arrow" aria-hidden="true">
+              →
+            </span>
+          </button>
         </div>
+
         <div
           className="home-hero__signal"
           role="status"
