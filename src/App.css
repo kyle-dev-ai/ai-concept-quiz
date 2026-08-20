@@ -985,6 +985,72 @@
   line-height: 1.55;
 }
 
+/*
+ * 홈에 들어설 때 위에서부터 차례로 자리를 잡는다.
+ * 한꺼번에 나타나면 눈이 어디를 봐야 할지 모르므로 순서를 준다.
+ */
+.home-enter {
+  animation: home-enter-rise 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+.home-enter--daily {
+  animation-delay: 90ms;
+}
+
+.home-enter--weak {
+  animation-delay: 150ms;
+}
+
+@keyframes home-enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 오늘 아직 안 풀었으면 오늘의 문제가 먼저 눈에 들어오게 한다. */
+.daily-challenge[data-waiting="true"] {
+  position: relative;
+  border-color: var(--blue-border-strong);
+}
+
+.daily-challenge[data-waiting="true"]::after {
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--blue);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+  animation: daily-halo 2.6s ease-out infinite;
+}
+
+@keyframes daily-halo {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  55%,
+  100% {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-enter {
+    animation: none;
+  }
+
+  .daily-challenge[data-waiting="true"]::after {
+    animation: none;
+    opacity: 0.45;
+  }
+}
+
 .home-hero__today {
   position: relative;
   z-index: 2;

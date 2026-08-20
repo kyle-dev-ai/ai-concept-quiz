@@ -37,6 +37,7 @@ function renderScreen(overrides: Partial<Parameters<typeof StudyScreen>[0]> = {}
       adsEnabled={false}
       bannerAds={{ attach: () => () => undefined }}
       speech={silentSpeech()}
+      countdownCue={{ prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() }}
       revealDelaySeconds={0}
       onExit={vi.fn()}
       onReveal={vi.fn()}
@@ -185,5 +186,70 @@ describe('StudyScreen', () => {
 
     expect(attempts).toBe(2)
     expect(screen.queryByText(/마이크 권한이 꺼져 있어요/)).not.toBeInTheDocument()
+  })
+
+  it('마지막 5초에 들어서면 버튼을 붉게 강조하고 초마다 짙어진다', async () => {
+    vi.useFakeTimers()
+    renderScreen({ revealDelaySeconds: 7 })
+
+    // 7초, 6초는 아직 평상시 상태다.
+    expect(screen.getByRole('button', { name: /7초 뒤에/ })).not.toHaveAttribute('data-urgency')
+    await act(async () => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByRole('button', { name: /6초 뒤에/ })).not.toHaveAttribute('data-urgency')
+
+    // 5초부터 강조가 시작되고, 초가 줄수록 단계가 올라간다.
+    await act(async () => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByRole('button', { name: /5초 뒤에/ })).toHaveAttribute('data-urgency', '5')
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000)
+    })
+    const lastSecond = screen.getByRole('button', { name: /2초 뒤에/ })
+    expect(lastSecond).toHaveAttribute('data-urgency', '2')
+
+    // 남은 초가 줄수록 맥박이 빨라진다.
+    expect(lastSecond.style.getPropertyValue('--countdown-pulse')).toBe('520ms')
+  })
+
+  it('마지막 네 초를 소리로 세고 답이 열릴 때 마무리 소리를 낸다', async () => {
+    vi.useFakeTimers()
+    const countdownCue = { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() }
+    renderScreen({ revealDelaySeconds: 7, countdownCue })
+
+    // 초마다 렌더가 일어나야 매초를 세므로 1초씩 진행한다.
+    async function advanceOneSecond() {
+      await act(async () => {
+        vi.advanceTimersByTime(1000)
+      })
+    }
+
+    // 7 → 5 구간에서는 아직 조용하다.
+    await advanceOneSecond()
+    await advanceOneSecond()
+    expect(countdownCue.tick).not.toHaveBeenCalled()
+
+    // 4, 3, 2, 1 네 번의 뜨.
+    for (let count = 0; count < 4; count += 1) {
+      await advanceOneSecond()
+    }
+    expect(countdownCue.tick).toHaveBeenCalledTimes(4)
+    expect(countdownCue.finish).not.toHaveBeenCalled()
+
+    // 0이 되는 순간의 뜬!
+    await advanceOneSecond()
+    expect(countdownCue.finish).toHaveBeenCalledTimes(1)
+    expect(countdownCue.tick).toHaveBeenCalledTimes(4)
+  })
+
+  it('기다릴 시간이 없으면 소리를 내지 않는다', () => {
+    const countdownCue = { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() }
+    renderScreen({ revealDelaySeconds: 0, countdownCue })
+
+    expect(countdownCue.tick).not.toHaveBeenCalled()
+    expect(countdownCue.finish).not.toHaveBeenCalled()
   })
 })

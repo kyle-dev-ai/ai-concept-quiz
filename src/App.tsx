@@ -222,6 +222,9 @@ function App({ dependencies = appDependencies }: AppProps) {
       return
     }
 
+    // 브라우저는 사용자 조작 안에서만 오디오 시작을 허용한다.
+    dependencies.countdownCue.prepare()
+
     const queue = createStudyQueue(
       questions,
       scope,
@@ -249,6 +252,7 @@ function App({ dependencies = appDependencies }: AppProps) {
   }
 
   function startSingle(question: StudyQuestion, kind: 'daily' | 'single' = 'single') {
+    dependencies.countdownCue.prepare()
     setSession({
       source: { kind, question },
       queue: [question],
@@ -438,6 +442,7 @@ function App({ dependencies = appDependencies }: AppProps) {
         adsEnabled={runtimeConfig.adsEnabled}
         bannerAds={dependencies.bannerAds}
         speech={dependencies.speechRecognizer}
+        countdownCue={dependencies.countdownCue}
         bestSimilarity={progress.questions[question.id]?.bestSimilarity ?? 0}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}

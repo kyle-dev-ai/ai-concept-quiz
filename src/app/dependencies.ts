@@ -2,6 +2,7 @@ import { createPlatformKeyValueStore } from '#platform-key-value-store'
 import type { AppBadge } from '../application/ports/app-badge'
 import type { BannerAdProvider } from '../application/ports/banner-ad-provider'
 import type { ChallengeShare } from '../application/ports/challenge-share'
+import type { CountdownCue } from '../application/ports/countdown-cue'
 import type { ProfileRepository } from '../application/ports/profile-repository'
 import type { ProgressRepository } from '../application/ports/progress-repository'
 import type { QuestionRepository } from '../application/ports/question-repository'
@@ -11,6 +12,7 @@ import type { ThemeController } from '../application/ports/theme-controller'
 import type { ThemePreferenceRepository } from '../application/ports/theme-preference-repository'
 import { StaticQuestionRepository } from '../content/static-question-repository'
 import { UnavailableBannerAdProvider } from '../infrastructure/ads/unavailable-banner-ad-provider'
+import { WebAudioCountdownCue } from '../infrastructure/audio/web-audio-countdown-cue'
 import { BrowserAppBadge } from '../infrastructure/badge/browser-app-badge'
 import { BrowserChallengeShare } from '../infrastructure/share/browser-challenge-share'
 import { BrowserSpeechRecognizer } from '../infrastructure/speech/browser-speech-recognizer'
@@ -32,6 +34,7 @@ export interface AppDependencies {
   readonly bannerAds: BannerAdProvider
   readonly speechRecognizer: SpeechRecognizer
   readonly appBadge: AppBadge
+  readonly countdownCue: CountdownCue
 }
 
 export function createAppDependencies(): AppDependencies {
@@ -48,6 +51,7 @@ export function createAppDependencies(): AppDependencies {
     bannerAds: new UnavailableBannerAdProvider(),
     speechRecognizer: new BrowserSpeechRecognizer(),
     appBadge: new BrowserAppBadge(),
+    countdownCue: new WebAudioCountdownCue(),
   }
 }
 

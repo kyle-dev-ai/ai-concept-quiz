@@ -41,6 +41,10 @@
   --rule: #dce3ef;
   --rule-84: rgb(220 227 239 / 84%);
   --danger: #e94f64;
+  /* 카운트다운 마지막 5초가 투명도를 올려가며 짙어질 때 쓴다. */
+  --danger-rgb: 233 79 100;
+  --urgent: #d31f3d;
+  --on-urgent: #ffffff;
   --warning: #f2a33a;
   --success: #1d9b64;
   --shadow-card: 0 16px 45px rgb(23 32 51 / 10%);
@@ -107,6 +111,9 @@
   --rule: #35445f;
   --rule-84: rgb(53 68 95 / 88%);
   --danger: #ff8091;
+  --danger-rgb: 255 128 145;
+  --urgent: #ff4661;
+  --on-urgent: #1a0b10;
   --warning: #ffc466;
   --success: #5bd99a;
   --shadow-card: 0 16px 45px rgb(0 0 0 / 32%), 0 0 0 1px rgb(145 169 222 / 7%);
@@ -159,6 +166,9 @@
     --rule: #35445f;
     --rule-84: rgb(53 68 95 / 88%);
     --danger: #ff8091;
+    --danger-rgb: 255 128 145;
+    --urgent: #ff4661;
+    --on-urgent: #1a0b10;
     --warning: #ffc466;
     --success: #5bd99a;
     --shadow-card: 0 16px 45px rgb(0 0 0 / 32%), 0 0 0 1px rgb(145 169 222 / 7%);
@@ -310,6 +320,63 @@ ul {
   border: 1px solid var(--rule);
   box-shadow: none;
   cursor: not-allowed;
+}
+
+/*
+ * 마지막 5초. 남은 초가 줄수록 붉은 기가 짙어지고 맥박이 빨라진다.
+ * 전역 button:disabled의 반투명 처리는 색을 흐리게 하므로 여기서 되돌린다.
+ */
+.button--countdown[data-urgency]:disabled {
+  border-color: transparent;
+  opacity: 1;
+  transition:
+    background-color 320ms ease,
+    color 320ms ease;
+}
+
+.button--countdown[data-urgency="5"]:disabled {
+  color: var(--danger);
+  background: rgb(var(--danger-rgb) / 16%);
+}
+
+.button--countdown[data-urgency="4"]:disabled {
+  color: var(--danger);
+  background: rgb(var(--danger-rgb) / 30%);
+}
+
+.button--countdown[data-urgency="3"]:disabled {
+  color: var(--urgent);
+  background: rgb(var(--danger-rgb) / 46%);
+}
+
+.button--countdown[data-urgency="2"]:disabled {
+  color: var(--on-urgent);
+  background: rgb(var(--danger-rgb) / 70%);
+}
+
+.button--countdown[data-urgency="1"]:disabled {
+  color: var(--on-urgent);
+  background: var(--urgent);
+}
+
+.button--countdown[data-urgency]:disabled {
+  animation: countdown-pulse var(--countdown-pulse, 900ms) ease-in-out infinite;
+}
+
+@keyframes countdown-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.022);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button--countdown[data-urgency]:disabled {
+    animation: none;
+  }
 }
 
 .button--large {

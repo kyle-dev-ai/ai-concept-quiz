@@ -25,6 +25,7 @@ function createTestDependencies() {
     bannerAds: { attach: () => () => undefined },
     speechRecognizer: { isSupported: false, start: () => ({ stop: () => undefined }) },
     appBadge: { set: setBadge },
+    countdownCue: { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() },
   }
 
   return {

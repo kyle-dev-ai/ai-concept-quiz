@@ -24,6 +24,7 @@ import {
   questionsForScope,
   weakQuestions,
 } from '../../domain/learning/session'
+import { CountUpNumber } from '../../shared/components/CountUpNumber'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
 import { GoalSelector } from '../goal-selector/GoalSelector'
 import { AdSlot } from '../monetization/AdSlot'
@@ -101,7 +102,7 @@ export function StudyHome({
         </div>
       </header>
 
-      <section className="home-hero" aria-labelledby="home-title">
+      <section className="home-hero home-enter" aria-labelledby="home-title">
         <div className="home-hero__copy">
           <span className="eyebrow">한 문제씩</span>
           <h1 id="home-title" className="sr-only">
@@ -146,7 +147,7 @@ export function StudyHome({
           <StudyBuddy mood={streak > 0 ? 'celebrate' : 'calm'} size="medium" />
           <div className="home-hero__score">
             <span>
-              {masteryScore}
+              <CountUpNumber value={masteryScore} />
               <small>/100</small>
             </span>
             <strong>
@@ -166,7 +167,8 @@ export function StudyHome({
       {dailyQuestion === undefined ? null : (
         <button
           type="button"
-          className="daily-challenge"
+          className="daily-challenge home-enter home-enter--daily"
+          data-waiting={!studiedToday}
           onClick={() => onStartDaily(dailyQuestion)}
         >
           <div className="daily-challenge__meta">
@@ -184,7 +186,11 @@ export function StudyHome({
       )}
 
       {weakCount > 0 ? (
-        <button type="button" className="weak-callout" onClick={() => onStart('weak')}>
+        <button
+          type="button"
+          className="weak-callout home-enter home-enter--weak"
+          onClick={() => onStart('weak')}
+        >
           <span className="weak-callout__label">아직 못 말한 핵심 포인트</span>
           <strong>{weakCount}개 개념 다시 말해보기</strong>
           <span className="round-arrow" aria-hidden="true">

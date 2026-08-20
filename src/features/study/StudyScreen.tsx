@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import type { ShareResult } from '../../application/ports/challenge-share'
+import type { CountdownCue } from '../../application/ports/countdown-cue'
 import type {
   SpeechFailure,
   SpeechRecognizer,
@@ -19,6 +20,7 @@ interface StudyScreenProps {
   readonly adsEnabled: boolean
   readonly bannerAds: BannerAdProvider
   readonly speech: SpeechRecognizer
+  readonly countdownCue: CountdownCue
   /** 답을 열기 전에 소리 내어 설명할 시간(초). 0이면 곧바로 열 수 있다. */
   readonly revealDelaySeconds?: number
   readonly onExit: () => void
@@ -50,6 +52,9 @@ const failureMessage: Record<SpeechFailure, string> = {
   error: '음성 인식을 시작하지 못했어요. 소리 내어 말한 뒤 직접 평가해주세요.',
 }
 
+/** 카운트다운이 시각·청각으로 급해지기 시작하는 지점(초). */
+const urgentSeconds = 5
+
 const bandMessage = {
   high: '모범 답과 표현이 많이 겹쳐요.',
   partial: '핵심은 닿았지만 빠진 표현이 있어요.',
@@ -64,6 +69,7 @@ export function StudyScreen({
   adsEnabled,
   bannerAds,
   speech,
+  countdownCue,
   bestSimilarity = 0,
   revealDelaySeconds = 15,
   onExit,
@@ -84,6 +90,8 @@ export function StudyScreen({
 
   const progress = ((index + 1) / total) * 100
   const canReveal = remainingSeconds <= 0
+  // 마지막 5초는 색이 짙어지고 맥박이 빨라진다.
+  const isUrgent = remainingSeconds > 0 && remainingSeconds <= urgentSeconds
 
   const stopListening = useCallback(() => {
     sessionRef.current?.stop()
@@ -128,6 +136,20 @@ export function StudyScreen({
       sessionRef.current = null
     }
   }, [speech])
+
+  // 마지막 초를 소리로 알린다. 뜨(4) 뜨(3) 뜨(2) 뜨(1) 뜬!(0)
+  useEffect(() => {
+    if (revealDelaySeconds <= 0 || isRevealed) {
+      return
+    }
+    if (remainingSeconds === 0) {
+      countdownCue.finish()
+      return
+    }
+    if (remainingSeconds < urgentSeconds) {
+      countdownCue.tick()
+    }
+  }, [countdownCue, isRevealed, remainingSeconds, revealDelaySeconds])
 
   // 남은 시간이 0이 될 때까지 1초씩 줄인다.
   // 0이 되면 isCountingDown이 false로 바뀌며 cleanup이 interval을 정리한다.
@@ -342,8 +364,14 @@ export function StudyScreen({
         {!isRevealed ? (
           <button
             type="button"
-            className="button button--primary button--large button--wide"
+            className="button button--primary button--large button--wide button--countdown"
             disabled={!canReveal}
+            data-urgency={isUrgent ? remainingSeconds : undefined}
+            style={
+              isUrgent
+                ? ({ '--countdown-pulse': `${260 + remainingSeconds * 130}ms` } as CSSProperties)
+                : undefined
+            }
             onClick={reveal}
           >
             {canReveal ? '답 확인하기' : `${remainingSeconds}초 뒤에 답을 볼 수 있어요`}
