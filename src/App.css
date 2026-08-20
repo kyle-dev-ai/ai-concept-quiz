@@ -946,19 +946,7 @@
   z-index: 2;
 }
 
-.home-hero__watermark::after {
-  position: absolute;
-  right: 4px;
-  bottom: -8px;
-  width: 68%;
-  height: 7px;
-  border-top: 2px solid var(--blue-rule);
-  border-radius: 50%;
-  content: "";
-  transform: rotate(-2deg);
-}
-
-.home-hero__copy > p:not(.home-hero__watermark) {
+.home-hero__copy > p {
   margin-top: 14px;
   color: var(--muted);
   font-size: 13px;
