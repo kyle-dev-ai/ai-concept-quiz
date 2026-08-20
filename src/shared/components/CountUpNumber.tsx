@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react'
+import { prefersReducedMotion } from './reduced-motion'
 
 interface CountUpNumberProps {
   readonly value: number
   /** 0에서 value까지 올라가는 데 걸리는 시간(ms). */
   readonly durationMs?: number
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
 }
 
 /** 끝에서 부드럽게 감속해 마지막 숫자가 또렷하게 멈춘다. */

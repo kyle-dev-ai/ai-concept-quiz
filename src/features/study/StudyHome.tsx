@@ -125,6 +125,7 @@ export function StudyHome({
       </header>
 
       <section className="home-hero home-enter" aria-labelledby="home-title">
+        <div className="home-hero__grid" aria-hidden="true" />
         <div className="home-hero__glow" aria-hidden="true" />
 
         <div className="home-hero__copy">
@@ -178,7 +179,7 @@ export function StudyHome({
             <span className="today-card__label">오늘의 목표</span>
             <strong>
               {reviewedToday >= dailyReviewGoal
-                ? '오늘 몫 완료'
+                ? '오늘 미션 완료'
                 : `${reviewedToday}/${dailyReviewGoal}개 확인`}
             </strong>
           </div>

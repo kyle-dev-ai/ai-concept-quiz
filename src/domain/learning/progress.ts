@@ -156,7 +156,7 @@ export function calculateStreak(progress: LearningProgress, today = new Date()):
   return streak
 }
 
-/** 하루에 이만큼 확인하면 오늘 몫은 다 한 것으로 본다. */
+/** 하루에 이만큼 확인하면 오늘 미션은 다 한 것으로 본다. */
 export const dailyReviewGoal = 5
 
 /**

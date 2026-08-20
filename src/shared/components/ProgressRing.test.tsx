@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ProgressRing } from './ProgressRing'
 
@@ -7,16 +7,18 @@ function ringValue(container: HTMLElement): SVGCircleElement | null {
 }
 
 describe('ProgressRing', () => {
-  it('진행한 만큼만 링을 채운다', () => {
+  it('진행한 만큼만 링을 채운다', async () => {
     const { container } = render(<ProgressRing value={2} goal={5} label="오늘의 목표" />)
 
     expect(screen.getByLabelText('오늘의 목표 5개 중 2개')).toBeInTheDocument()
 
-    const circle = ringValue(container)
-    const circumference = Number(circle?.getAttribute('stroke-dasharray'))
-    const offset = Number(circle?.getAttribute('stroke-dashoffset'))
-    // 2/5를 채웠으므로 남은 3/5만큼 비워진다.
-    expect(offset / circumference).toBeCloseTo(0.6, 5)
+    // 링은 빈 상태에서 시작해 목표만큼 차오른다.
+    await waitFor(() => {
+      const circle = ringValue(container)
+      const circumference = Number(circle?.getAttribute('stroke-dasharray'))
+      const offset = Number(circle?.getAttribute('stroke-dashoffset'))
+      expect(offset / circumference).toBeCloseTo(0.6, 5)
+    })
   })
 
   it('목표를 채우면 완료로 표시한다', () => {
@@ -26,10 +28,12 @@ describe('ProgressRing', () => {
     expect(container.querySelector('.progress-ring')).toHaveAttribute('data-complete', 'true')
   })
 
-  it('목표를 넘겨도 링이 넘치지 않는다', () => {
+  it('목표를 넘겨도 링이 넘치지 않는다', async () => {
     const { container } = render(<ProgressRing value={9} goal={5} label="오늘의 목표" />)
 
-    expect(Number(ringValue(container)?.getAttribute('stroke-dashoffset'))).toBe(0)
+    await waitFor(() =>
+      expect(Number(ringValue(container)?.getAttribute('stroke-dashoffset'))).toBe(0),
+    )
     expect(screen.getByLabelText('오늘의 목표 5개 중 9개')).toBeInTheDocument()
   })
 

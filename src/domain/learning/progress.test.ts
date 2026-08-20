@@ -113,7 +113,7 @@ describe('learning progress', () => {
     expect(hasWeakness(progress.questions.never)).toBe(false)
   })
 
-  it('오늘 확인한 문항만 오늘 몫으로 센다', () => {
+  it('오늘 확인한 문항만 오늘 미션으로 센다', () => {
     let progress = createInitialProgress()
     progress = recordReview(progress, 'yesterday-one', 'known', new Date(2026, 7, 20, 22))
     progress = recordReview(progress, 'today-one', 'known', new Date(2026, 7, 21, 9))
@@ -124,7 +124,7 @@ describe('learning progress', () => {
     expect(countReviewedOn(progress, new Date(2026, 7, 19, 23))).toBe(0)
   })
 
-  it('같은 문항을 두 번 봐도 오늘 몫은 하나로 센다', () => {
+  it('같은 문항을 두 번 봐도 오늘 미션은 하나로 센다', () => {
     let progress = createInitialProgress()
     progress = recordReview(progress, 'same', 'unsure', new Date(2026, 7, 21, 9))
     progress = recordReview(progress, 'same', 'known', new Date(2026, 7, 21, 20))

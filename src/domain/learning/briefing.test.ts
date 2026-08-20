@@ -42,7 +42,7 @@ describe('dailyBriefing', () => {
   it('목표를 채우면 완료로 바꾸고 연속 기록을 붙인다', () => {
     const briefing = dailyBriefing({ ...base, reviewedToday: 5, streak: 12 })
 
-    expect(briefing.headline).toBe('오늘 몫 완료')
+    expect(briefing.headline).toBe('오늘 미션 완료')
     expect(briefing.detail).toContain('12일째')
     expect(briefing.tone).toBe('done')
   })

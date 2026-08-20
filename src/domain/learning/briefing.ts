@@ -28,7 +28,7 @@ function greetingFor(hour: number): string {
 }
 
 /**
- * 오늘 몫이 얼마나 남았는지에 따라 첫 화면의 문장을 고른다.
+ * 오늘 미션이 얼마나 남았는지에 따라 첫 화면의 문장을 고른다.
  *
  * 홈에 들어왔을 때 가장 먼저 읽히는 자리라, 통계가 아니라
  * 지금 무엇을 하면 되는지를 말한다.
@@ -46,7 +46,7 @@ export function dailyBriefing({
   if (reviewedToday >= goal && goal > 0) {
     return {
       greeting,
-      headline: '오늘 몫 완료',
+      headline: '오늘 미션 완료',
       detail: streak > 1 ? `${streak}일째 이어가는 중이에요.` : '내일도 이 자리에서 이어가요.',
       tone: 'done',
     }
@@ -56,7 +56,7 @@ export function dailyBriefing({
     return {
       greeting,
       headline: `${goal - reviewedToday}개만 더`,
-      detail: '이어서 하면 오늘 몫이 끝나요.',
+      detail: '이어서 하면 오늘 미션이 끝나요.',
       tone: 'progress',
     }
   }
