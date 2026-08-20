@@ -11,7 +11,7 @@ export const categoryIds = [
 
 export type CategoryId = (typeof categoryIds)[number]
 export type Difficulty = 'foundation' | 'intermediate' | 'advanced'
-export type StudyScope = 'recommended' | 'all' | CategoryId
+export type StudyScope = 'recommended' | 'all' | 'weak' | CategoryId
 
 export interface StudyQuestion {
   readonly id: string

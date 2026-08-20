@@ -10,6 +10,13 @@ interface StudyCompleteProps {
   readonly level: LearnerLevel
   /** 내일 복습할 때가 되는 문항 수. */
   readonly dueTomorrow: number
+  /** 이번 세션에서 기록된 발화 유사도. 음성 인식을 쓴 문항만 담긴다. */
+  readonly similarities: readonly number[]
+  /** 이번 세션에서 개인 최고 유사도를 넘긴 횟수. */
+  readonly recordsBroken: number
+  /** 아직 말하지 못한 핵심 포인트가 남은 문항 수. */
+  readonly weakCount: number
+  readonly onStartWeak: () => void
   readonly adsEnabled: boolean
   readonly bannerAds: BannerAdProvider
   readonly onRestart: () => void
@@ -24,6 +31,10 @@ export function StudyComplete({
   masteryScore,
   level,
   dueTomorrow,
+  similarities,
+  recordsBroken,
+  weakCount,
+  onStartWeak,
   adsEnabled,
   bannerAds,
   onRestart,
@@ -31,6 +42,10 @@ export function StudyComplete({
 }: StudyCompleteProps) {
   const pointsToNextLevel =
     level.nextScore === null ? null : Math.max(0, level.nextScore - masteryScore)
+  const averageSimilarity =
+    similarities.length === 0
+      ? null
+      : Math.round(similarities.reduce((total, value) => total + value, 0) / similarities.length)
 
   return (
     <main className="study-complete">
@@ -67,7 +82,32 @@ export function StudyComplete({
         </div>
       ) : null}
 
+      {averageSimilarity === null ? null : (
+        <section className="spoken-summary" aria-label={`오늘 평균 유사도 ${averageSimilarity}%`}>
+          <div className="spoken-summary__row">
+            <span>말한 답 평균 유사도</span>
+            <strong>{averageSimilarity}%</strong>
+          </div>
+          {recordsBroken > 0 ? (
+            <p className="spoken-summary__record">
+              <span aria-hidden="true">★</span>
+              개인 최고 기록 {recordsBroken}개 경신
+            </p>
+          ) : null}
+        </section>
+      )}
+
       <p>많이 넘긴 날보다, 하나를 설명한 날이 더 오래 남아요.</p>
+
+      {weakCount > 0 ? (
+        <button type="button" className="weak-callout" onClick={onStartWeak}>
+          <span className="weak-callout__label">아직 못 말한 핵심 포인트</span>
+          <strong>{weakCount}개 개념 다시 말해보기</strong>
+          <span className="round-arrow" aria-hidden="true">
+            →
+          </span>
+        </button>
+      ) : null}
 
       {/* 세션 직후가 다시 올 이유를 알려주기 가장 좋은 순간이다. */}
       <div className="next-review" role="status">

@@ -113,4 +113,50 @@ describe('device repositories', () => {
     await storage.setItem('attention-ai-theme-v1', 'sepia')
     await expect(repository.load()).resolves.toBe('light')
   })
+
+  it('발화 기록을 저장하고 그대로 불러온다', async () => {
+    const repository = new LocalProgressRepository(new MemoryKeyValueStore())
+    const progress = recordReview(
+      createInitialProgress(),
+      'attention',
+      'unsure',
+      new Date('2026-08-21T00:00:00.000Z'),
+      { similarity: 61, missedKeyPoints: ['softmax로 가중치를 정규화'] },
+    )
+
+    await repository.save(progress)
+
+    await expect(repository.load()).resolves.toEqual(progress)
+  })
+
+  it('저장소가 손상되어도 발화 기록의 범위와 형식을 신뢰하지 않는다', async () => {
+    const storage = new MemoryKeyValueStore()
+    await storage.setItem(
+      'attention-ai-progress-v1',
+      JSON.stringify({
+        version: 1,
+        selectedGoal: 'graduate-school',
+        questions: {
+          attention: {
+            rating: 'known',
+            reviewCount: 1,
+            lastReviewedAt: '2026-08-21T00:00:00.000Z',
+            bestSimilarity: 9999,
+            lastSimilarity: -3,
+            missedKeyPoints: ['정상', 42, null],
+            injected: 'should not survive',
+          },
+        },
+        activityDates: ['2026-08-21'],
+      }),
+    )
+
+    const loaded = await new LocalProgressRepository(storage).load()
+    const entry = loaded.questions.attention
+
+    expect(entry?.bestSimilarity).toBeUndefined()
+    expect(entry?.lastSimilarity).toBeUndefined()
+    expect(entry?.missedKeyPoints).toEqual(['정상'])
+    expect(entry).not.toHaveProperty('injected')
+  })
 })

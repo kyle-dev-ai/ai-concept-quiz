@@ -16,11 +16,12 @@ import {
   type KnowledgeRating,
   type LearningProgress,
   recordReview,
+  type SpokenAttempt,
   withSelectedGoal,
 } from './domain/learning/progress'
 import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
 import { countDueOn, nextDay, planReview } from './domain/learning/review'
-import { createStudyQueue } from './domain/learning/session'
+import { createStudyQueue, weakQuestions } from './domain/learning/session'
 import type { ThemePreference } from './domain/preferences/theme'
 import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
 import { LibraryScreen } from './features/library/LibraryScreen'
@@ -47,6 +48,10 @@ interface StudySession {
   readonly index: number
   readonly label: string
   readonly reviewedCount: number
+  /** 이번 세션에서 기록된 발화 유사도. 음성 인식을 쓴 문항만 담긴다. */
+  readonly similarities: readonly number[]
+  /** 이번 세션에서 개인 최고 유사도를 넘긴 횟수. */
+  readonly recordsBroken: number
   readonly completed: boolean
 }
 
@@ -206,6 +211,9 @@ function App({ dependencies = appDependencies }: AppProps) {
     if (scope === 'all') {
       return '전체 랜덤'
     }
+    if (scope === 'weak') {
+      return '약점 다시 말하기'
+    }
     return categoryById[scope].label
   }
 
@@ -233,6 +241,8 @@ function App({ dependencies = appDependencies }: AppProps) {
       index: 0,
       label: labelForScope(scope),
       reviewedCount: 0,
+      similarities: [],
+      recordsBroken: 0,
       completed: false,
     })
     dependencies.telemetry.track({ name: 'study_started', scope, questionCount: queue.length })
@@ -245,12 +255,17 @@ function App({ dependencies = appDependencies }: AppProps) {
       index: 0,
       label: kind === 'daily' ? '오늘의 10초 구술' : '다시 설명하기',
       reviewedCount: 0,
+      similarities: [],
+      recordsBroken: 0,
       completed: false,
     })
     dependencies.telemetry.track({ name: 'study_started', scope: kind, questionCount: 1 })
   }
 
-  async function rateCurrentQuestion(rating: KnowledgeRating): Promise<void> {
+  async function rateCurrentQuestion(
+    rating: KnowledgeRating,
+    attempt?: SpokenAttempt,
+  ): Promise<void> {
     if (session === null) {
       return
     }
@@ -259,7 +274,8 @@ function App({ dependencies = appDependencies }: AppProps) {
       return
     }
 
-    const nextProgress = recordReview(progress, question.id, rating)
+    const previousBest = progress.questions[question.id]?.bestSimilarity ?? 0
+    const nextProgress = recordReview(progress, question.id, rating, new Date(), attempt)
     try {
       await dependencies.progress.save(nextProgress)
     } catch (error) {
@@ -273,7 +289,18 @@ function App({ dependencies = appDependencies }: AppProps) {
       if (currentSession === null || currentQuestion?.id !== question.id) {
         return currentSession
       }
-      return { ...currentSession, reviewedCount: currentSession.reviewedCount + 1 }
+      return {
+        ...currentSession,
+        reviewedCount: currentSession.reviewedCount + 1,
+        similarities:
+          attempt === undefined
+            ? currentSession.similarities
+            : [...currentSession.similarities, attempt.similarity],
+        recordsBroken:
+          attempt !== undefined && attempt.similarity > previousBest
+            ? currentSession.recordsBroken + 1
+            : currentSession.recordsBroken,
+      }
     })
     dependencies.telemetry.track({
       name: 'review_recorded',
@@ -389,6 +416,10 @@ function App({ dependencies = appDependencies }: AppProps) {
           masteryScore={completionScore}
           level={getLearnerLevel(completionScore)}
           dueTomorrow={countDueOn(questions, progress, nextDay(new Date()))}
+          similarities={session.similarities}
+          recordsBroken={session.recordsBroken}
+          weakCount={weakQuestions(questions, progress).length}
+          onStartWeak={() => startScope('weak')}
           adsEnabled={runtimeConfig.adsEnabled}
           bannerAds={dependencies.bannerAds}
           onRestart={restartSession}
@@ -407,6 +438,7 @@ function App({ dependencies = appDependencies }: AppProps) {
         adsEnabled={runtimeConfig.adsEnabled}
         bannerAds={dependencies.bannerAds}
         speech={dependencies.speechRecognizer}
+        bestSimilarity={progress.questions[question.id]?.bestSimilarity ?? 0}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}
         onRate={rateCurrentQuestion}

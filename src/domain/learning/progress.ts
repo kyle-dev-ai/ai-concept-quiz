@@ -8,6 +8,18 @@ export interface QuestionProgress {
   readonly rating: KnowledgeRating
   readonly reviewCount: number
   readonly lastReviewedAt: string
+  /** 이 문항에서 지금까지 받은 가장 높은 발화 유사도(0~100). */
+  readonly bestSimilarity?: number
+  /** 가장 최근 발화 유사도(0~100). */
+  readonly lastSimilarity?: number
+  /** 가장 최근에 말하지 못한 핵심 포인트. 약점 덱을 꾸릴 때 쓴다. */
+  readonly missedKeyPoints?: readonly string[]
+}
+
+/** 한 번의 발화 시도에서 나온 결과. 음성 인식을 못 쓰면 기록되지 않는다. */
+export interface SpokenAttempt {
+  readonly similarity: number
+  readonly missedKeyPoints: readonly string[]
 }
 
 export interface LearningProgress {
@@ -60,9 +72,25 @@ export function recordReview(
   questionId: string,
   rating: KnowledgeRating,
   reviewedAt = new Date(),
+  attempt?: SpokenAttempt,
 ): LearningProgress {
   const previous = progress.questions[questionId]
   const localDate = toLocalDate(reviewedAt)
+
+  // 발화 기록은 음성 인식이 동작한 경우에만 갱신한다. 마이크를 못 쓴 날이
+  // 최고 기록을 지우면 안 되므로 기존 값을 그대로 물려준다.
+  const spoken =
+    attempt === undefined
+      ? {
+          bestSimilarity: previous?.bestSimilarity,
+          lastSimilarity: previous?.lastSimilarity,
+          missedKeyPoints: previous?.missedKeyPoints,
+        }
+      : {
+          bestSimilarity: Math.max(previous?.bestSimilarity ?? 0, attempt.similarity),
+          lastSimilarity: attempt.similarity,
+          missedKeyPoints: attempt.missedKeyPoints,
+        }
 
   return {
     ...progress,
@@ -72,10 +100,20 @@ export function recordReview(
         rating,
         reviewCount: (previous?.reviewCount ?? 0) + 1,
         lastReviewedAt: reviewedAt.toISOString(),
+        ...(spoken.bestSimilarity === undefined ? {} : { bestSimilarity: spoken.bestSimilarity }),
+        ...(spoken.lastSimilarity === undefined ? {} : { lastSimilarity: spoken.lastSimilarity }),
+        ...(spoken.missedKeyPoints === undefined
+          ? {}
+          : { missedKeyPoints: spoken.missedKeyPoints }),
       },
     },
     activityDates: Array.from(new Set([...progress.activityDates, localDate])).slice(-366),
   }
+}
+
+/** 이 문항에서 아직 말하지 못한 핵심 포인트가 남아 있는지. */
+export function hasWeakness(entry: QuestionProgress | undefined): boolean {
+  return (entry?.missedKeyPoints?.length ?? 0) > 0
 }
 
 export function toLocalDate(date: Date): string {

@@ -6,7 +6,7 @@ import type {
   SpeechRecognizer,
   SpeechSession,
 } from '../../application/ports/speech-recognizer'
-import type { KnowledgeRating } from '../../domain/learning/progress'
+import type { KnowledgeRating, SpokenAttempt } from '../../domain/learning/progress'
 import { categoryById, difficultyLabel, type StudyQuestion } from '../../domain/learning/question'
 import { scoreSpokenAnswer, similarityBand } from '../../domain/learning/spoken-answer'
 import { AdSlot } from '../monetization/AdSlot'
@@ -23,7 +23,9 @@ interface StudyScreenProps {
   readonly revealDelaySeconds?: number
   readonly onExit: () => void
   readonly onReveal: () => void
-  readonly onRate: (rating: KnowledgeRating) => Promise<void>
+  /** 이 문항에서 지금까지 받은 최고 유사도. 기록 경신을 알릴 때 쓴다. */
+  readonly bestSimilarity?: number
+  readonly onRate: (rating: KnowledgeRating, attempt?: SpokenAttempt) => Promise<void>
   readonly onNext: () => void
   // 공유 링크 목적지가 없어(토스 WebView 내부 URL) 화면에서는 비활성화 상태다.
   // standalone HTTPS 주소가 생기면 아래 주석 처리된 공유 UI와 함께 되살린다.
@@ -62,6 +64,7 @@ export function StudyScreen({
   adsEnabled,
   bannerAds,
   speech,
+  bestSimilarity = 0,
   revealDelaySeconds = 15,
   onExit,
   onReveal,
@@ -141,6 +144,9 @@ export function StudyScreen({
     return () => clearInterval(timer)
   }, [isCountingDown])
 
+  const spokenScore = transcript.trim().length > 0 ? scoreSpokenAnswer(transcript, question) : null
+  const isPersonalBest = spokenScore !== null && spokenScore.similarity > bestSimilarity
+
   async function rate(nextRating: KnowledgeRating) {
     if (rating !== null || isSavingRating) {
       return
@@ -150,7 +156,17 @@ export function StudyScreen({
     setPendingRating(nextRating)
     setRatingError(false)
     try {
-      await onRate(nextRating)
+      await onRate(
+        nextRating,
+        spokenScore === null
+          ? undefined
+          : {
+              similarity: spokenScore.similarity,
+              missedKeyPoints: spokenScore.coverage
+                .filter((entry) => !entry.covered)
+                .map((entry) => entry.keyPoint),
+            },
+      )
       setRating(nextRating)
     } catch {
       setRatingError(true)
@@ -165,8 +181,6 @@ export function StudyScreen({
     setIsRevealed(true)
     onReveal()
   }
-
-  const spokenScore = transcript.trim().length > 0 ? scoreSpokenAnswer(transcript, question) : null
 
   return (
     <main className="study-screen">
@@ -225,6 +239,13 @@ export function StudyScreen({
                     <small>%</small>
                   </strong>
                 </div>
+                {isPersonalBest && bestSimilarity > 0 ? (
+                  <p className="spoken-score__record">
+                    <span aria-hidden="true">★</span>
+                    최고 기록 경신! 지난 기록 {bestSimilarity}%
+                  </p>
+                ) : null}
+
                 <p className="spoken-score__message">
                   {bandMessage[similarityBand(spokenScore.similarity)]}
                 </p>

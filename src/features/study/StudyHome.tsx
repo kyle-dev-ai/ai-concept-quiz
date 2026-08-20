@@ -22,6 +22,7 @@ import {
   getDailyQuestion,
   maxSessionLength,
   questionsForScope,
+  weakQuestions,
 } from '../../domain/learning/session'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
 import { GoalSelector } from '../goal-selector/GoalSelector'
@@ -63,6 +64,7 @@ export function StudyHome({
   const streak = calculateStreak(progress)
   const studiedToday = hasStudiedToday(progress)
   const dueCount = reviewPlan.due.length
+  const weakCount = weakQuestions(questions, progress).length
   const recommendedCategories = new Set(goal.recommendedCategories)
   const [isLevelGuideOpen, setIsLevelGuideOpen] = useState(false)
 
@@ -180,6 +182,16 @@ export function StudyHome({
           </div>
         </button>
       )}
+
+      {weakCount > 0 ? (
+        <button type="button" className="weak-callout" onClick={() => onStart('weak')}>
+          <span className="weak-callout__label">아직 못 말한 핵심 포인트</span>
+          <strong>{weakCount}개 개념 다시 말해보기</strong>
+          <span className="round-arrow" aria-hidden="true">
+            →
+          </span>
+        </button>
+      ) : null}
 
       <section className="home-section" aria-labelledby="goal-title">
         <div className="section-heading">

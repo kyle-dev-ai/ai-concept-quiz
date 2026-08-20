@@ -11,6 +11,8 @@ import {
 const storageKey = 'attention-ai-progress-v1'
 const maxStoredProgressLength = 500_000
 const maxStoredQuestionCount = 500
+const maxStoredKeyPointCount = 8
+const maxStoredKeyPointLength = 200
 const questionIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 function isIsoDate(value: unknown): value is string {
@@ -34,6 +36,10 @@ function isLocalDate(value: unknown): value is string {
   )
 }
 
+function isSimilarity(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100
+}
+
 function isQuestionProgress(value: unknown): value is QuestionProgress {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -47,6 +53,28 @@ function isQuestionProgress(value: unknown): value is QuestionProgress {
     (candidate.reviewCount ?? 0) >= 1 &&
     isIsoDate(candidate.lastReviewedAt)
   )
+}
+
+/**
+ * 저장된 값에서 알고 있는 필드만 골라 다시 만든다.
+ * 그대로 통과시키면 손댄 저장소의 임의 키가 그대로 살아남는다.
+ */
+function sanitizeQuestionProgress(entry: QuestionProgress): QuestionProgress {
+  const missed = Array.isArray(entry.missedKeyPoints)
+    ? entry.missedKeyPoints
+        .filter((point): point is string => typeof point === 'string')
+        .slice(0, maxStoredKeyPointCount)
+        .map((point) => point.slice(0, maxStoredKeyPointLength))
+    : undefined
+
+  return {
+    rating: entry.rating,
+    reviewCount: entry.reviewCount,
+    lastReviewedAt: entry.lastReviewedAt,
+    ...(isSimilarity(entry.bestSimilarity) ? { bestSimilarity: entry.bestSimilarity } : {}),
+    ...(isSimilarity(entry.lastSimilarity) ? { lastSimilarity: entry.lastSimilarity } : {}),
+    ...(missed === undefined ? {} : { missedKeyPoints: missed }),
+  }
 }
 
 function parseProgress(raw: string | null): LearningProgress {
@@ -72,7 +100,8 @@ function parseProgress(raw: string | null): LearningProgress {
         .filter(
           (entry): entry is [string, QuestionProgress] =>
             questionIdPattern.test(entry[0]) && isQuestionProgress(entry[1]),
-        ),
+        )
+        .map(([id, entry]) => [id, sanitizeQuestionProgress(entry)] as const),
     )
 
     return {
