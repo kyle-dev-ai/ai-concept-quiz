@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { runtimeConfig } from './app/config/runtime-config'
 import type { AppDependencies } from './app/dependencies'
 import { appDependencies } from './app/dependencies'
@@ -13,6 +13,7 @@ import {
   calculateStreak,
   createInitialProgress,
   getLearnerLevel,
+  getLearnerLevelNumber,
   type KnowledgeRating,
   type LearningProgress,
   recordReview,
@@ -28,6 +29,7 @@ import { OnboardingScreen, type OnboardingValue } from './features/goal-selector
 import { LibraryScreen } from './features/library/LibraryScreen'
 import { ThemeSwitcher } from './features/preferences/ThemeSwitcher'
 import { ProfileScreen } from './features/profile/ProfileScreen'
+import { LevelUpCelebration } from './features/progress/LevelUpCelebration'
 import { ProgressScreen } from './features/progress/ProgressScreen'
 import { StudyComplete } from './features/study/StudyComplete'
 import { StudyHome } from './features/study/StudyHome'
@@ -67,6 +69,10 @@ function App({ dependencies = appDependencies }: AppProps) {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [loadError, setLoadError] = useState(false)
+  const [celebratedLevel, setCelebratedLevel] = useState<number | null>(null)
+  // 처음 불러온 값은 축하 대상이 아니다. 앱을 쓰는 동안 올라간 것만 기린다.
+  const lastLevelRef = useRef<number | null>(null)
+  const lastStreakRef = useRef<number | null>(null)
   const viewIdentity = `${activeTab}:${isEditingProfile ? 'editing' : 'viewing'}:${profile === null ? 'onboarding' : 'profile'}:${session?.index ?? 'none'}:${session?.completed === true ? 'complete' : 'active'}`
 
   useEffect(() => {
@@ -134,6 +140,30 @@ function App({ dependencies = appDependencies }: AppProps) {
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [viewIdentity])
+
+  const masteryScore = calculateMasteryScore(progress, questions.length)
+  const streak = calculateStreak(progress)
+  const streakJustGrew = lastStreakRef.current !== null && streak > lastStreakRef.current
+
+  // 레벨이 오른 순간에만 축하를 띄운다.
+  useEffect(() => {
+    if (!isReady || loadError || questions.length === 0) {
+      return
+    }
+
+    const levelNumber = getLearnerLevelNumber(masteryScore)
+    if (lastLevelRef.current !== null && levelNumber > lastLevelRef.current) {
+      setCelebratedLevel(levelNumber)
+    }
+    lastLevelRef.current = levelNumber
+  }, [isReady, loadError, masteryScore, questions.length])
+
+  useEffect(() => {
+    if (!isReady || loadError) {
+      return
+    }
+    lastStreakRef.current = streak
+  }, [isReady, loadError, streak])
 
   // 홈화면에 설치했을 때 밀린 복습 수를 아이콘 배지로 알린다.
   // 설치하지 않았거나 지원하지 않는 환경에서는 어댑터가 조용히 넘긴다.
@@ -439,13 +469,12 @@ function App({ dependencies = appDependencies }: AppProps) {
   if (session !== null) {
     const question = session.queue[session.index]
     if (session.completed || question === undefined) {
-      const completionScore = calculateMasteryScore(progress, questions.length)
       return withThemeSwitcher(
         <StudyComplete
           reviewedCount={session.reviewedCount}
           streak={calculateStreak(progress)}
-          masteryScore={completionScore}
-          level={getLearnerLevel(completionScore)}
+          masteryScore={masteryScore}
+          level={getLearnerLevel(masteryScore)}
           dueTomorrow={countDueOn(questions, progress, nextDay(new Date()))}
           similarities={session.similarities}
           recordsBroken={session.recordsBroken}
@@ -493,6 +522,7 @@ function App({ dependencies = appDependencies }: AppProps) {
           onGoalChange={changeGoal}
           onStart={startScope}
           onStartDaily={(question) => startSingle(question, 'daily')}
+          streakJustGrew={streakJustGrew}
         />
       ) : null}
       {activeTab === 'library' ? (
@@ -524,6 +554,13 @@ function App({ dependencies = appDependencies }: AppProps) {
         />
       ) : null}
       <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
+      {celebratedLevel === null ? null : (
+        <LevelUpCelebration
+          levelNumber={celebratedLevel}
+          level={getLearnerLevel(masteryScore)}
+          onClose={() => setCelebratedLevel(null)}
+        />
+      )}
     </div>,
   )
 }

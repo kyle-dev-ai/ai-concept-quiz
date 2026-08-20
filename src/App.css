@@ -993,12 +993,185 @@
   animation: home-enter-rise 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
 }
 
+.home-enter--today {
+  animation-delay: 70ms;
+}
+
 .home-enter--daily {
-  animation-delay: 90ms;
+  animation-delay: 140ms;
 }
 
 .home-enter--weak {
-  animation-delay: 150ms;
+  animation-delay: 210ms;
+}
+
+/* 오늘의 상태: 목표 링과 연속 기록 불꽃을 한 줄에 둔다. */
+.today-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-medium);
+  background: var(--surface);
+}
+
+.today-card__goal {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.today-card__label {
+  display: block;
+  color: var(--muted);
+  font-family: var(--font-technical);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.today-card__goal strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.progress-ring {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+.progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+  fill: none;
+  stroke-width: 6;
+}
+
+.progress-ring__track {
+  stroke: var(--rule);
+}
+
+.progress-ring__value {
+  stroke: var(--blue);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 600ms cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.progress-ring[data-complete="true"] .progress-ring__value {
+  stroke: var(--success);
+}
+
+.progress-ring__count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-family: var(--font-technical);
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.progress-ring[data-complete="true"] .progress-ring__count {
+  color: var(--success);
+}
+
+/* 연속 기록 불꽃. 기록이 없으면 회색으로 잠들어 있다. */
+.streak-flame {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px 7px 9px;
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.streak-flame__icon svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  fill: var(--muted-disabled);
+  transition: fill 220ms ease;
+}
+
+.streak-flame[data-lit="true"] .streak-flame__icon svg {
+  fill: var(--warning);
+  animation: flame-flicker 2.2s ease-in-out infinite;
+}
+
+.streak-flame__count {
+  color: var(--muted);
+  font-family: var(--font-technical);
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.streak-flame__count small {
+  margin-left: 1px;
+  font-size: 11px;
+}
+
+.streak-flame[data-lit="true"] .streak-flame__count {
+  color: var(--ink);
+}
+
+.streak-flame[data-burst="true"] {
+  animation: streak-burst 720ms cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.streak-flame[data-burst="true"]::after {
+  position: absolute;
+  border-radius: 999px;
+  content: "";
+  inset: -4px;
+  border: 2px solid var(--warning);
+  animation: streak-ring 720ms ease-out both;
+  pointer-events: none;
+}
+
+.streak-flame {
+  position: relative;
+}
+
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+  45% {
+    transform: scale(1.09) translateY(-1px);
+  }
+}
+
+@keyframes streak-burst {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes streak-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
 }
 
 @keyframes home-enter-rise {
@@ -1048,6 +1221,131 @@
   .daily-challenge[data-waiting="true"]::after {
     animation: none;
     opacity: 0.45;
+  }
+}
+
+/* 레벨업 축하 */
+.level-up {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--ink-overlay);
+  animation: level-up-in 220ms ease-out both;
+}
+
+.level-up__confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.level-up__confetti i {
+  position: absolute;
+  top: -14px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--lime);
+  animation: confetti-fall 1.5s ease-in forwards;
+}
+
+.level-up__confetti i:nth-child(3n) {
+  background: var(--blue);
+}
+
+.level-up__confetti i:nth-child(3n + 1) {
+  background: var(--warning);
+}
+
+.level-up__card {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  width: min(100%, 320px);
+  padding: 30px 24px 22px;
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--shadow-modal);
+  text-align: center;
+  animation: level-up-card 420ms cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.level-up__badge {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  margin-top: 4px;
+  border-radius: 50%;
+  color: var(--on-accent);
+  background: var(--accent-surface);
+  font-family: var(--font-technical);
+  font-size: 22px;
+  font-weight: 850;
+}
+
+.level-up__card h2 {
+  color: var(--ink);
+  font-size: 21px;
+  font-weight: 850;
+}
+
+.level-up__card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.level-up__card .button {
+  margin-top: 12px;
+}
+
+@keyframes level-up-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes level-up-card {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(105svh) rotate(540deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak-flame[data-lit="true"] .streak-flame__icon svg,
+  .streak-flame[data-burst="true"],
+  .streak-flame[data-burst="true"]::after,
+  .level-up,
+  .level-up__card {
+    animation: none;
+  }
+
+  .level-up__confetti {
+    display: none;
   }
 }
 
@@ -1632,6 +1930,35 @@
   font-weight: 800;
   line-height: 1.3;
   text-overflow: ellipsis;
+}
+
+.category-grid[data-revealed] .category-card {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.category-grid[data-revealed="true"] .category-card {
+  animation: category-reveal 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+  animation-delay: calc(var(--reveal-index, 0) * 55ms);
+}
+
+@keyframes category-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-grid[data-revealed] .category-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 .category-card > span:last-child {

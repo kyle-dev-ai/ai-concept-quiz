@@ -153,6 +153,22 @@ export function calculateStreak(progress: LearningProgress, today = new Date()):
   return streak
 }
 
+/** 하루에 이만큼 확인하면 오늘 몫은 다 한 것으로 본다. */
+export const dailyReviewGoal = 5
+
+/**
+ * 그 날 확인한 문항 수.
+ * 날짜별 집계를 따로 저장하지 않고 각 문항의 마지막 확인 시각에서 센다.
+ */
+export function countReviewedOn(progress: LearningProgress, date = new Date()): number {
+  const target = toLocalDate(date)
+
+  return Object.values(progress.questions).filter((entry) => {
+    const reviewedAt = new Date(entry.lastReviewedAt)
+    return !Number.isNaN(reviewedAt.getTime()) && toLocalDate(reviewedAt) === target
+  }).length
+}
+
 export function calculateMasteryScore(progress: LearningProgress, questionCount: number): number {
   if (questionCount <= 0) {
     return 0

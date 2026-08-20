@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   calculateMasteryScore,
   calculateStreak,
+  countReviewedOn,
   createInitialProgress,
   getLearnerLevel,
   getLearnerLevelNumber,
@@ -110,6 +111,25 @@ describe('learning progress', () => {
     expect(hasWeakness(progress.questions['weak-one'])).toBe(true)
     expect(hasWeakness(progress.questions['solid-one'])).toBe(false)
     expect(hasWeakness(progress.questions.never)).toBe(false)
+  })
+
+  it('오늘 확인한 문항만 오늘 몫으로 센다', () => {
+    let progress = createInitialProgress()
+    progress = recordReview(progress, 'yesterday-one', 'known', new Date(2026, 7, 20, 22))
+    progress = recordReview(progress, 'today-one', 'known', new Date(2026, 7, 21, 9))
+    progress = recordReview(progress, 'today-two', 'unsure', new Date(2026, 7, 21, 21))
+
+    expect(countReviewedOn(progress, new Date(2026, 7, 21, 23))).toBe(2)
+    expect(countReviewedOn(progress, new Date(2026, 7, 20, 23))).toBe(1)
+    expect(countReviewedOn(progress, new Date(2026, 7, 19, 23))).toBe(0)
+  })
+
+  it('같은 문항을 두 번 봐도 오늘 몫은 하나로 센다', () => {
+    let progress = createInitialProgress()
+    progress = recordReview(progress, 'same', 'unsure', new Date(2026, 7, 21, 9))
+    progress = recordReview(progress, 'same', 'known', new Date(2026, 7, 21, 20))
+
+    expect(countReviewedOn(progress, new Date(2026, 7, 21, 23))).toBe(1)
   })
 
   it('0점부터 100점까지 다섯 레벨의 경계를 계산한다', () => {

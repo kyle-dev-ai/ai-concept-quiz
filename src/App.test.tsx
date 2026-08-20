@@ -76,8 +76,10 @@ describe('App learning flow', () => {
 
     expect(await screen.findByRole('heading', { name: 'Can you explain it?' })).toBeInTheDocument()
     expect(saveProfile).toHaveBeenCalledTimes(1)
-    expect(screen.getByLabelText('연속 학습 0일, 오늘 아직 학습 전')).toHaveTextContent('0/100')
-    expect(screen.getByText('오늘 아직')).toBeInTheDocument()
+    expect(screen.getByLabelText('설명력 점수 0점, LV1 씨앗 질문가')).toHaveTextContent('0/100')
+    // 오늘의 상태는 목표 링과 불꽃으로 보여준다.
+    expect(screen.getByLabelText('오늘의 목표 5개 중 0개')).toBeInTheDocument()
+    expect(screen.getByLabelText('연속 학습 0일, 오늘 아직')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /레벨 안내 열기/ }))
     const levelGuide = screen.getByRole('dialog', { name: 'Your level map' })
@@ -118,7 +120,8 @@ describe('App learning flow', () => {
     expect(screen.getByLabelText('연속 학습 1일')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '홈으로' }))
-    expect(screen.getByText('오늘 완료')).toBeInTheDocument()
+    expect(screen.getByLabelText('오늘의 목표 5개 중 1개')).toBeInTheDocument()
+    expect(screen.getByLabelText('연속 학습 1일')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '기록' }))
 
     expect(screen.getByLabelText('설명력 점수 1점')).toBeInTheDocument()

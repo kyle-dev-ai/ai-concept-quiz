@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { type CSSProperties, useState } from 'react'
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import { type LearningGoalId, learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
 import {
   calculateMasteryScore,
   calculateStreak,
+  countReviewedOn,
+  dailyReviewGoal,
   getLearnerLevel,
   getLearnerLevelNumber,
   hasStudiedToday,
@@ -25,7 +27,9 @@ import {
   weakQuestions,
 } from '../../domain/learning/session'
 import { CountUpNumber } from '../../shared/components/CountUpNumber'
+import { ProgressRing } from '../../shared/components/ProgressRing'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
+import { useInView } from '../../shared/components/useInView'
 import { GoalSelector } from '../goal-selector/GoalSelector'
 import { AdSlot } from '../monetization/AdSlot'
 import { LevelGuideSheet } from '../progress/LevelGuideSheet'
@@ -39,6 +43,8 @@ interface StudyHomeProps {
   readonly onGoalChange: (goalId: LearningGoalId) => Promise<void>
   readonly onStart: (scope: StudyScope) => void
   readonly onStartDaily: (question: StudyQuestion) => void
+  /** 방금 연속 기록이 하루 늘었는지. 불꽃을 한 번 터뜨릴 때 쓴다. */
+  readonly streakJustGrew?: boolean
 }
 
 export function StudyHome({
@@ -50,6 +56,7 @@ export function StudyHome({
   onGoalChange,
   onStart,
   onStartDaily,
+  streakJustGrew = false,
 }: StudyHomeProps) {
   const goal = learningGoalById[profile.learningGoalId]
   const learnerGroup = learnerGroupById[profile.groupId]
@@ -66,6 +73,8 @@ export function StudyHome({
   const studiedToday = hasStudiedToday(progress)
   const dueCount = reviewPlan.due.length
   const weakCount = weakQuestions(questions, progress).length
+  const reviewedToday = countReviewedOn(progress)
+  const { ref: categoryGridRef, isInView: isCategoryGridInView } = useInView<HTMLDivElement>()
   const recommendedCategories = new Set(goal.recommendedCategories)
   const [isLevelGuideOpen, setIsLevelGuideOpen] = useState(false)
 
@@ -132,17 +141,12 @@ export function StudyHome({
             ) : (
               <span className="due-chip">밀린 복습 없음</span>
             )}
-            {studiedToday ? (
-              <span className="today-chip today-chip--done">오늘 완료</span>
-            ) : (
-              <span className="today-chip">오늘 아직</span>
-            )}
           </div>
         </div>
         <div
           className="home-hero__signal"
           role="status"
-          aria-label={`연속 학습 ${streak}일${studiedToday ? '' : ', 오늘 아직 학습 전'}`}
+          aria-label={`설명력 점수 ${masteryScore}점, LV${levelNumber} ${level.label}`}
         >
           <StudyBuddy mood={streak > 0 ? 'celebrate' : 'calm'} size="medium" />
           <div className="home-hero__score">
@@ -163,6 +167,38 @@ export function StudyHome({
       </section>
 
       {isLevelGuideOpen ? <LevelGuideSheet score={masteryScore} onClose={closeLevelGuide} /> : null}
+
+      <section className="today-card home-enter home-enter--today" aria-label="오늘의 상태">
+        <div className="today-card__goal">
+          <ProgressRing value={reviewedToday} goal={dailyReviewGoal} label="오늘의 목표" />
+          <div>
+            <span className="today-card__label">오늘의 목표</span>
+            <strong>
+              {reviewedToday >= dailyReviewGoal
+                ? '오늘 몫 완료'
+                : `${reviewedToday}/${dailyReviewGoal}개 확인`}
+            </strong>
+          </div>
+        </div>
+
+        <div
+          className="streak-flame"
+          data-lit={streak > 0}
+          data-burst={streakJustGrew}
+          role="img"
+          aria-label={`연속 학습 ${streak}일${studiedToday ? '' : ', 오늘 아직'}`}
+        >
+          <span className="streak-flame__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation">
+              <path d="M12 2.6c2.4 3.2 1.1 4.9.2 6.2-.8 1.2-.5 2.6.7 3 1.3.4 2.2-.6 2.2-2 1.9 1.7 2.9 3.6 2.9 5.6 0 3.7-3 6.6-6.7 6.6S4.6 19.1 4.6 15.4c0-4.6 4-6.6 5.2-9.6.5-1.2.6-2.3 2.2-3.2Z" />
+            </svg>
+          </span>
+          <span className="streak-flame__count" aria-hidden="true">
+            <CountUpNumber value={streak} durationMs={600} />
+            <small>일</small>
+          </span>
+        </div>
+      </section>
 
       {dailyQuestion === undefined ? null : (
         <button
@@ -259,14 +295,15 @@ export function StudyHome({
           <span aria-hidden="true">→</span>
         </button>
 
-        <div className="category-grid">
-          {categories.map((category) => {
+        <div className="category-grid" ref={categoryGridRef} data-revealed={isCategoryGridInView}>
+          {categories.map((category, index) => {
             const count = questions.filter((question) => question.category === category.id).length
             return (
               <button
                 key={category.id}
                 type="button"
                 className="category-card"
+                style={{ '--reveal-index': index } as CSSProperties}
                 onClick={() => onStart(category.id)}
               >
                 <span className="category-card__topline">
