@@ -3,7 +3,10 @@ import { type ActivityDay, activityWeeks } from '../../domain/learning/progress'
 
 interface ActivityCalendarProps {
   readonly progress: LearningProgress
-  /** 보여줄 주 수. 월요일에 시작하는 주로 끊는다. */
+  /**
+   * 보여줄 주 수. 월요일에 시작하는 주로 끊는다.
+   * 길게 잡을수록 빈칸이 많아져 기록이 짧을 때 실패처럼 읽힌다.
+   */
   readonly weeks?: number
 }
 
@@ -26,7 +29,7 @@ function monthLabel(week: readonly ActivityDay[], previous: readonly ActivityDay
  * `activityDates`는 1년치가 쌓이는데 지금까지 연속 일수 계산에만 쓰였다.
  * 채워진 칸과 빈 칸이 요일 위에 나란히 서면 오늘 칸을 채우고 싶어진다.
  */
-export function ActivityCalendar({ progress, weeks = 6 }: ActivityCalendarProps) {
+export function ActivityCalendar({ progress, weeks = 4 }: ActivityCalendarProps) {
   const calendar = activityWeeks(progress, weeks)
   const activeCount = calendar.flat().filter((day) => day.isActive).length
   const dayCount = calendar.flat().filter((day) => !day.isFuture).length
