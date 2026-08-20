@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { StudyQuestion } from './question'
-import { scoreSpokenAnswer, similarityBand, textSimilarity } from './spoken-answer'
+import {
+  scoreBestCandidate,
+  scoreSpokenAnswer,
+  similarityBand,
+  textSimilarity,
+} from './spoken-answer'
 
 const question: StudyQuestion = {
   id: 'math-vector-dot-product',
@@ -79,5 +84,37 @@ describe('similarityBand', () => {
     expect(similarityBand(10)).toBe('low')
     expect(similarityBand(40)).toBe('partial')
     expect(similarityBand(70)).toBe('high')
+  })
+})
+
+describe('한국어 발음으로 말한 영문 용어', () => {
+  it('한글 발음과 영문 표기를 같은 말로 본다', () => {
+    expect(textSimilarity('어텐션', 'attention')).toBe(100)
+    expect(textSimilarity('엘엘엠', 'LLM')).toBe(100)
+    expect(textSimilarity('그래디언트', 'gradient')).toBe(100)
+    expect(textSimilarity('토큰', 'token')).toBe(100)
+  })
+
+  it('긴 표기를 짧은 표기보다 먼저 바꾼다', () => {
+    // '셀프어텐션'이 '어텐션'에 먼저 먹히면 selfattention이 되지 않는다.
+    expect(textSimilarity('셀프어텐션', 'selfattention')).toBe(100)
+  })
+
+  it('영문 용어를 한글로 말해도 핵심 포인트를 짚은 것으로 본다', () => {
+    const score = scoreSpokenAnswer('코사인 유사도는 크기보다 방향을 비교합니다', question)
+
+    expect(score.coverage[1]?.covered).toBe(true)
+  })
+})
+
+describe('scoreBestCandidate', () => {
+  it('후보 중 가장 잘 맞는 것으로 채점한다', () => {
+    const best = scoreBestCandidate(['전혀 다른 말', question.shortAnswer], question)
+
+    expect(best?.similarity).toBe(100)
+  })
+
+  it('빈 후보만 있으면 채점하지 않는다', () => {
+    expect(scoreBestCandidate(['', '   '], question)).toBeNull()
   })
 })

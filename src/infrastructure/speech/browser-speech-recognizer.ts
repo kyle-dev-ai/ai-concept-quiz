@@ -69,6 +69,10 @@ function failureFor(error: string): SpeechFailure {
 
 const noopSession: SpeechSession = { stop: () => undefined }
 
+// 후보를 늘리면 한글로 뭉개진 영문 용어가 다른 후보에 제대로 담기는 경우가 있다.
+// 너무 늘리면 엉뚱한 문장이 섞이므로 적당한 수에서 끊는다.
+const maxAlternatives = 4
+
 /**
  * 브라우저 내장 음성 인식 어댑터.
  *
@@ -92,29 +96,40 @@ export class BrowserSpeechRecognizer implements SpeechRecognizer {
     recognition.lang = 'ko-KR'
     recognition.continuous = true
     recognition.interimResults = true
-    recognition.maxAlternatives = 1
+    recognition.maxAlternatives = maxAlternatives
 
     // 확정된 조각만 누적하고, 아직 확정 안 된 조각은 매번 뒤에 덧붙여 보여준다.
-    let settled = ''
+    // 후보별로 따로 이어 붙여, 채점이 가장 잘 맞는 후보를 고를 수 있게 한다.
+    const settled: string[] = Array.from({ length: maxAlternatives }, () => '')
     let stopped = false
 
     recognition.onresult = (event) => {
-      let interim = ''
+      const interim: string[] = Array.from({ length: maxAlternatives }, () => '')
+
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
         const result = event.results[index]
-        const alternative = result?.[0]
-        if (result === undefined || alternative === undefined) {
+        const best = result?.[0]
+        if (result === undefined || best === undefined) {
           continue
         }
 
-        if (result.isFinal) {
-          settled += alternative.transcript
-        } else {
-          interim += alternative.transcript
+        for (let choice = 0; choice < maxAlternatives; choice += 1) {
+          // 후보가 하나뿐인 구간은 첫 번째 후보로 채워 문장이 끊기지 않게 한다.
+          const text = (result[choice] ?? best).transcript
+          if (result.isFinal) {
+            settled[choice] += text
+          } else {
+            interim[choice] += text
+          }
         }
       }
 
-      handlers.onTranscript(`${settled}${interim}`.trim())
+      const candidates = settled.map((text, choice) => `${text}${interim[choice] ?? ''}`.trim())
+      const [primary = '', ...rest] = candidates
+      // 후보가 부족한 구간은 첫 후보로 메워지므로 같은 문장이 여러 번 나온다.
+      const others = [...new Set(rest)].filter((text) => text.length > 0 && text !== primary)
+
+      handlers.onTranscript(primary, others)
     }
 
     recognition.onerror = (event) => {

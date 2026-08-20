@@ -9,7 +9,7 @@ import type {
 } from '../../application/ports/speech-recognizer'
 import type { KnowledgeRating, SpokenAttempt } from '../../domain/learning/progress'
 import { categoryById, difficultyLabel, type StudyQuestion } from '../../domain/learning/question'
-import { scoreSpokenAnswer, similarityBand } from '../../domain/learning/spoken-answer'
+import { scoreBestCandidate, similarityBand } from '../../domain/learning/spoken-answer'
 import { AdSlot } from '../monetization/AdSlot'
 
 interface StudyScreenProps {
@@ -89,6 +89,7 @@ export function StudyScreen({
   const [ratingError, setRatingError] = useState(false)
   const [remainingSeconds, setRemainingSeconds] = useState(revealDelaySeconds)
   const [transcript, setTranscript] = useState('')
+  const [alternatives, setAlternatives] = useState<readonly string[]>([])
   const [speechFailure, setSpeechFailure] = useState<SpeechFailure | null>(null)
   const [isListening, setIsListening] = useState(false)
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
@@ -110,7 +111,10 @@ export function StudyScreen({
     setSpeechFailure(null)
 
     const session = speech.start({
-      onTranscript: setTranscript,
+      onTranscript: (text, others) => {
+        setTranscript(text)
+        setAlternatives(others)
+      },
       onFailure: (failure) => {
         setSpeechFailure(failure)
         setIsListening(false)
@@ -128,7 +132,10 @@ export function StudyScreen({
     }
 
     const session = speech.start({
-      onTranscript: setTranscript,
+      onTranscript: (text, others) => {
+        setTranscript(text)
+        setAlternatives(others)
+      },
       onFailure: (failure) => {
         setSpeechFailure(failure)
         setIsListening(false)
@@ -172,7 +179,8 @@ export function StudyScreen({
     return () => clearInterval(timer)
   }, [isCountingDown])
 
-  const spokenScore = transcript.trim().length > 0 ? scoreSpokenAnswer(transcript, question) : null
+  // 화면에는 첫 후보를 보여주고, 점수는 후보 중 가장 잘 맞는 것으로 낸다.
+  const spokenScore = scoreBestCandidate([transcript, ...alternatives], question)
   const isPersonalBest = spokenScore !== null && spokenScore.similarity > bestSimilarity
   // 지난번에 놓쳤던 포인트를 이번에 말했으면 그것만 따로 짚어준다.
   const recoveredKeyPoints =

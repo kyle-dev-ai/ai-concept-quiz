@@ -54,6 +54,20 @@ class FakeRecognition {
     this.onresult?.({ resultIndex, results: resultList })
   }
 
+  /** 결과마다 후보를 여러 개 담아 보낸다. */
+  emitWithAlternatives(results: readonly (readonly string[])[], resultIndex = 0): void {
+    const resultList: Record<string, unknown> = { length: results.length }
+    results.forEach((alternatives, index) => {
+      const entry: Record<string, unknown> = { isFinal: true, length: alternatives.length }
+      alternatives.forEach((transcript, choice) => {
+        entry[choice] = { transcript }
+      })
+      resultList[index] = entry
+    })
+
+    this.onresult?.({ resultIndex, results: resultList })
+  }
+
   fail(error: string): void {
     this.onerror?.({ error })
   }
@@ -106,7 +120,7 @@ describe('BrowserSpeechRecognizer', () => {
     const recognition = FakeRecognition.instances[0]
 
     recognition?.emit([{ isFinal: true, transcript: '벡터는 방향과 크기' }])
-    expect(onTranscript).toHaveBeenLastCalledWith('벡터는 방향과 크기')
+    expect(onTranscript).toHaveBeenLastCalledWith('벡터는 방향과 크기', [])
 
     // results는 누적 목록이고 resultIndex가 새로 들어온 결과의 시작점이다.
     recognition?.emit(
@@ -116,7 +130,7 @@ describe('BrowserSpeechRecognizer', () => {
       ],
       1,
     )
-    expect(onTranscript).toHaveBeenLastCalledWith('벡터는 방향과 크기를 가진 배열')
+    expect(onTranscript).toHaveBeenLastCalledWith('벡터는 방향과 크기를 가진 배열', [])
   })
 
   it('권한 거부와 무음을 구분해 알린다', () => {
@@ -170,5 +184,23 @@ describe('BrowserSpeechRecognizer', () => {
     new BrowserSpeechRecognizer().start({ onTranscript: vi.fn(), onFailure })
 
     expect(onFailure).toHaveBeenCalledWith<[SpeechFailure]>('error')
+  })
+
+  it('인식기가 내놓은 다른 후보를 함께 넘긴다', () => {
+    installRecognition(FakeRecognition)
+    const onTranscript = vi.fn()
+    new BrowserSpeechRecognizer().start({ onTranscript, onFailure: vi.fn() })
+    const recognition = FakeRecognition.instances[0]
+
+    recognition?.emitWithAlternatives([['에레렘은', 'LLM은', 'LLM은']])
+
+    expect(onTranscript).toHaveBeenLastCalledWith('에레렘은', ['LLM은'])
+  })
+
+  it('여러 후보를 요청한다', () => {
+    installRecognition(FakeRecognition)
+    new BrowserSpeechRecognizer().start({ onTranscript: vi.fn(), onFailure: vi.fn() })
+
+    expect(FakeRecognition.instances[0]?.maxAlternatives).toBeGreaterThan(1)
   })
 })

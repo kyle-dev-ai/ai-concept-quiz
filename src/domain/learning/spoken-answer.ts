@@ -1,4 +1,5 @@
 import type { StudyQuestion } from './question'
+import { applyTermAliases } from './term-aliases'
 
 // 말한 답과 모범 답을 비교해 점수를 낸다.
 //
@@ -10,9 +11,12 @@ import type { StudyQuestion } from './question'
 // 브라우저 안에서 끝나는 문자열 비교만 쓴다. 그래서 표현이 달라도 뜻이 같은
 // 답은 낮게 나올 수 있고, 화면에서도 참고값이라고 밝힌다.
 
-/** 비교 전에 공백과 문장부호를 지우고 소문자로 맞춘 문자열. */
+/**
+ * 비교 전에 공백과 문장부호를 지우고 소문자로 맞춘 뒤,
+ * 한국어로 말한 용어를 모범 답과 같은 영문 표기로 모은다.
+ */
 function normalize(text: string): string {
-  return text.toLowerCase().replace(/[^0-9a-z가-힣]/g, '')
+  return applyTermAliases(text.toLowerCase().replace(/[^0-9a-z가-힣]/g, ''))
 }
 
 /** 한국어는 형태소 분석 없이도 글자 2-gram이 잘 맞아 bigram 다중집합을 쓴다. */
@@ -143,6 +147,27 @@ export function scoreSpokenAnswer(transcript: string, question: StudyQuestion): 
     coveredCount: coverage.filter((entry) => entry.covered).length,
     keyPointCount: coverage.length,
   }
+}
+
+/**
+ * 인식기가 내놓은 후보 중 모범 답에 가장 가까운 것으로 채점한다.
+ *
+ * 한국어 인식기는 영문 용어를 뭉개는 일이 잦아, 첫 후보만 쓰면 실제로 제대로
+ * 말한 답이 낮게 나온다. 후보는 모두 사용자가 말했을 수 있는 문장이므로
+ * 인식기의 불확실성 때문에 감점되지 않게 한다.
+ */
+export function scoreBestCandidate(
+  candidates: readonly string[],
+  question: StudyQuestion,
+): SpokenAnswerScore | null {
+  const scored = candidates
+    .filter((candidate) => candidate.trim().length > 0)
+    .map((candidate) => scoreSpokenAnswer(candidate, question))
+
+  return scored.reduce<SpokenAnswerScore | null>(
+    (best, current) => (best === null || current.similarity > best.similarity ? current : best),
+    null,
+  )
 }
 
 /** 점수를 자기평가로 곧장 연결하지 않고, 어느 쪽인지 말로 안내할 때 쓴다. */

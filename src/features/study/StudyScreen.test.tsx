@@ -9,11 +9,11 @@ function silentSpeech(): SpeechRecognizer {
   return { isSupported: true, start: () => ({ stop: () => undefined }) }
 }
 
-function speechSaying(transcript: string): SpeechRecognizer {
+function speechSaying(transcript: string, alternatives: readonly string[] = []): SpeechRecognizer {
   return {
     isSupported: true,
     start: (handlers: SpeechHandlers) => {
-      handlers.onTranscript(transcript)
+      handlers.onTranscript(transcript, alternatives)
       return { stop: () => undefined }
     },
   }
@@ -309,5 +309,17 @@ describe('StudyScreen', () => {
 
     expect(onShare).toHaveBeenCalledTimes(1)
     expect(await screen.findByText('문제와 링크를 복사했어요.')).toBeInTheDocument()
+  })
+
+  it('첫 후보가 뭉개졌어도 더 잘 맞는 후보로 점수를 낸다', async () => {
+    const user = userEvent.setup()
+    const question = firstQuestion()
+
+    // 인식기가 첫 후보를 엉뚱하게 적고, 두 번째 후보에 제대로 담은 상황.
+    renderScreen({ speech: speechSaying('에레렘 어쩌구', [question.shortAnswer]) })
+
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+
+    expect(screen.getByText('100')).toBeInTheDocument()
   })
 })
