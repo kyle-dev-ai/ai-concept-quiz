@@ -7,7 +7,10 @@ const budgets = Object.freeze({
   initialJavaScriptGzip: 125 * kibibyte,
   requiredJavaScriptGzip: 125 * kibibyte,
   totalJavaScriptGzip: 300 * kibibyte,
-  cssGzip: 12 * kibibyte,
+  // CSS는 렌더를 막는 단일 stylesheet다. 2026-08-21 재방문 장치(오늘 목표 링, 학습 달력,
+  // 카운트다운 강조, 레벨업 축하, 설정 스위치)가 들어오며 12 KiB를 넘겨 13으로 올렸다.
+  // 다음에 또 닿으면 예산을 올리지 말고 화면별로 분할하거나 쓰이지 않는 규칙을 걷어낸다.
+  cssGzip: 13 * kibibyte,
   // 질문 은행은 initial JS와 분리된 versioned asset이고 force-cache로 한 번만 받는다.
   // 콘텐츠가 늘어 총량이 커지는 것은 의도된 변화라 총량만으로 막으면 매번 예산을 올리게 된다.
   // 그래서 첫 로딩이 실제로 문제가 되는 지점을 절대 상한으로 두고,

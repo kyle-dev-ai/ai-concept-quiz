@@ -174,31 +174,53 @@ export function countReviewedOn(progress: LearningProgress, date = new Date()): 
 
 export interface ActivityDay {
   readonly date: string
+  readonly dayOfMonth: number
+  readonly month: number
   readonly isActive: boolean
   readonly isToday: boolean
+  /** 이번 주에서 아직 오지 않은 날. 칸은 두되 비워서 보여준다. */
+  readonly isFuture: boolean
 }
 
 /**
- * 오늘까지의 최근 N일을 오래된 날부터 늘어놓는다.
- * 저장해 둔 학습 날짜를 달력으로 보여줄 때 쓴다.
+ * 최근 몇 주를 월요일 시작 달력으로 만든다.
+ *
+ * 연속한 날을 7개씩 끊으면 같은 열이 같은 요일이 아니라서 달력으로 읽히지 않는다.
+ * 이번 주 일요일에서 거꾸로 세어 항상 월요일에 시작하는 주를 만든다.
  */
-export function recentActivity(
+export function activityWeeks(
   progress: LearningProgress,
-  days: number,
+  weekCount: number,
   today = new Date(),
-): ActivityDay[] {
+): ActivityDay[][] {
   const active = new Set(progress.activityDates)
   const todayKey = toLocalDate(today)
-  const result: ActivityDay[] = []
+  const base = new Date(today.getFullYear(), today.getMonth(), today.getDate())
 
-  for (let offset = days - 1; offset >= 0; offset -= 1) {
-    const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    cursor.setDate(cursor.getDate() - offset)
-    const date = toLocalDate(cursor)
-    result.push({ date, isActive: active.has(date), isToday: date === todayKey })
+  // getDay()는 일요일이 0이다. 월요일 시작으로 옮긴다.
+  const weekdayFromMonday = (base.getDay() + 6) % 7
+  const cursor = new Date(base)
+  cursor.setDate(cursor.getDate() + (6 - weekdayFromMonday) - (weekCount * 7 - 1))
+
+  const weeks: ActivityDay[][] = []
+  for (let week = 0; week < weekCount; week += 1) {
+    const days: ActivityDay[] = []
+    for (let day = 0; day < 7; day += 1) {
+      const date = toLocalDate(cursor)
+      days.push({
+        date,
+        dayOfMonth: cursor.getDate(),
+        month: cursor.getMonth() + 1,
+        isActive: active.has(date),
+        isToday: date === todayKey,
+        isFuture: cursor.getTime() > base.getTime(),
+      })
+      cursor.setDate(cursor.getDate() + 1)
+    }
+    weeks.push(days)
   }
 
-  return result
+  return weeks
 }
 
 export function calculateMasteryScore(progress: LearningProgress, questionCount: number): number {

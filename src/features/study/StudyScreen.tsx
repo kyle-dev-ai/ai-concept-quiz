@@ -279,14 +279,14 @@ export function StudyScreen({
                   </strong>
                 </div>
                 {isPersonalBest && bestSimilarity > 0 ? (
-                  <p className="spoken-score__record">
+                  <p className="note-badge">
                     <span aria-hidden="true">★</span>
                     최고 기록 경신! 지난 기록 {bestSimilarity}%
                   </p>
                 ) : null}
 
                 {recoveredKeyPoints.length > 0 ? (
-                  <p className="spoken-score__recovered">
+                  <p className="note-badge note-badge--blue">
                     <span aria-hidden="true">✦</span>
                     지난번 놓친 포인트 {recoveredKeyPoints.length}개를 이번엔 말했어요
                   </p>

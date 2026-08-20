@@ -89,7 +89,7 @@ export function StudyComplete({
             <strong>{averageSimilarity}%</strong>
           </div>
           {recordsBroken > 0 ? (
-            <p className="spoken-summary__record">
+            <p className="note-badge">
               <span aria-hidden="true">★</span>
               개인 최고 기록 {recordsBroken}개 경신
             </p>
