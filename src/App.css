@@ -985,6 +985,70 @@
   line-height: 1.55;
 }
 
+.home-hero__today {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.due-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.due-chip--action {
+  color: var(--on-accent);
+  background: var(--accent-surface);
+  border-color: transparent;
+}
+
+.due-chip--action span {
+  font-size: 8px;
+}
+
+.today-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px dashed var(--blue-dashed);
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font-family: var(--font-technical);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.today-chip--done {
+  border-style: solid;
+  border-color: transparent;
+  color: var(--on-lime);
+  background: var(--lime);
+}
+
+.stat-note {
+  margin-top: 3px;
+  color: var(--muted-light);
+  font-family: var(--font-technical);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+
 .home-hero__signal {
   position: relative;
   z-index: 2;
@@ -2269,6 +2333,70 @@
   color: var(--muted);
   font-size: 14px;
   line-height: 1.6;
+}
+
+.completion-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(100%, 330px);
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.completion-stat {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-medium);
+  background: var(--surface);
+}
+
+.completion-stat strong {
+  color: var(--ink);
+  font-family: var(--font-technical);
+  font-size: 26px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.completion-stat strong small {
+  margin-left: 2px;
+  font-size: 12px;
+}
+
+.completion-stat span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.next-review {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: min(100%, 330px);
+  margin-top: 18px;
+  padding: 13px 16px;
+  border: 1px dashed var(--blue-dashed);
+  border-radius: var(--radius-medium);
+  background: var(--blue-soft);
+}
+
+.next-review__label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.next-review strong {
+  color: var(--blue);
+  font-family: var(--font-technical);
+  font-size: 15px;
+  font-weight: 850;
 }
 
 .study-complete__actions {

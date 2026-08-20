@@ -78,6 +78,25 @@ export function planReview(
 }
 
 /**
+ * 지정한 날짜에 복습할 때가 되는 문항 수.
+ * 세션을 마친 사용자에게 "언제 다시 오면 되는지"를 숫자로 알려줄 때 쓴다.
+ */
+export function countDueOn(
+  questions: readonly StudyQuestion[],
+  progress: LearningProgress,
+  date: Date,
+): number {
+  return planReview(questions, progress, date).due.length
+}
+
+/** 오늘 기준 내일 날짜. 세션 완료 화면이 다음 복습량을 셀 때 쓴다. */
+export function nextDay(today: Date): Date {
+  const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return tomorrow
+}
+
+/**
  * 복습할 문항을 먼저, 그다음 새 문항을 배치한다.
  * 복습만 계속 나와 새 내용을 못 만나는 것을 막으려고 복습 비중에 상한을 둔다.
  */

@@ -12,6 +12,7 @@ function createTestDependencies() {
   const saveThemePreference = vi.fn(async () => undefined)
   const applyTheme = vi.fn()
   const track = vi.fn()
+  const setBadge = vi.fn()
 
   const dependencies: AppDependencies = {
     questions: { list: async () => sampleQuestions },
@@ -23,16 +24,32 @@ function createTestDependencies() {
     challengeShare: { share: async () => 'copied' },
     bannerAds: { attach: () => () => undefined },
     speechRecognizer: { isSupported: false, start: () => ({ stop: () => undefined }) },
+    appBadge: { set: setBadge },
   }
 
-  return { dependencies, saveProfile, saveProgress, saveThemePreference, applyTheme, track }
+  return {
+    dependencies,
+    saveProfile,
+    saveProgress,
+    saveThemePreference,
+    applyTheme,
+    track,
+    setBadge,
+  }
 }
 
 describe('App learning flow', () => {
   it('최소 온보딩부터 답 공개, 자기평가, 점수 반영까지 이어진다', async () => {
     const user = userEvent.setup()
-    const { dependencies, saveProfile, saveProgress, saveThemePreference, applyTheme, track } =
-      createTestDependencies()
+    const {
+      dependencies,
+      saveProfile,
+      saveProgress,
+      saveThemePreference,
+      applyTheme,
+      track,
+      setBadge,
+    } = createTestDependencies()
     render(<App dependencies={dependencies} />)
 
     expect(
@@ -55,7 +72,8 @@ describe('App learning flow', () => {
 
     expect(await screen.findByRole('heading', { name: 'Can you explain it?' })).toBeInTheDocument()
     expect(saveProfile).toHaveBeenCalledTimes(1)
-    expect(screen.getByLabelText('연속 학습 0일')).toHaveTextContent('0/100')
+    expect(screen.getByLabelText('연속 학습 0일, 오늘 아직 학습 전')).toHaveTextContent('0/100')
+    expect(screen.getByText('오늘 아직')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /레벨 안내 열기/ }))
     const levelGuide = screen.getByRole('dialog', { name: 'Your level map' })
@@ -89,7 +107,14 @@ describe('App learning flow', () => {
     await user.click(screen.getByRole('button', { name: '학습 마치기' }))
 
     expect(await screen.findByRole('heading', { name: /1개 개념을/ })).toBeInTheDocument()
+    // 방금 본 문항은 복습 대기가 아니므로 배지는 0으로 정리된다.
+    await waitFor(() => expect(setBadge).toHaveBeenLastCalledWith(0))
+    // '알았다'로 기록한 문항의 다음 복습은 7일 뒤라 내일은 비어 있다.
+    expect(screen.getByText('아직 예정 없음')).toBeInTheDocument()
+    expect(screen.getByLabelText('연속 학습 1일')).toBeInTheDocument()
+
     await user.click(screen.getByRole('button', { name: '홈으로' }))
+    expect(screen.getByText('오늘 완료')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '기록' }))
 
     expect(screen.getByLabelText('설명력 점수 1점')).toBeInTheDocument()

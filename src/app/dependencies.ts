@@ -1,4 +1,5 @@
 import { createPlatformKeyValueStore } from '#platform-key-value-store'
+import type { AppBadge } from '../application/ports/app-badge'
 import type { BannerAdProvider } from '../application/ports/banner-ad-provider'
 import type { ChallengeShare } from '../application/ports/challenge-share'
 import type { ProfileRepository } from '../application/ports/profile-repository'
@@ -10,6 +11,7 @@ import type { ThemeController } from '../application/ports/theme-controller'
 import type { ThemePreferenceRepository } from '../application/ports/theme-preference-repository'
 import { StaticQuestionRepository } from '../content/static-question-repository'
 import { UnavailableBannerAdProvider } from '../infrastructure/ads/unavailable-banner-ad-provider'
+import { BrowserAppBadge } from '../infrastructure/badge/browser-app-badge'
 import { BrowserChallengeShare } from '../infrastructure/share/browser-challenge-share'
 import { BrowserSpeechRecognizer } from '../infrastructure/speech/browser-speech-recognizer'
 import { LocalProfileRepository } from '../infrastructure/storage/local-profile-repository'
@@ -29,6 +31,7 @@ export interface AppDependencies {
   readonly challengeShare: ChallengeShare
   readonly bannerAds: BannerAdProvider
   readonly speechRecognizer: SpeechRecognizer
+  readonly appBadge: AppBadge
 }
 
 export function createAppDependencies(): AppDependencies {
@@ -44,6 +47,7 @@ export function createAppDependencies(): AppDependencies {
     challengeShare: new BrowserChallengeShare(),
     bannerAds: new UnavailableBannerAdProvider(),
     speechRecognizer: new BrowserSpeechRecognizer(),
+    appBadge: new BrowserAppBadge(),
   }
 }
 

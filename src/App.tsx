@@ -9,13 +9,17 @@ import {
   learnerGroupById,
 } from './domain/learning/learner-profile'
 import {
+  calculateMasteryScore,
+  calculateStreak,
   createInitialProgress,
+  getLearnerLevel,
   type KnowledgeRating,
   type LearningProgress,
   recordReview,
   withSelectedGoal,
 } from './domain/learning/progress'
 import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
+import { countDueOn, nextDay, planReview } from './domain/learning/review'
 import { createStudyQueue } from './domain/learning/session'
 import type { ThemePreference } from './domain/preferences/theme'
 import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
@@ -113,6 +117,15 @@ function App({ dependencies = appDependencies }: AppProps) {
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [viewIdentity])
+
+  // 홈화면에 설치했을 때 밀린 복습 수를 아이콘 배지로 알린다.
+  // 설치하지 않았거나 지원하지 않는 환경에서는 어댑터가 조용히 넘긴다.
+  useEffect(() => {
+    if (!isReady || loadError) {
+      return
+    }
+    dependencies.appBadge.set(planReview(questions, progress).due.length)
+  }, [dependencies.appBadge, isReady, loadError, progress, questions])
 
   async function completeOnboarding(value: OnboardingValue) {
     const isUpdatingProfile = profile !== null
@@ -368,9 +381,14 @@ function App({ dependencies = appDependencies }: AppProps) {
   if (session !== null) {
     const question = session.queue[session.index]
     if (session.completed || question === undefined) {
+      const completionScore = calculateMasteryScore(progress, questions.length)
       return withThemeSwitcher(
         <StudyComplete
           reviewedCount={session.reviewedCount}
+          streak={calculateStreak(progress)}
+          masteryScore={completionScore}
+          level={getLearnerLevel(completionScore)}
+          dueTomorrow={countDueOn(questions, progress, nextDay(new Date()))}
           adsEnabled={runtimeConfig.adsEnabled}
           bannerAds={dependencies.bannerAds}
           onRestart={restartSession}

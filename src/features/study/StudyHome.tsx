@@ -7,6 +7,7 @@ import {
   calculateStreak,
   getLearnerLevel,
   getLearnerLevelNumber,
+  hasStudiedToday,
   type LearningProgress,
   summarizeProgress,
 } from '../../domain/learning/progress'
@@ -60,6 +61,8 @@ export function StudyHome({
   const level = getLearnerLevel(masteryScore)
   const levelNumber = getLearnerLevelNumber(masteryScore)
   const streak = calculateStreak(progress)
+  const studiedToday = hasStudiedToday(progress)
+  const dueCount = reviewPlan.due.length
   const recommendedCategories = new Set(goal.recommendedCategories)
   const [isLevelGuideOpen, setIsLevelGuideOpen] = useState(false)
 
@@ -111,8 +114,33 @@ export function StudyHome({
             <br />
             막힌 부분만 다시 보면 돼요.
           </p>
+
+          {/* 지금 들어와야 할 이유를 히어로에서 바로 보여준다. */}
+          <div className="home-hero__today">
+            {dueCount > 0 ? (
+              <button
+                type="button"
+                className="due-chip due-chip--action"
+                onClick={() => onStart('recommended')}
+              >
+                <span aria-hidden="true">●</span>
+                복습할 개념 {dueCount}개
+              </button>
+            ) : (
+              <span className="due-chip">밀린 복습 없음</span>
+            )}
+            {studiedToday ? (
+              <span className="today-chip today-chip--done">오늘 완료</span>
+            ) : (
+              <span className="today-chip">오늘 아직</span>
+            )}
+          </div>
         </div>
-        <div className="home-hero__signal" role="status" aria-label={`연속 학습 ${streak}일`}>
+        <div
+          className="home-hero__signal"
+          role="status"
+          aria-label={`연속 학습 ${streak}일${studiedToday ? '' : ', 오늘 아직 학습 전'}`}
+        >
           <StudyBuddy mood={streak > 0 ? 'celebrate' : 'calm'} size="medium" />
           <div className="home-hero__score">
             <span>

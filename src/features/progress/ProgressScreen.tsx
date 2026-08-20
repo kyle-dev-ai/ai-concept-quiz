@@ -5,6 +5,7 @@ import {
   calculateMasteryScore,
   calculateStreak,
   getLearnerLevel,
+  hasStudiedToday,
   type LearningProgress,
   summarizeProgress,
 } from '../../domain/learning/progress'
@@ -32,6 +33,7 @@ export function ProgressScreen({
 }: ProgressScreenProps) {
   const summary = summarizeProgress(progress)
   const streak = calculateStreak(progress)
+  const studiedToday = hasStudiedToday(progress)
   const masteryScore = calculateMasteryScore(progress, questions.length)
   const level = getLearnerLevel(masteryScore)
   const levelProgress =
@@ -92,6 +94,7 @@ export function ProgressScreen({
             {streak}
             <small>일</small>
           </strong>
+          {studiedToday ? null : <em className="stat-note">오늘 아직</em>}
         </div>
         <div>
           <span>확인한 개념</span>
