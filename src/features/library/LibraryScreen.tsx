@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
+import type { LearningProgress } from '../../domain/learning/progress'
 import {
   type CategoryId,
   categories,
@@ -12,6 +13,7 @@ import { AdSlot } from '../monetization/AdSlot'
 
 interface LibraryScreenProps {
   readonly questions: readonly StudyQuestion[]
+  readonly progress: LearningProgress
   readonly adsEnabled: boolean
   readonly bannerAds: BannerAdProvider
   readonly onStudyCategory: (category: CategoryId) => void
@@ -19,6 +21,7 @@ interface LibraryScreenProps {
 
 export function LibraryScreen({
   questions,
+  progress,
   adsEnabled,
   bannerAds,
   onStudyCategory,
@@ -98,37 +101,58 @@ export function LibraryScreen({
         </section>
       ) : (
         <div className="glossary-list">
-          {filteredQuestions.map((question, index) => (
-            <details key={question.id} className="glossary-item">
-              <summary>
-                <span className="glossary-item__index">{String(index + 1).padStart(2, '0')}</span>
-                <span className="glossary-item__title">
-                  <small>
-                    {categoryById[question.category].shortLabel} ·{' '}
-                    {difficultyLabel[question.difficulty]}
-                  </small>
-                  <strong>{question.term}</strong>
-                  <span>{question.prompt}</span>
-                </span>
-                <span className="glossary-item__toggle" aria-hidden="true">
-                  +
-                </span>
-              </summary>
-              <div className="glossary-item__answer">
-                <span>핵심 답변</span>
-                <p>{question.shortAnswer}</p>
-                <ul>
-                  {question.keyPoints.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-                <div>
-                  <small>꼬리질문</small>
-                  <p>{question.followUp}</p>
+          {filteredQuestions.map((question, index) => {
+            const entry = progress.questions[question.id]
+            return (
+              <details key={question.id} className="glossary-item">
+                <summary>
+                  <span className="glossary-item__index">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="glossary-item__title">
+                    <small>
+                      {categoryById[question.category].shortLabel} ·{' '}
+                      {difficultyLabel[question.difficulty]}
+                    </small>
+                    <strong>{question.term}</strong>
+                    <span>{question.prompt}</span>
+                  </span>
+                  <span className="glossary-item__toggle" aria-hidden="true">
+                    +
+                  </span>
+                </summary>
+                <div className="glossary-item__answer">
+                  {entry?.bestSimilarity === undefined ? null : (
+                    <div className="spoken-trend">
+                      <span className="spoken-trend__label">내 발화 기록</span>
+                      <span className="spoken-trend__values">
+                        {entry.lastSimilarity !== undefined &&
+                        entry.lastSimilarity !== entry.bestSimilarity ? (
+                          <>
+                            <em>{entry.lastSimilarity}%</em>
+                            <i aria-hidden="true">·</i>
+                          </>
+                        ) : null}
+                        <strong>최고 {entry.bestSimilarity}%</strong>
+                      </span>
+                      {(entry.missedKeyPoints?.length ?? 0) > 0 ? (
+                        <small>아직 못 말한 포인트 {entry.missedKeyPoints?.length}개</small>
+                      ) : null}
+                    </div>
+                  )}
+                  <span>핵심 답변</span>
+                  <p>{question.shortAnswer}</p>
+                  <ul>
+                    {question.keyPoints.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                  <div>
+                    <small>꼬리질문</small>
+                    <p>{question.followUp}</p>
+                  </div>
                 </div>
-              </div>
-            </details>
-          ))}
+              </details>
+            )
+          })}
         </div>
       )}
     </main>

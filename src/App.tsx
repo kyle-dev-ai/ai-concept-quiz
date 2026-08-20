@@ -501,6 +501,7 @@ function App({ dependencies = appDependencies }: AppProps) {
         countdownCue={dependencies.countdownCue}
         soundEnabled={soundPreference === 'on'}
         bestSimilarity={progress.questions[question.id]?.bestSimilarity ?? 0}
+        previouslyMissedKeyPoints={progress.questions[question.id]?.missedKeyPoints}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}
         onRate={rateCurrentQuestion}
@@ -528,6 +529,7 @@ function App({ dependencies = appDependencies }: AppProps) {
       {activeTab === 'library' ? (
         <LibraryScreen
           questions={questions}
+          progress={progress}
           adsEnabled={runtimeConfig.adsEnabled}
           bannerAds={dependencies.bannerAds}
           onStudyCategory={startScope}

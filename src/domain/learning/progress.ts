@@ -43,12 +43,15 @@ export interface LearnerLevel {
   readonly nextScore: number | null
 }
 
+// 점수는 전체 문항 대비 비율이라 한 문항이 0.5점 남짓이다. 구간을 균등하게 두면
+// 첫 레벨업까지 40문항을 알아야 해서, 시작한 사람이 아무 성취도 못 보고 떠난다.
+// 앞을 촘촘하게, 뒤를 넓게 둬서 초반에 한 번은 올라가고 끝은 여전히 멀게 한다.
 export const learnerLevels: readonly LearnerLevel[] = [
-  { id: 'seed', label: '씨앗 질문가', minScore: 0, nextScore: 20 },
-  { id: 'explorer', label: '개념 탐험가', minScore: 20, nextScore: 40 },
-  { id: 'connector', label: '연결 설계자', minScore: 40, nextScore: 60 },
-  { id: 'explainer', label: '설명 훈련가', minScore: 60, nextScore: 80 },
-  { id: 'orator', label: 'AI 구술가', minScore: 80, nextScore: null },
+  { id: 'seed', label: '씨앗 질문가', minScore: 0, nextScore: 4 },
+  { id: 'explorer', label: '개념 탐험가', minScore: 4, nextScore: 12 },
+  { id: 'connector', label: '연결 설계자', minScore: 12, nextScore: 30 },
+  { id: 'explainer', label: '설명 훈련가', minScore: 30, nextScore: 60 },
+  { id: 'orator', label: 'AI 구술가', minScore: 60, nextScore: null },
 ]
 
 export function createInitialProgress(): LearningProgress {
@@ -167,6 +170,35 @@ export function countReviewedOn(progress: LearningProgress, date = new Date()): 
     const reviewedAt = new Date(entry.lastReviewedAt)
     return !Number.isNaN(reviewedAt.getTime()) && toLocalDate(reviewedAt) === target
   }).length
+}
+
+export interface ActivityDay {
+  readonly date: string
+  readonly isActive: boolean
+  readonly isToday: boolean
+}
+
+/**
+ * 오늘까지의 최근 N일을 오래된 날부터 늘어놓는다.
+ * 저장해 둔 학습 날짜를 달력으로 보여줄 때 쓴다.
+ */
+export function recentActivity(
+  progress: LearningProgress,
+  days: number,
+  today = new Date(),
+): ActivityDay[] {
+  const active = new Set(progress.activityDates)
+  const todayKey = toLocalDate(today)
+  const result: ActivityDay[] = []
+
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    cursor.setDate(cursor.getDate() - offset)
+    const date = toLocalDate(cursor)
+    result.push({ date, isActive: active.has(date), isToday: date === todayKey })
+  }
+
+  return result
 }
 
 export function calculateMasteryScore(progress: LearningProgress, questionCount: number): number {

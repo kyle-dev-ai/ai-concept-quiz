@@ -42,6 +42,31 @@ npm run build
 
 hosting provider의 무료 subdomain으로 먼저 검증할 수 있으며 custom domain은 필수가 아니다. domain을 나중에 연결해도 Apps in Toss package와 병행 배포할 수 있다.
 
+### 현재 운영 중인 standalone 배포 (2026-08-21~)
+
+GitHub Pages project site를 쓴다. 주소는 `https://kyle-dev-ai.github.io/ai-concept-quiz/`이고 소스는 `kyle-dev-ai/ai-concept-quiz`(public)의 `main`, 배포 산출물은 `gh-pages` 브랜치다.
+
+project site는 루트가 아니라 `/<repo>/` 하위 경로로 서비스되므로 **base를 넘겨 빌드해야 한다.** 기본값은 `/`라 Apps in Toss 빌드는 영향받지 않는다.
+
+```bash
+APP_BASE_PATH=/ai-concept-quiz/ npm run build:standalone
+```
+
+배포는 빌드 산출물만 `gh-pages`에 올린다.
+
+```bash
+cp -R dist-standalone/. <작업본>/
+touch <작업본>/.nojekyll        # Jekyll이 파일을 걸러내지 않게 한다
+git -C <작업본> push --force origin gh-pages
+```
+
+주의할 점:
+
+- `base`는 `vite.config.ts`에서 `APP_BASE_PATH`로 읽는다. PWA manifest의 icon과 workbox `navigateFallback`도 이 값을 따라간다. 하드코딩된 `/`를 두면 하위 경로에서 아이콘이 404가 나고 새로고침 시 앱이 죽는다.
+- GitHub Pages는 response header를 설정할 수 없다. 위에 적은 `X-Content-Type-Options`, `Permissions-Policy`, `frame-ancestors`는 **적용되지 않는다.** HTML meta CSP만 유효하다. 이 헤더들이 필요해지면 header를 다룰 수 있는 provider로 옮겨야 한다.
+- `Cache-Control`도 지정할 수 없다. 해시가 붙은 `/assets/*`는 문제되지 않지만 `index.html`과 `sw.js`의 재검증은 GitHub Pages 기본 동작에 의존한다.
+- 서비스워커는 `clientsClaim`을 켠다. 이것이 없으면 새 배포가 활성화돼도 이미 열려 있던 화면은 옛 워커가 계속 담당해서, 방금 올린 변경이 반영되지 않은 것처럼 보인다.
+
 HTML meta CSP는 script/style/object/frame/connect source를 release artifact 안에서 제한한다. `frame-ancestors`, `X-Content-Type-Options`, `Permissions-Policy`는 meta로 보장할 수 없으므로 provider 선택 후 response header로 설정하고 `curl -I`와 실제 browser console로 검증한다. Sentry를 켜면 build가 DSN의 HTTPS origin만 `connect-src`에 추가한다. 공식 광고나 외부 API를 나중에 붙일 때는 필요한 origin을 allowlist하는 별도 ADR과 회귀 테스트가 먼저다.
 
 ## Cache and runtime behavior

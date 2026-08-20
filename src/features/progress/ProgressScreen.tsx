@@ -13,6 +13,7 @@ import { categoryById, type StudyQuestion } from '../../domain/learning/question
 import { AppFooter } from '../../shared/components/AppFooter'
 import { StudyBuddy } from '../../shared/components/StudyBuddy'
 import { AdSlot } from '../monetization/AdSlot'
+import { ActivityCalendar } from './ActivityCalendar'
 
 interface ProgressScreenProps {
   readonly profile: LearnerProfile
@@ -86,6 +87,8 @@ export function ProgressScreen({
       <p className="score-caption">
         최근 자기평가로 계산한 학습 진도이며 시험·지능 점수가 아니에요.
       </p>
+
+      <ActivityCalendar progress={progress} />
 
       <section className="stat-grid" aria-label="학습 통계">
         <div>

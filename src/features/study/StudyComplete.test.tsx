@@ -8,8 +8,8 @@ function renderComplete(overrides: Partial<Parameters<typeof StudyComplete>[0]> 
     <StudyComplete
       reviewedCount={5}
       streak={11}
-      masteryScore={32}
-      level={getLearnerLevel(32)}
+      masteryScore={8}
+      level={getLearnerLevel(8)}
       dueTomorrow={7}
       similarities={[]}
       recordsBroken={0}
@@ -29,9 +29,9 @@ describe('StudyComplete', () => {
     renderComplete()
 
     expect(screen.getByLabelText('연속 학습 11일')).toBeInTheDocument()
-    expect(screen.getByLabelText('설명력 점수 32점')).toBeInTheDocument()
-    // 32점이면 다음 레벨(40점)까지 8점 남았다.
-    expect(screen.getByText('다음 레벨까지 8점')).toBeInTheDocument()
+    expect(screen.getByLabelText('설명력 점수 8점')).toBeInTheDocument()
+    // 8점이면 다음 레벨(12점)까지 4점 남았다.
+    expect(screen.getByText('다음 레벨까지 4점')).toBeInTheDocument()
   })
 
   it('내일 복습할 개념 수로 다시 올 이유를 알려준다', () => {
@@ -49,7 +49,7 @@ describe('StudyComplete', () => {
   })
 
   it('최고 레벨이면 남은 점수 대신 레벨 이름을 보여준다', () => {
-    renderComplete({ masteryScore: 90, level: getLearnerLevel(90) })
+    renderComplete({ masteryScore: 70, level: getLearnerLevel(70) })
 
     expect(screen.getByText('AI 구술가')).toBeInTheDocument()
   })

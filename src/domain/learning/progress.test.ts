@@ -19,7 +19,7 @@ describe('learning progress', () => {
     progress = recordReview(progress, 'unknown', 'unknown', new Date(2026, 7, 16, 11))
 
     expect(calculateMasteryScore(progress, 3)).toBe(50)
-    expect(getLearnerLevel(50).label).toBe('연결 설계자')
+    expect(getLearnerLevel(50).label).toBe('설명 훈련가')
   })
 
   it('연속된 local activity date를 streak로 계산한다', () => {
@@ -134,9 +134,12 @@ describe('learning progress', () => {
 
   it('0점부터 100점까지 다섯 레벨의 경계를 계산한다', () => {
     expect(getLearnerLevelNumber(0)).toBe(1)
-    expect(getLearnerLevelNumber(19)).toBe(1)
-    expect(getLearnerLevelNumber(20)).toBe(2)
-    expect(getLearnerLevelNumber(80)).toBe(5)
+    expect(getLearnerLevelNumber(3)).toBe(1)
+    // 초반 구간을 좁혀 한 세션 안에 첫 레벨업이 나온다.
+    expect(getLearnerLevelNumber(4)).toBe(2)
+    expect(getLearnerLevelNumber(12)).toBe(3)
+    expect(getLearnerLevelNumber(30)).toBe(4)
+    expect(getLearnerLevelNumber(60)).toBe(5)
     expect(getLearnerLevelNumber(100)).toBe(5)
   })
 

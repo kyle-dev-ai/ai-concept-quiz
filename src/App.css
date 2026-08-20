@@ -2389,6 +2389,19 @@
   font-weight: 800;
 }
 
+.spoken-score__recovered {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: var(--radius-small);
+  color: var(--blue);
+  background: var(--blue-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .spoken-score__message {
   margin-top: 8px;
   color: var(--ink-soft);
@@ -3215,6 +3228,92 @@
   text-align: center;
   font-size: 9px;
   line-height: 1.4;
+}
+
+/* 학습 달력: 채워진 칸과 빈 칸을 나란히 둔다. */
+.activity-calendar {
+  margin-top: 26px;
+}
+
+.activity-grid {
+  display: flex;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 14px;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-medium);
+  background: var(--surface);
+}
+
+.activity-week {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.activity-grid i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: var(--paper-deep);
+}
+
+.activity-grid i[data-active="true"] {
+  background: var(--blue);
+}
+
+.activity-grid i[data-today="true"] {
+  outline: 2px solid var(--warning);
+  outline-offset: 1px;
+}
+
+/* 도서관 카드의 발화 기록 */
+.spoken-trend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-small);
+  background: var(--paper-bright);
+}
+
+.spoken-trend__label {
+  color: var(--muted);
+  font-family: var(--font-technical);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.spoken-trend__values {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--ink);
+  font-family: var(--font-technical);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.spoken-trend__values em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.spoken-trend__values i {
+  color: var(--muted-light);
+  font-style: normal;
+}
+
+.spoken-trend small {
+  width: 100%;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .stat-grid {

@@ -7,6 +7,7 @@
 - [ ] 콘솔에서 비게임 webview type(partner)과 앱 내 기능 1개 이상 등록
 - [x] 비게임 가이드에 따라 pinch zoom 비활성화 (`index.html` viewport)
 - [x] 공유 버튼은 링크 목적지가 없어 standalone HTTPS 배포 전까지 화면에서 숨김
+      → 2026-08-21 HTTPS 배포로 전제가 사라져 다시 켬
 - [ ] Sandbox App iOS/Android 실기기 QA
 - [ ] Sandbox에서 system/light/dark, VoiceOver/TalkBack, 200% text를 확인
 - [ ] 최신 출시·개인정보·공유 정책 재확인
@@ -20,8 +21,8 @@
 
 - [ ] 본인 20세션 사용 기록과 불편 메모
 - [ ] 지인 대상 onboarding 이탈·답 공개·자기평가 완료 관찰
-- [ ] HTTPS provider subdomain으로 standalone PWA 선택 배포
-- [ ] share card/OG image와 short-form 유입 가설 검증
+- [x] HTTPS provider subdomain으로 standalone PWA 선택 배포 (GitHub Pages)
+- [ ] share card/OG image와 short-form 유입 가설 검증 (공유는 열렸고 미리보기 이미지가 없음)
 - [ ] 이름 `어텐션!`과 appName 충돌·상표 리스크 확인
 
 ## Content operations

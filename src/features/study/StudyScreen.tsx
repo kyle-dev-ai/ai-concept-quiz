@@ -29,10 +29,10 @@ interface StudyScreenProps {
   readonly onReveal: () => void
   /** 이 문항에서 지금까지 받은 최고 유사도. 기록 경신을 알릴 때 쓴다. */
   readonly bestSimilarity?: number
+  /** 지난번에 말하지 못한 핵심 포인트. 이번에 말했다면 짚어준다. */
+  readonly previouslyMissedKeyPoints?: readonly string[]
   readonly onRate: (rating: KnowledgeRating, attempt?: SpokenAttempt) => Promise<void>
   readonly onNext: () => void
-  // 공유 링크 목적지가 없어(토스 WebView 내부 URL) 화면에서는 비활성화 상태다.
-  // standalone HTTPS 주소가 생기면 아래 주석 처리된 공유 UI와 함께 되살린다.
   readonly onShare: () => Promise<ShareResult>
 }
 
@@ -74,11 +74,13 @@ export function StudyScreen({
   countdownCue,
   soundEnabled = true,
   bestSimilarity = 0,
+  previouslyMissedKeyPoints,
   revealDelaySeconds = 15,
   onExit,
   onReveal,
   onRate,
   onNext,
+  onShare,
 }: StudyScreenProps) {
   const [isRevealed, setIsRevealed] = useState(false)
   const [rating, setRating] = useState<KnowledgeRating | null>(null)
@@ -89,6 +91,7 @@ export function StudyScreen({
   const [transcript, setTranscript] = useState('')
   const [speechFailure, setSpeechFailure] = useState<SpeechFailure | null>(null)
   const [isListening, setIsListening] = useState(false)
+  const [shareResult, setShareResult] = useState<ShareResult | null>(null)
   const sessionRef = useRef<SpeechSession | null>(null)
 
   const progress = ((index + 1) / total) * 100
@@ -171,6 +174,13 @@ export function StudyScreen({
 
   const spokenScore = transcript.trim().length > 0 ? scoreSpokenAnswer(transcript, question) : null
   const isPersonalBest = spokenScore !== null && spokenScore.similarity > bestSimilarity
+  // 지난번에 놓쳤던 포인트를 이번에 말했으면 그것만 따로 짚어준다.
+  const recoveredKeyPoints =
+    spokenScore === null || previouslyMissedKeyPoints === undefined
+      ? []
+      : spokenScore.coverage
+          .filter((entry) => entry.covered && previouslyMissedKeyPoints.includes(entry.keyPoint))
+          .map((entry) => entry.keyPoint)
 
   async function rate(nextRating: KnowledgeRating) {
     if (rating !== null || isSavingRating) {
@@ -199,6 +209,10 @@ export function StudyScreen({
       setPendingRating(null)
       setIsSavingRating(false)
     }
+  }
+
+  async function share() {
+    setShareResult(await onShare())
   }
 
   function reveal() {
@@ -268,6 +282,13 @@ export function StudyScreen({
                   <p className="spoken-score__record">
                     <span aria-hidden="true">★</span>
                     최고 기록 경신! 지난 기록 {bestSimilarity}%
+                  </p>
+                ) : null}
+
+                {recoveredKeyPoints.length > 0 ? (
+                  <p className="spoken-score__recovered">
+                    <span aria-hidden="true">✦</span>
+                    지난번 놓친 포인트 {recoveredKeyPoints.length}개를 이번엔 말했어요
                   </p>
                 ) : null}
 
@@ -415,18 +436,17 @@ export function StudyScreen({
               </p>
             </div>
             <div className="post-rating-actions__buttons">
-              {/* 친구에게 문제 내기: 공유 링크가 받는 사람이 열 수 없는 WebView 내부 URL이라
-                  standalone HTTPS 배포 전까지 숨긴다. 되살릴 때는 onShare를 다시 destructure하고
-                  shareResult state, share() 핸들러, 아래 결과 메시지를 함께 복구한다.
-              <button type="button" className="button button--secondary" onClick={share}>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => void share()}
+              >
                 친구에게 문제 내기
               </button>
-              */}
               <button type="button" className="button button--primary" onClick={onNext}>
                 {index + 1 === total ? '학습 마치기' : '다음 질문'}
               </button>
             </div>
-            {/* 공유 결과 메시지 (공유 버튼과 함께 복구)
             {shareResult === 'copied' ? (
               <small role="status">문제와 링크를 복사했어요.</small>
             ) : null}
@@ -434,7 +454,6 @@ export function StudyScreen({
             {shareResult === 'unavailable' ? (
               <small role="status">이 환경에서는 아직 공유할 수 없어요.</small>
             ) : null}
-            */}
           </div>
         )}
       </footer>

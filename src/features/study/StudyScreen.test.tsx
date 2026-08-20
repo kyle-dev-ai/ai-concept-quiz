@@ -269,4 +269,45 @@ describe('StudyScreen', () => {
     // 소리만 빠지고 시각적 카운트다운과 잠금 해제는 그대로다.
     expect(screen.getByRole('button', { name: '답 확인하기' })).toBeEnabled()
   })
+
+  it('지난번에 놓친 포인트를 이번에 말하면 따로 짚어준다', async () => {
+    const user = userEvent.setup()
+    const question = firstQuestion()
+    const [firstPoint] = question.keyPoints
+
+    renderScreen({
+      speech: speechSaying(firstPoint),
+      previouslyMissedKeyPoints: [firstPoint],
+    })
+
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+
+    expect(screen.getByText(/지난번 놓친 포인트 1개를 이번엔 말했어요/)).toBeInTheDocument()
+  })
+
+  it('처음 보는 문항에서는 극복 문구를 띄우지 않는다', async () => {
+    const user = userEvent.setup()
+    const question = firstQuestion()
+    const [firstPoint] = question.keyPoints
+
+    renderScreen({ speech: speechSaying(firstPoint) })
+
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+
+    expect(screen.queryByText(/이번엔 말했어요/)).not.toBeInTheDocument()
+  })
+
+  it('공유 버튼으로 문제를 내보낼 수 있다', async () => {
+    const user = userEvent.setup()
+    const onShare = vi.fn(async () => 'copied' as const)
+
+    renderScreen({ onShare })
+
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+    await user.click(screen.getByRole('button', { name: /알았다/ }))
+    await user.click(await screen.findByRole('button', { name: '친구에게 문제 내기' }))
+
+    expect(onShare).toHaveBeenCalledTimes(1)
+    expect(await screen.findByText('문제와 링크를 복사했어요.')).toBeInTheDocument()
+  })
 })
