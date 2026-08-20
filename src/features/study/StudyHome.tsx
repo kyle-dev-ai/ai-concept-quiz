@@ -240,13 +240,25 @@ export function StudyHome({
       ) : null}
 
       {quote === undefined ? null : (
-        <figure className="daily-quote home-enter home-enter--quote">
-          <blockquote>{quote.text}</blockquote>
-          <figcaption>
-            {quote.author}
-            {quote.source === undefined ? null : <small>{quote.source}</small>}
-          </figcaption>
-        </figure>
+        <section
+          className="home-section home-enter home-enter--quote"
+          aria-labelledby="quote-title"
+        >
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">오늘 한 줄</span>
+              <h2 id="quote-title">오늘의 명언</h2>
+            </div>
+          </div>
+
+          <figure className="daily-quote">
+            <blockquote>{quote.text}</blockquote>
+            <figcaption>
+              {quote.author}
+              {quote.source === undefined ? null : <small>{quote.source}</small>}
+            </figcaption>
+          </figure>
+        </section>
       )}
 
       <section className="home-section" aria-labelledby="goal-title">
