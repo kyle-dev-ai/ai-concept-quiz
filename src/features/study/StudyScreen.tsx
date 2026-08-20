@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import type { ShareResult } from '../../application/ports/challenge-share'
+import type {
+  SpeechFailure,
+  SpeechRecognizer,
+  SpeechSession,
+} from '../../application/ports/speech-recognizer'
 import type { KnowledgeRating } from '../../domain/learning/progress'
 import { categoryById, difficultyLabel, type StudyQuestion } from '../../domain/learning/question'
+import { scoreSpokenAnswer, similarityBand } from '../../domain/learning/spoken-answer'
 import { AdSlot } from '../monetization/AdSlot'
 
 interface StudyScreenProps {
@@ -12,6 +18,9 @@ interface StudyScreenProps {
   readonly scopeLabel: string
   readonly adsEnabled: boolean
   readonly bannerAds: BannerAdProvider
+  readonly speech: SpeechRecognizer
+  /** 답을 열기 전에 소리 내어 설명할 시간(초). 0이면 곧바로 열 수 있다. */
+  readonly revealDelaySeconds?: number
   readonly onExit: () => void
   readonly onReveal: () => void
   readonly onRate: (rating: KnowledgeRating) => Promise<void>
@@ -32,6 +41,19 @@ const ratingOptions: readonly {
   { id: 'known', label: '알았다', helper: '설명할 수 있음', symbol: '●' },
 ]
 
+const failureMessage: Record<SpeechFailure, string> = {
+  unsupported: '이 브라우저는 음성 인식을 지원하지 않아요. 소리 내어 말한 뒤 직접 평가해주세요.',
+  denied: '마이크 권한이 꺼져 있어요. 브라우저 설정에서 허용하면 말한 내용을 받아적어요.',
+  'no-speech': '소리가 들리지 않았어요. 다시 시도하거나 그냥 말한 뒤 직접 평가해주세요.',
+  error: '음성 인식을 시작하지 못했어요. 소리 내어 말한 뒤 직접 평가해주세요.',
+}
+
+const bandMessage = {
+  high: '모범 답과 표현이 많이 겹쳐요.',
+  partial: '핵심은 닿았지만 빠진 표현이 있어요.',
+  low: '모범 답과 표현이 많이 달라요. 놓친 부분을 확인해보세요.',
+} as const
+
 export function StudyScreen({
   question,
   index,
@@ -39,6 +61,8 @@ export function StudyScreen({
   scopeLabel,
   adsEnabled,
   bannerAds,
+  speech,
+  revealDelaySeconds = 10,
   onExit,
   onReveal,
   onRate,
@@ -49,8 +73,73 @@ export function StudyScreen({
   const [pendingRating, setPendingRating] = useState<KnowledgeRating | null>(null)
   const [isSavingRating, setIsSavingRating] = useState(false)
   const [ratingError, setRatingError] = useState(false)
+  const [remainingSeconds, setRemainingSeconds] = useState(revealDelaySeconds)
+  const [transcript, setTranscript] = useState('')
+  const [speechFailure, setSpeechFailure] = useState<SpeechFailure | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  const sessionRef = useRef<SpeechSession | null>(null)
 
   const progress = ((index + 1) / total) * 100
+  const canReveal = remainingSeconds <= 0
+
+  const stopListening = useCallback(() => {
+    sessionRef.current?.stop()
+    sessionRef.current = null
+    setIsListening(false)
+  }, [])
+
+  const startListening = useCallback(() => {
+    stopListening()
+    setSpeechFailure(null)
+
+    const session = speech.start({
+      onTranscript: setTranscript,
+      onFailure: (failure) => {
+        setSpeechFailure(failure)
+        setIsListening(false)
+      },
+    })
+    sessionRef.current = session
+    setIsListening(true)
+  }, [speech, stopListening])
+
+  // 문항마다 새로 마운트되므로(App에서 key={question.id}) 여기서 바로 듣기 시작한다.
+  useEffect(() => {
+    if (!speech.isSupported) {
+      setSpeechFailure('unsupported')
+      return
+    }
+
+    const session = speech.start({
+      onTranscript: setTranscript,
+      onFailure: (failure) => {
+        setSpeechFailure(failure)
+        setIsListening(false)
+      },
+    })
+    sessionRef.current = session
+    setIsListening(true)
+
+    return () => {
+      session.stop()
+      sessionRef.current = null
+    }
+  }, [speech])
+
+  // 남은 시간이 0이 될 때까지 1초씩 줄인다.
+  // 0이 되면 isCountingDown이 false로 바뀌며 cleanup이 interval을 정리한다.
+  const isCountingDown = remainingSeconds > 0
+  useEffect(() => {
+    if (!isCountingDown) {
+      return
+    }
+
+    const timer = setInterval(
+      () => setRemainingSeconds((seconds) => (seconds <= 1 ? 0 : seconds - 1)),
+      1000,
+    )
+    return () => clearInterval(timer)
+  }, [isCountingDown])
 
   async function rate(nextRating: KnowledgeRating) {
     if (rating !== null || isSavingRating) {
@@ -72,9 +161,12 @@ export function StudyScreen({
   }
 
   function reveal() {
+    stopListening()
     setIsRevealed(true)
     onReveal()
   }
+
+  const spokenScore = transcript.trim().length > 0 ? scoreSpokenAnswer(transcript, question) : null
 
   return (
     <main className="study-screen">
@@ -124,6 +216,40 @@ export function StudyScreen({
 
         {isRevealed ? (
           <section className="answer-panel" aria-live="polite">
+            {spokenScore !== null ? (
+              <div className="spoken-score" data-band={similarityBand(spokenScore.similarity)}>
+                <div className="spoken-score__headline">
+                  <span className="spoken-score__label">말한 답과 모범 답 유사도</span>
+                  <strong className="spoken-score__value">
+                    {spokenScore.similarity}
+                    <small>%</small>
+                  </strong>
+                </div>
+                <p className="spoken-score__message">
+                  {bandMessage[similarityBand(spokenScore.similarity)]}
+                </p>
+
+                <ul className="spoken-score__coverage">
+                  {spokenScore.coverage.map((entry) => (
+                    <li key={entry.keyPoint} data-covered={entry.covered}>
+                      <span aria-hidden="true">{entry.covered ? '●' : '○'}</span>
+                      <span>{entry.keyPoint}</span>
+                      <small>{entry.covered ? '말했음' : '못 말했음'}</small>
+                    </li>
+                  ))}
+                </ul>
+
+                <details className="spoken-score__transcript">
+                  <summary>내가 말한 내용 보기</summary>
+                  <p>{transcript}</p>
+                </details>
+
+                <small className="spoken-score__caveat">
+                  표현이 겹치는 정도만 재는 참고값이에요. 뜻이 같아도 낱말이 다르면 낮게 나와요.
+                </small>
+              </div>
+            ) : null}
+
             <span className="answer-panel__label">10초 핵심 답변</span>
             <p className="answer-panel__short">{question.shortAnswer}</p>
 
@@ -151,7 +277,42 @@ export function StudyScreen({
               <br />
               소리 내어 설명해보세요.
             </p>
+
+            {isListening ? (
+              <div className="mic-status" role="status">
+                <span className="mic-status__dot" aria-hidden="true" />
+                <span>듣는 중</span>
+              </div>
+            ) : null}
+
+            {transcript.length > 0 ? (
+              <p className="live-transcript" aria-live="polite">
+                {transcript}
+              </p>
+            ) : null}
+
+            {speechFailure !== null ? (
+              <div className="mic-failure">
+                <small>{failureMessage[speechFailure]}</small>
+                {speechFailure !== 'unsupported' ? (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    onClick={startListening}
+                  >
+                    다시 시도
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+
             <small>완벽한 문장보다 핵심 흐름이 먼저예요.</small>
+            {speech.isSupported ? (
+              <small className="mic-privacy">
+                음성 인식은 브라우저 기능이라 브라우저에 따라 외부 서버를 거칠 수 있어요. 받아적은
+                내용은 저장하지 않아요.
+              </small>
+            ) : null}
           </div>
         )}
       </article>
@@ -161,9 +322,10 @@ export function StudyScreen({
           <button
             type="button"
             className="button button--primary button--large button--wide"
+            disabled={!canReveal}
             onClick={reveal}
           >
-            답 확인하기
+            {canReveal ? '답 확인하기' : `${remainingSeconds}초 뒤에 답을 볼 수 있어요`}
           </button>
         ) : rating === null ? (
           <div className="rating-panel">

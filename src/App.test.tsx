@@ -22,6 +22,7 @@ function createTestDependencies() {
     telemetry: { track, captureException: vi.fn() },
     challengeShare: { share: async () => 'copied' },
     bannerAds: { attach: () => () => undefined },
+    speechRecognizer: { isSupported: false, start: () => ({ stop: () => undefined }) },
   }
 
   return { dependencies, saveProfile, saveProgress, saveThemePreference, applyTheme, track }
@@ -70,7 +71,13 @@ describe('App learning flow', () => {
     expect(screen.queryByText('10초 핵심 답변')).not.toBeInTheDocument()
     expect(document.querySelector('[data-ad-placement="study-bottom-banner"]')).toBeNull()
 
-    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+    // 답은 소리 내어 설명할 시간이 지난 뒤에만 열린다. 카운트다운 자체는
+    // StudyScreen 단위 테스트에서 다루므로 여기서는 열릴 때까지 기다린다.
+    expect(screen.getByRole('button', { name: /10초 뒤에 답을 볼 수 있어요/ })).toBeDisabled()
+    await user.click(
+      await screen.findByRole('button', { name: '답 확인하기' }, { timeout: 15_000 }),
+    )
+
     expect(await screen.findByText('10초 핵심 답변')).toBeInTheDocument()
     expect(track).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'answer_revealed', questionId: expect.any(String) }),
@@ -98,7 +105,8 @@ describe('App learning flow', () => {
     expect(
       await screen.findByRole('heading', { name: 'What are you working toward?' }),
     ).toBeInTheDocument()
-  })
+    // 답 공개 카운트다운을 실제로 기다리므로 기본 timeout으로는 모자란다.
+  }, 25_000)
 
   it('질문이나 기기 데이터 load 실패 시 복구 화면과 telemetry를 남긴다', async () => {
     const { dependencies } = createTestDependencies()

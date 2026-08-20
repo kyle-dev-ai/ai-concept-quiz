@@ -388,6 +388,7 @@ function App({ dependencies = appDependencies }: AppProps) {
         scopeLabel={session.label}
         adsEnabled={runtimeConfig.adsEnabled}
         bannerAds={dependencies.bannerAds}
+        speech={dependencies.speechRecognizer}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}
         onRate={rateCurrentQuestion}

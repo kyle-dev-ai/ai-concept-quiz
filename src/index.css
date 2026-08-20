@@ -303,6 +303,15 @@ ul {
   transform: scale(0.98);
 }
 
+/* 답을 열기까지 남은 시간처럼, 지금 누를 수 없는 상태를 눈으로 구분한다. */
+.button:disabled {
+  color: var(--muted-disabled);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .button--large {
   min-height: 58px;
   border-radius: 18px;
