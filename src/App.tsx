@@ -22,6 +22,7 @@ import {
 import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
 import { countDueOn, nextDay, planReview } from './domain/learning/review'
 import { createStudyQueue, weakQuestions } from './domain/learning/session'
+import type { SoundPreference } from './domain/preferences/sound'
 import type { ThemePreference } from './domain/preferences/theme'
 import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
 import { LibraryScreen } from './features/library/LibraryScreen'
@@ -62,6 +63,7 @@ function App({ dependencies = appDependencies }: AppProps) {
   const [activeTab, setActiveTab] = useState<AppTab>('learn')
   const [session, setSession] = useState<StudySession | null>(null)
   const [themePreference, setThemePreference] = useState<ThemePreference>('light')
+  const [soundPreference, setSoundPreference] = useState<SoundPreference>('on')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [loadError, setLoadError] = useState(false)
@@ -75,33 +77,43 @@ function App({ dependencies = appDependencies }: AppProps) {
       dependencies.profiles.load(),
       dependencies.progress.load(),
       dependencies.themePreferences.load(),
+      dependencies.soundPreferences.load(),
     ])
-      .then(([loadedQuestions, loadedProfile, loadedProgress, loadedThemePreference]) => {
-        if (!isActive) {
-          return
-        }
+      .then(
+        ([
+          loadedQuestions,
+          loadedProfile,
+          loadedProgress,
+          loadedThemePreference,
+          loadedSoundPreference,
+        ]) => {
+          if (!isActive) {
+            return
+          }
 
-        const alignedProgress =
-          loadedProfile === null || loadedProgress.selectedGoal === loadedProfile.learningGoalId
-            ? loadedProgress
-            : withSelectedGoal(loadedProgress, loadedProfile.learningGoalId)
+          const alignedProgress =
+            loadedProfile === null || loadedProgress.selectedGoal === loadedProfile.learningGoalId
+              ? loadedProgress
+              : withSelectedGoal(loadedProgress, loadedProfile.learningGoalId)
 
-        setQuestions(loadedQuestions)
-        setProfile(loadedProfile)
-        setProgress(alignedProgress)
-        dependencies.themeController.apply(loadedThemePreference)
-        setThemePreference(loadedThemePreference)
-        setIsReady(true)
+          setQuestions(loadedQuestions)
+          setProfile(loadedProfile)
+          setProgress(alignedProgress)
+          dependencies.themeController.apply(loadedThemePreference)
+          setThemePreference(loadedThemePreference)
+          setSoundPreference(loadedSoundPreference)
+          setIsReady(true)
 
-        if (alignedProgress !== loadedProgress) {
-          void dependencies.progress.save(alignedProgress).catch((error: unknown) => {
-            dependencies.telemetry.captureException(error, {
-              area: 'progress',
-              operation: 'align-goal',
+          if (alignedProgress !== loadedProgress) {
+            void dependencies.progress.save(alignedProgress).catch((error: unknown) => {
+              dependencies.telemetry.captureException(error, {
+                area: 'progress',
+                operation: 'align-goal',
+              })
             })
-          })
-        }
-      })
+          }
+        },
+      )
       .catch((error: unknown) => {
         dependencies.telemetry.captureException(error, { area: 'bootstrap', operation: 'load' })
         if (isActive) {
@@ -170,6 +182,21 @@ function App({ dependencies = appDependencies }: AppProps) {
     }
 
     setThemePreference(nextPreference)
+  }
+
+  async function changeSoundPreference(nextPreference: SoundPreference): Promise<void> {
+    if (nextPreference === soundPreference) {
+      return
+    }
+
+    try {
+      await dependencies.soundPreferences.save(nextPreference)
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'appearance', operation: 'save' })
+      throw error
+    }
+
+    setSoundPreference(nextPreference)
   }
 
   function withThemeSwitcher(screen: ReactNode) {
@@ -443,6 +470,7 @@ function App({ dependencies = appDependencies }: AppProps) {
         bannerAds={dependencies.bannerAds}
         speech={dependencies.speechRecognizer}
         countdownCue={dependencies.countdownCue}
+        soundEnabled={soundPreference === 'on'}
         bestSimilarity={progress.questions[question.id]?.bestSimilarity ?? 0}
         onExit={() => setSession(null)}
         onReveal={revealCurrentQuestion}
@@ -490,6 +518,8 @@ function App({ dependencies = appDependencies }: AppProps) {
           profile={profile}
           adsEnabled={runtimeConfig.adsEnabled}
           bannerAds={dependencies.bannerAds}
+          soundPreference={soundPreference}
+          onSoundChange={changeSoundPreference}
           onEdit={() => setIsEditingProfile(true)}
         />
       ) : null}

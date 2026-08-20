@@ -252,4 +252,21 @@ describe('StudyScreen', () => {
     expect(countdownCue.tick).not.toHaveBeenCalled()
     expect(countdownCue.finish).not.toHaveBeenCalled()
   })
+
+  it('소리를 끄면 카운트다운이 조용히 흐른다', async () => {
+    vi.useFakeTimers()
+    const countdownCue = { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() }
+    renderScreen({ revealDelaySeconds: 3, countdownCue, soundEnabled: false })
+
+    for (let count = 0; count < 3; count += 1) {
+      await act(async () => {
+        vi.advanceTimersByTime(1000)
+      })
+    }
+
+    expect(countdownCue.tick).not.toHaveBeenCalled()
+    expect(countdownCue.finish).not.toHaveBeenCalled()
+    // 소리만 빠지고 시각적 카운트다운과 잠금 해제는 그대로다.
+    expect(screen.getByRole('button', { name: '답 확인하기' })).toBeEnabled()
+  })
 })

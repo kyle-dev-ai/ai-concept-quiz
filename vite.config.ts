@@ -79,6 +79,10 @@ export default defineConfig(({ mode }) => {
         workbox: {
           navigateFallback: `${base}index.html`,
           cleanupOutdatedCaches: true,
+          // clientsClaim이 없으면 새 서비스워커가 활성화돼도 이미 열려 있던 화면은
+          // 옛 워커가 계속 담당한다. 앱을 완전히 껐다 켜기 전까지 이전 빌드가 보여
+          // 방금 배포한 변경이 반영되지 않은 것처럼 읽힌다.
+          clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,json,svg}'],
           globIgnores: ['**/monitoring-sentry-*.js', '**/sentry-telemetry-*.js'],
         },

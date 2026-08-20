@@ -1,17 +1,28 @@
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import { learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
+import type { SoundPreference } from '../../domain/preferences/sound'
 import { AppFooter } from '../../shared/components/AppFooter'
 import { AdSlot } from '../monetization/AdSlot'
+import { SoundToggle } from '../preferences/SoundToggle'
 
 interface ProfileScreenProps {
   readonly profile: LearnerProfile
   readonly adsEnabled: boolean
   readonly bannerAds: BannerAdProvider
+  readonly soundPreference: SoundPreference
+  readonly onSoundChange: (preference: SoundPreference) => Promise<void>
   readonly onEdit: () => void
 }
 
-export function ProfileScreen({ profile, adsEnabled, bannerAds, onEdit }: ProfileScreenProps) {
+export function ProfileScreen({
+  profile,
+  adsEnabled,
+  bannerAds,
+  soundPreference,
+  onSoundChange,
+  onEdit,
+}: ProfileScreenProps) {
   const learnerGroup = learnerGroupById[profile.groupId]
   const learningGoal = learningGoalById[profile.learningGoalId]
 
@@ -57,6 +68,10 @@ export function ProfileScreen({ profile, adsEnabled, bannerAds, onEdit }: Profil
           </div>
         ) : null}
       </dl>
+
+      <section className="profile-settings" aria-label="앱 설정">
+        <SoundToggle preference={soundPreference} onChange={onSoundChange} />
+      </section>
 
       <button
         type="button"

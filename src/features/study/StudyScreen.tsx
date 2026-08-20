@@ -21,6 +21,8 @@ interface StudyScreenProps {
   readonly bannerAds: BannerAdProvider
   readonly speech: SpeechRecognizer
   readonly countdownCue: CountdownCue
+  /** 카운트다운 소리를 낼지. 설정에서 끌 수 있다. */
+  readonly soundEnabled?: boolean
   /** 답을 열기 전에 소리 내어 설명할 시간(초). 0이면 곧바로 열 수 있다. */
   readonly revealDelaySeconds?: number
   readonly onExit: () => void
@@ -70,6 +72,7 @@ export function StudyScreen({
   bannerAds,
   speech,
   countdownCue,
+  soundEnabled = true,
   bestSimilarity = 0,
   revealDelaySeconds = 15,
   onExit,
@@ -139,7 +142,7 @@ export function StudyScreen({
 
   // 마지막 초를 소리로 알린다. 뜨(4) 뜨(3) 뜨(2) 뜨(1) 뜬!(0)
   useEffect(() => {
-    if (revealDelaySeconds <= 0 || isRevealed) {
+    if (!soundEnabled || revealDelaySeconds <= 0 || isRevealed) {
       return
     }
     if (remainingSeconds === 0) {
@@ -149,7 +152,7 @@ export function StudyScreen({
     if (remainingSeconds < urgentSeconds) {
       countdownCue.tick()
     }
-  }, [countdownCue, isRevealed, remainingSeconds, revealDelaySeconds])
+  }, [countdownCue, isRevealed, remainingSeconds, revealDelaySeconds, soundEnabled])
 
   // 남은 시간이 0이 될 때까지 1초씩 줄인다.
   // 0이 되면 isCountingDown이 false로 바뀌며 cleanup이 interval을 정리한다.

@@ -13,6 +13,7 @@ function createTestDependencies() {
   const applyTheme = vi.fn()
   const track = vi.fn()
   const setBadge = vi.fn()
+  const saveSoundPreference = vi.fn(async () => undefined)
 
   const dependencies: AppDependencies = {
     questions: { list: async () => sampleQuestions },
@@ -26,6 +27,7 @@ function createTestDependencies() {
     speechRecognizer: { isSupported: false, start: () => ({ stop: () => undefined }) },
     appBadge: { set: setBadge },
     countdownCue: { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() },
+    soundPreferences: { load: async () => 'on', save: saveSoundPreference },
   }
 
   return {
@@ -36,6 +38,7 @@ function createTestDependencies() {
     applyTheme,
     track,
     setBadge,
+    saveSoundPreference,
   }
 }
 

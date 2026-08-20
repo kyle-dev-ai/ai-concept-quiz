@@ -6,6 +6,7 @@ import type { CountdownCue } from '../application/ports/countdown-cue'
 import type { ProfileRepository } from '../application/ports/profile-repository'
 import type { ProgressRepository } from '../application/ports/progress-repository'
 import type { QuestionRepository } from '../application/ports/question-repository'
+import type { SoundPreferenceRepository } from '../application/ports/sound-preference-repository'
 import type { SpeechRecognizer } from '../application/ports/speech-recognizer'
 import type { Telemetry } from '../application/ports/telemetry'
 import type { ThemeController } from '../application/ports/theme-controller'
@@ -18,6 +19,7 @@ import { BrowserChallengeShare } from '../infrastructure/share/browser-challenge
 import { BrowserSpeechRecognizer } from '../infrastructure/speech/browser-speech-recognizer'
 import { LocalProfileRepository } from '../infrastructure/storage/local-profile-repository'
 import { LocalProgressRepository } from '../infrastructure/storage/local-progress-repository'
+import { LocalSoundPreferenceRepository } from '../infrastructure/storage/local-sound-preference-repository'
 import { LocalThemePreferenceRepository } from '../infrastructure/storage/local-theme-preference-repository'
 import { createRuntimeTelemetry } from '../infrastructure/telemetry/runtime-telemetry'
 import { BrowserThemeController } from '../infrastructure/theme/browser-theme-controller'
@@ -35,6 +37,7 @@ export interface AppDependencies {
   readonly speechRecognizer: SpeechRecognizer
   readonly appBadge: AppBadge
   readonly countdownCue: CountdownCue
+  readonly soundPreferences: SoundPreferenceRepository
 }
 
 export function createAppDependencies(): AppDependencies {
@@ -52,6 +55,7 @@ export function createAppDependencies(): AppDependencies {
     speechRecognizer: new BrowserSpeechRecognizer(),
     appBadge: new BrowserAppBadge(),
     countdownCue: new WebAudioCountdownCue(),
+    soundPreferences: new LocalSoundPreferenceRepository(storage),
   }
 }
 
