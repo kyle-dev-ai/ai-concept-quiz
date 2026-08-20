@@ -35,6 +35,9 @@ function securityPolicyPlugin(mode: string): Plugin {
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isStandalone = mode === 'standalone'
+  // Subpath hosts (GitHub Pages project sites) serve the app under a prefix.
+  // Keep a trailing slash so `${base}foo` always resolves correctly.
+  const base = process.env.APP_BASE_PATH ?? '/'
   const platformStoragePath = fileURLToPath(
     new URL(
       mode === 'production'
@@ -45,6 +48,7 @@ export default defineConfig(({ mode }) => {
   )
 
   return {
+    base,
     plugins: [
       securityPolicyPlugin(mode),
       aitDevtools.vite(),
@@ -65,7 +69,7 @@ export default defineConfig(({ mode }) => {
           lang: 'ko-KR',
           icons: [
             {
-              src: '/app-icon.svg',
+              src: `${base}app-icon.svg`,
               sizes: 'any',
               type: 'image/svg+xml',
               purpose: 'any maskable',
@@ -73,7 +77,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          navigateFallback: '/index.html',
+          navigateFallback: `${base}index.html`,
           cleanupOutdatedCaches: true,
           globPatterns: ['**/*.{js,css,html,json,svg}'],
           globIgnores: ['**/monitoring-sentry-*.js', '**/sentry-telemetry-*.js'],
