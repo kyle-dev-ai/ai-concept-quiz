@@ -153,7 +153,7 @@ export const mlRoadmapQuestions = [
     term: 'Generative · Discriminative Model',
     prompt: 'Generative Model과 Discriminative Model은 어떤 확률이나 경계를 학습하는지가 다른가요?',
     shortAnswer:
-      'Discriminative model은 주로 입력에서 label로 가는 P(y|x)나 결정 경계를 학습합니다. Generative model은 데이터 자체의 분포 P(x) 또는 class와 데이터의 joint distribution을 모델링해 새로운 샘플을 만들 수 있습니다.',
+      'Discriminative model은 입력에서 label로 가는 P(y|x)나 결정 경계를 학습합니다. Generative model은 데이터 분포 P(x)나 joint distribution을 모델링해 새 샘플을 만들 수 있습니다.',
     deepAnswer:
       'Logistic regression은 대표적인 discriminative classifier이고 Naive Bayes는 P(x|y)와 P(y)로 분류하는 generative 접근입니다. 생성 가능 여부만으로 우열을 정할 수 없으며 데이터 양, 목표 task, 가정에 따라 선택합니다.',
     keyPoints: [
@@ -170,9 +170,9 @@ export const mlRoadmapQuestions = [
     term: 'ROC-AUC · PR-AUC',
     prompt: 'Class imbalance가 심할 때 ROC-AUC보다 PR-AUC를 함께 보는 이유는 무엇인가요?',
     shortAnswer:
-      'ROC는 threshold별 true positive rate와 false positive rate를 보지만 음성이 매우 많으면 false positive rate가 작게 보여 낙관적일 수 있습니다. PR curve는 양성 예측의 precision과 recall에 집중합니다.',
+      'ROC는 threshold별 true positive rate와 false positive rate를 봅니다. 음성이 매우 많으면 false positive rate가 작게 보여 낙관적이라, 이때는 PR curve가 더 정직합니다.',
     deepAnswer:
-      'AUC는 threshold 전체의 순위 성능을 요약하므로 실제 운영 threshold의 비용을 직접 말해주지 않습니다. PR-AUC baseline은 양성 비율에 영향을 받으므로 dataset 분포를 함께 밝히고 선택한 threshold의 confusion matrix도 보고해야 합니다.',
+      'PR curve는 양성 예측의 precision과 recall에 집중합니다. AUC는 threshold 전체의 순위 성능을 요약하므로 실제 운영 threshold의 비용을 직접 말해주지 않습니다. PR-AUC baseline은 양성 비율에 영향을 받으므로 dataset 분포를 함께 밝히고 선택한 threshold의 confusion matrix도 보고해야 합니다.',
     keyPoints: ['ROC와 PR은 서로 다른 오류 비율을 표시', '운영 threshold의 실제 비용은 별도 평가'],
     followUp: 'AUC가 높아도 특정 운영 threshold에서 성능이 나쁠 수 있는 이유는 무엇인가요?',
     prerequisites: ['ml-class-imbalance', 'ml-confusion-matrix-threshold'],
@@ -198,9 +198,9 @@ export const mlRoadmapQuestions = [
     term: 'SVM · Kernel Trick',
     prompt: 'SVM의 margin 최대화와 kernel trick은 각각 무엇을 해결하나요?',
     shortAnswer:
-      'SVM은 두 class 사이의 margin이 가장 넓은 decision boundary를 찾고, 경계는 margin 위의 support vector가 결정합니다. Kernel trick은 데이터를 명시적으로 고차원으로 옮기지 않고 내적만 kernel 함수로 바꿔 비선형 경계를 학습하게 합니다.',
+      'SVM은 두 class 사이 margin이 가장 넓은 경계를 찾고, 그 경계는 margin 위의 support vector가 결정합니다. Kernel trick은 내적만 kernel 함수로 바꿔 비선형 경계를 학습합니다.',
     deepAnswer:
-      'Margin 최대화는 일반화에 유리한 경계를 고르는 규제 역할을 하고, soft margin의 C가 오분류 허용과 margin 폭을 조절합니다. Kernel은 고차원 feature 공간의 내적을 직접 계산하는 것과 같아 명시적 변환 비용을 아끼지만, 데이터가 커지면 kernel 행렬 계산이 병목이 되어 대규모 학습에는 잘 쓰이지 않습니다.',
+      '데이터를 실제로 고차원으로 옮기지 않고도 고차원에서 나눈 것과 같은 효과를 얻습니다. Margin 최대화는 일반화에 유리한 경계를 고르는 규제 역할을 하고, soft margin의 C가 오분류 허용과 margin 폭을 조절합니다. Kernel은 고차원 feature 공간의 내적을 직접 계산하는 것과 같아 명시적 변환 비용을 아끼지만, 데이터가 커지면 kernel 행렬 계산이 병목이 되어 대규모 학습에는 잘 쓰이지 않습니다.',
     keyPoints: ['경계는 support vector가 결정', 'Kernel은 명시적 고차원 변환 없이 내적만 대체'],
     followUp:
       'RBF kernel의 gamma를 크게 하면 decision boundary와 overfitting 위험은 어떻게 변하나요?',
@@ -227,9 +227,9 @@ export const mlRoadmapQuestions = [
     term: 'kNN · Curse of Dimensionality',
     prompt: 'kNN이 고차원에서 잘 동작하지 않는 이유를 거리 관점에서 설명해보세요.',
     shortAnswer:
-      'kNN은 별도 학습 없이 가까운 k개의 이웃 label로 예측하는 lazy 방식이라 거리가 의미 있어야 합니다. 차원이 높아지면 점들 사이 거리가 서로 비슷해져 가장 가까운 이웃과 먼 이웃의 대비가 사라지고, 이웃이라는 개념 자체가 약해집니다.',
+      'kNN은 학습 없이 가까운 k개 이웃의 label로 예측하는 lazy 방식이라 거리가 의미 있어야 합니다. 차원이 높아지면 점들 사이 거리가 서로 비슷해져 이웃이라는 개념이 약해집니다.',
     deepAnswer:
-      '고차원 공간을 데이터로 채우려면 표본이 차원에 대해 기하급수적으로 필요하다는 것이 curse of dimensionality의 핵심입니다. 실제로는 feature 선택, 차원 축소, 학습된 embedding처럼 의미 있는 저차원 표현 위에서 거리를 재는 방식으로 완화하며, vector 검색이 embedding 공간에서 동작하는 이유이기도 합니다.',
+      '가장 가까운 이웃과 먼 이웃의 대비가 사라지는 것이 문제의 핵심입니다. 고차원 공간을 데이터로 채우려면 표본이 차원에 대해 기하급수적으로 필요하다는 것이 curse of dimensionality의 핵심입니다. 실제로는 feature 선택, 차원 축소, 학습된 embedding처럼 의미 있는 저차원 표현 위에서 거리를 재는 방식으로 완화하며, vector 검색이 embedding 공간에서 동작하는 이유이기도 합니다.',
     keyPoints: ['kNN은 거리 기반 lazy 예측', '고차원에서는 거리 대비가 사라짐'],
     followUp: 'k를 키우면 bias와 variance는 각각 어느 쪽으로 움직이나요?',
     prerequisites: ['math-vector-dot-product', 'ml-overfitting-bias-variance'],
@@ -241,9 +241,9 @@ export const mlRoadmapQuestions = [
     term: 'Feature Scaling · Standardization',
     prompt: '입력 feature의 단위를 맞춰주는 작업이 어떤 모델에서 특히 중요한가요?',
     shortAnswer:
-      '거리로 유사도를 재거나 gradient로 학습하는 모델에서 중요합니다. 나이와 연봉처럼 범위가 크게 다르면 큰 값을 가진 feature가 거리와 gradient를 지배해 다른 feature가 무시됩니다. 반면 트리 계열은 값의 크기가 아니라 대소 비교로 분기하므로 영향이 거의 없습니다.',
+      '거리로 유사도를 재거나 gradient로 학습하는 모델에서 중요합니다. 나이와 연봉처럼 범위가 다르면 큰 값의 feature가 거리와 gradient를 지배해 다른 feature가 무시됩니다.',
     deepAnswer:
-      '평균 0, 분산 1로 맞추는 표준화와 0~1 범위로 옮기는 정규화가 대표적이며, 이상치가 있으면 최소·최대에 의존하는 방식이 크게 흔들립니다. 중요한 것은 변환 기준을 train 데이터에서만 계산해 validation과 test에 그대로 적용해야 한다는 점이며, 전체 데이터로 기준을 만들면 미래 정보가 새어 들어가는 leakage가 됩니다.',
+      '반면 트리 계열은 값의 크기가 아니라 대소 비교로 분기하므로 영향이 거의 없습니다. 평균 0, 분산 1로 맞추는 표준화와 0~1 범위로 옮기는 정규화가 대표적이며, 이상치가 있으면 최소·최대에 의존하는 방식이 크게 흔들립니다. 중요한 것은 변환 기준을 train 데이터에서만 계산해 validation과 test에 그대로 적용해야 한다는 점이며, 전체 데이터로 기준을 만들면 미래 정보가 새어 들어가는 leakage가 됩니다.',
     keyPoints: [
       '거리 기반·gradient 기반 모델은 스케일에 민감, 트리는 둔감',
       '변환 기준은 train에서만 계산해야 leakage를 막음',
@@ -275,9 +275,9 @@ export const mlRoadmapQuestions = [
     term: 'PCA vs t-SNE · UMAP',
     prompt: 'PCA와 t-SNE 같은 시각화용 차원 축소는 용도가 어떻게 다른가요?',
     shortAnswer:
-      'PCA는 선형 변환이라 결과를 되돌리거나 다른 모델의 입력으로 쓰기 좋고 전체 분산 구조를 보존합니다. t-SNE나 UMAP은 비선형으로 이웃 관계를 살려 2차원에 보기 좋게 펼치는 시각화 도구라 그 좌표를 feature로 그대로 쓰기는 부적절합니다.',
+      'PCA는 선형 변환이라 되돌리거나 다른 모델의 입력으로 쓰기 좋습니다. t-SNE나 UMAP은 이웃 관계를 살려 2차원에 펼치는 시각화 도구라 좌표를 feature로 쓰기는 부적절합니다.',
     deepAnswer:
-      '시각화 방법의 그림에서 군집 사이의 거리나 덩어리 크기는 대체로 의미가 없고, 설정값이나 난수에 따라 모양이 크게 달라져 같은 데이터도 다르게 보입니다. 그래서 "잘 갈라져 보인다"를 성능 근거로 삼으면 안 되고 실제 지표로 확인해야 합니다. 전처리와 압축이 목적이면 PCA 계열을, 사람 눈으로 구조를 탐색하는 것이 목적이면 시각화 방법을 선택합니다.',
+      'PCA는 전체 분산 구조를 보존한다는 점도 입력으로 쓰기 좋은 이유입니다. 시각화 방법의 그림에서 군집 사이의 거리나 덩어리 크기는 대체로 의미가 없고, 설정값이나 난수에 따라 모양이 크게 달라져 같은 데이터도 다르게 보입니다. 그래서 "잘 갈라져 보인다"를 성능 근거로 삼으면 안 되고 실제 지표로 확인해야 합니다. 전처리와 압축이 목적이면 PCA 계열을, 사람 눈으로 구조를 탐색하는 것이 목적이면 시각화 방법을 선택합니다.',
     keyPoints: [
       'PCA는 전처리·압축용, t-SNE·UMAP은 탐색적 시각화용',
       '시각화 그림의 군집 간 거리는 해석하면 안 됨',

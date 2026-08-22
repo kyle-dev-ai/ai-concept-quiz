@@ -67,9 +67,9 @@ export const dlRoadmapQuestions = [
     term: 'Xavier · He Initialization',
     prompt: '모든 weight를 0으로 초기화하면 안 되는 이유와 Xavier·He 초기화의 목적은 무엇인가요?',
     shortAnswer:
-      '같은 층의 weight를 모두 0으로 두면 뉴런들이 같은 gradient를 받아 계속 같은 특징만 학습합니다. Xavier와 He 초기화는 층을 지날 때 activation과 gradient의 분산이 지나치게 커지거나 작아지지 않게 scale을 정합니다.',
+      '같은 층의 weight를 모두 0으로 두면 뉴런들이 같은 gradient를 받아 같은 특징만 학습합니다. Xavier와 He 초기화는 층을 지나도 분산이 크게 흔들리지 않게 scale을 정합니다.',
     deepAnswer:
-      'Xavier는 tanh 같은 activation, He는 ReLU 계열의 활성 비율을 고려한 초기화로 자주 사용합니다. 좋은 초기화는 학습을 안정시키지만 normalization, residual connection, optimizer를 대신하지는 않습니다.',
+      '분산을 지키려는 이유는 activation과 gradient가 층을 지나며 지나치게 커지거나 작아지는 것을 막기 위해서입니다. Xavier는 tanh 같은 activation, He는 ReLU 계열의 활성 비율을 고려한 초기화로 자주 사용합니다. 좋은 초기화는 학습을 안정시키지만 normalization, residual connection, optimizer를 대신하지는 않습니다.',
     keyPoints: ['0 초기화는 뉴런의 대칭성을 깨지 못함', '초기화 scale은 신호 분산 보존을 목표'],
     followUp: 'Bias는 0으로 초기화해도 weight와 같은 대칭성 문제가 덜한 이유는 무엇인가요?',
     prerequisites: ['dl-weight-bias-activation', 'math-mean-variance-standard-deviation'],
@@ -97,9 +97,9 @@ export const dlRoadmapQuestions = [
     prompt:
       'Batch Normalization과 Layer Normalization은 어느 축의 통계를 쓰는지가 어떻게 다른가요?',
     shortAnswer:
-      'Batch normalization은 보통 batch의 여러 샘플에서 feature별 평균과 분산을 계산합니다. Layer normalization은 각 샘플 내부의 feature 차원에서 정규화해 batch 크기와 다른 샘플에 덜 의존합니다.',
+      'Batch normalization은 batch의 여러 샘플에서 feature별 평균과 분산을 계산합니다. Layer normalization은 각 샘플 내부의 feature 차원에서 정규화해 batch 크기에 덜 의존합니다.',
     deepAnswer:
-      'Batch norm은 train과 inference에서 쓰는 통계가 달라 running statistics를 관리합니다. Layer norm은 token별 hidden feature를 정규화하기 쉬워 가변 길이 sequence와 작은 batch를 다루는 Transformer에서 널리 사용됩니다.',
+      'Layer norm은 다른 샘플의 값에 영향받지 않는다는 점이 batch norm과의 실질적 차이입니다. Batch norm은 train과 inference에서 쓰는 통계가 달라 running statistics를 관리합니다. Layer norm은 token별 hidden feature를 정규화하기 쉬워 가변 길이 sequence와 작은 batch를 다루는 Transformer에서 널리 사용됩니다.',
     keyPoints: ['Batch norm은 batch 통계에 의존', 'Layer norm은 샘플 내부 feature를 정규화'],
     followUp:
       'Batch size가 1에 가까울 때 batch normalization이 불안정할 수 있는 이유는 무엇인가요?',
@@ -126,9 +126,9 @@ export const dlRoadmapQuestions = [
     term: 'zero_grad · backward · optimizer.step',
     prompt: 'PyTorch 학습 loop에서 zero_grad, backward, optimizer.step의 순서를 설명해보세요.',
     shortAnswer:
-      '먼저 이전 gradient를 zero_grad로 비우고 forward로 prediction과 loss를 계산합니다. loss.backward()가 각 parameter의 gradient를 채우고 optimizer.step()이 그 gradient와 update 규칙으로 parameter를 바꿉니다.',
+      'zero_grad로 이전 gradient를 비우고 forward로 prediction과 loss를 계산합니다. loss.backward()가 gradient를 채우고 optimizer.step()이 parameter를 갱신합니다.',
     deepAnswer:
-      'PyTorch gradient는 기본적으로 누적되므로 의도한 gradient accumulation이 아니라면 매 update 전에 비워야 합니다. Evaluation에서는 no_grad 또는 inference_mode로 그래프 생성을 막아 memory와 연산을 줄이고 optimizer.step은 호출하지 않습니다.',
+      'backward는 각 parameter의 gradient를 채우기만 하고, 실제 갱신 값은 optimizer가 자신의 update 규칙으로 정합니다. PyTorch gradient는 기본적으로 누적되므로 의도한 gradient accumulation이 아니라면 매 update 전에 비워야 합니다. Evaluation에서는 no_grad 또는 inference_mode로 그래프 생성을 막아 memory와 연산을 줄이고 optimizer.step은 호출하지 않습니다.',
     keyPoints: ['Backward는 gradient 계산, step은 parameter 변경', 'Gradient는 기본적으로 누적'],
     followUp: 'Gradient accumulation을 의도할 때는 zero_grad 호출 시점을 어떻게 바꾸나요?',
     prerequisites: ['dl-computational-graph-autograd', 'dl-backprop-sgd-adam'],
@@ -140,9 +140,9 @@ export const dlRoadmapQuestions = [
     term: 'GAN · Generator · Discriminator',
     prompt: 'GAN의 Generator와 Discriminator는 어떤 경쟁을 통해 데이터 분포를 학습하나요?',
     shortAnswer:
-      'Generator는 noise에서 실제 같은 sample을 만들고 discriminator는 실제 data와 생성 sample을 구분합니다. Generator는 discriminator를 속이도록, discriminator는 더 잘 구분하도록 번갈아 학습합니다.',
+      'Generator는 noise에서 실제 같은 sample을 만들고 discriminator는 진짜와 생성물을 구분합니다. 둘은 속이고 걸러내도록 번갈아 학습합니다.',
     deepAnswer:
-      '이 adversarial objective가 균형을 이루면 생성 분포가 실제 분포에 가까워집니다. 하지만 두 network의 학습 균형이 깨지기 쉽고 다양한 입력이 비슷한 출력으로 모이는 mode collapse와 불안정한 convergence가 대표적 문제입니다.',
+      'Generator는 discriminator를 속이는 방향으로, discriminator는 더 잘 구분하는 방향으로 서로를 밀어 올립니다. 이 adversarial objective가 균형을 이루면 생성 분포가 실제 분포에 가까워집니다. 하지만 두 network의 학습 균형이 깨지기 쉽고 다양한 입력이 비슷한 출력으로 모이는 mode collapse와 불안정한 convergence가 대표적 문제입니다.',
     keyPoints: ['두 network의 adversarial training', 'Mode collapse와 학습 불안정이 핵심 한계'],
     followUp:
       'Discriminator가 너무 빠르게 완벽해지면 Generator gradient에 어떤 문제가 생길 수 있나요?',
@@ -155,9 +155,9 @@ export const dlRoadmapQuestions = [
     term: 'CNN · RNN · Transformer',
     prompt: 'CNN, RNN, Transformer가 데이터의 관계를 처리하는 방식과 장단점을 비교해보세요.',
     shortAnswer:
-      'CNN은 local receptive field와 weight sharing으로 공간 패턴에 강합니다. RNN은 hidden state를 순서대로 갱신하고, Transformer는 attention으로 token 관계를 직접 계산해 training 병렬화와 긴 거리 연결에 유리합니다.',
+      'CNN은 local receptive field와 weight sharing으로 공간 패턴에 강합니다. RNN은 hidden state를 순서대로 갱신하고, Transformer는 attention으로 token 관계를 직접 계산합니다.',
     deepAnswer:
-      'RNN은 sequence 길이에 따른 순차 의존과 gradient 문제가 있고 기본 attention은 길이에 대해 제곱 비용이 큽니다. CNN도 계층을 쌓아 넓은 문맥을 보고 Transformer도 vision에 쓰이므로 이름보다 inductive bias와 계산 비용을 비교해야 합니다.',
+      'Attention이 관계를 직접 계산한 덕에 Transformer는 training 병렬화와 먼 거리 연결에 유리합니다. RNN은 sequence 길이에 따른 순차 의존과 gradient 문제가 있고 기본 attention은 길이에 대해 제곱 비용이 큽니다. CNN도 계층을 쌓아 넓은 문맥을 보고 Transformer도 vision에 쓰이므로 이름보다 inductive bias와 계산 비용을 비교해야 합니다.',
     keyPoints: [
       'CNN은 locality, RNN은 recurrence, Transformer는 attention',
       'Task 구조와 계산 제약에 따라 선택',
@@ -173,9 +173,9 @@ export const dlRoadmapQuestions = [
     prompt:
       'Convolution filter가 이미지에서 feature를 뽑는 방식과 parameter sharing의 이점은 무엇인가요?',
     shortAnswer:
-      '작은 filter가 이미지 위를 이동하며 같은 weight로 지역 패턴을 반복 감지해 feature map을 만듭니다. 모든 위치가 filter weight를 공유하므로 fully connected보다 파라미터가 훨씬 적고, 같은 패턴을 위치와 무관하게 찾을 수 있습니다.',
+      '작은 filter가 이미지 위를 이동하며 같은 weight로 지역 패턴을 반복 감지해 feature map을 만듭니다. weight를 공유하므로 파라미터가 훨씬 적고 위치와 무관하게 같은 패턴을 찾습니다.',
     deepAnswer:
-      'Filter 여러 개가 각각 다른 feature map을 만들고, 층이 깊어질수록 edge 같은 저수준 패턴이 물체 부분 같은 고수준 feature로 조합됩니다. 지역성과 translation 성질을 구조에 새긴 inductive bias 덕분에 적은 데이터에서도 효율적이며, 이 가정이 약한 데이터에는 이점이 줄어듭니다.',
+      '모든 위치를 따로 연결하는 fully connected와 비교하면 파라미터 수 차이가 특히 큽니다. Filter 여러 개가 각각 다른 feature map을 만들고, 층이 깊어질수록 edge 같은 저수준 패턴이 물체 부분 같은 고수준 feature로 조합됩니다. 지역성과 translation 성질을 구조에 새긴 inductive bias 덕분에 적은 데이터에서도 효율적이며, 이 가정이 약한 데이터에는 이점이 줄어듭니다.',
     keyPoints: ['같은 filter weight를 모든 위치에 공유', '지역 패턴이 고수준 feature로 조합'],
     followUp: '3×3 filter를 여러 층 쌓는 것이 큰 filter 한 층보다 유리한 이유는 무엇인가요?',
     prerequisites: ['dl-weight-bias-activation'],
@@ -187,9 +187,9 @@ export const dlRoadmapQuestions = [
     term: 'Pooling · Receptive Field',
     prompt: 'Pooling의 역할과 receptive field가 층을 거치며 커지는 이유를 설명해보세요.',
     shortAnswer:
-      'Pooling은 feature map을 공간적으로 줄여 계산량을 낮추고 작은 위치 변화에 둔감하게 만듭니다. Receptive field는 출력 뉴런 하나가 바라보는 입력 영역으로, convolution과 pooling을 거듭할수록 넓어져 깊은 층은 이미지의 큰 맥락을 봅니다.',
+      'Pooling은 feature map을 공간적으로 줄여 계산량을 낮추고 작은 위치 변화에 둔감하게 만듭니다. Receptive field는 출력 뉴런 하나가 보는 입력 영역이라 층을 거듭할수록 넓어집니다.',
     deepAnswer:
-      'Max pooling은 가장 강한 반응만 남기고 average pooling은 평균을 남기며, pooling 자체는 파라미터를 학습하지 않습니다. 최근에는 stride convolution으로 대체하기도 합니다. 공간 해상도를 줄이는 만큼 segmentation처럼 위치가 중요한 task에서는 손해가 될 수 있어 dilated convolution 등으로 receptive field만 넓히기도 합니다.',
+      'Receptive field가 넓어지므로 깊은 층은 이미지의 큰 맥락을 봅니다. Max pooling은 가장 강한 반응만 남기고 average pooling은 평균을 남기며, pooling 자체는 파라미터를 학습하지 않습니다. 최근에는 stride convolution으로 대체하기도 합니다. 공간 해상도를 줄이는 만큼 segmentation처럼 위치가 중요한 task에서는 손해가 될 수 있어 dilated convolution 등으로 receptive field만 넓히기도 합니다.',
     keyPoints: ['Pooling은 downsampling과 국소 불변성', '깊이가 receptive field를 넓힘'],
     followUp: 'Segmentation처럼 위치가 중요한 task에서 pooling의 부작용은 무엇인가요?',
     prerequisites: ['dl-cnn-convolution-parameter-sharing'],
@@ -201,9 +201,9 @@ export const dlRoadmapQuestions = [
     term: 'RNN · LSTM Gate',
     prompt: 'RNN의 vanishing gradient 문제를 LSTM의 gate 구조가 어떻게 완화하나요?',
     shortAnswer:
-      'RNN은 같은 weight를 시간축으로 반복해서 곱하며 hidden state를 갱신하므로 긴 시퀀스에서 gradient가 사라지거나 폭발하기 쉽습니다. LSTM은 cell state라는 통로를 두고 forget·input·output gate로 지우고 더하고 내보내는 양을 조절해, gradient가 곱셈 대신 덧셈에 가까운 경로로 흐르게 합니다.',
+      'RNN은 같은 weight를 시간축으로 반복해 곱하므로 긴 시퀀스에서 gradient가 사라지거나 폭발합니다. LSTM은 cell state 통로를 두고 gate로 흐름을 조절해 gradient가 덧셈에 가까운 경로로 흐르게 합니다.',
     deepAnswer:
-      'Forget gate가 1에 가까우면 cell state가 거의 그대로 전달되어 장기 의존성이 유지됩니다. 다만 완전한 해결이 아니라 완화이며, 순차 처리 때문에 병렬화가 어렵다는 한계는 남습니다. GRU는 gate 수를 줄인 간소화 변형이고, 이 순차 병목이 attention 기반 Transformer로 넘어간 배경입니다.',
+      'forget·input·output 세 gate가 각각 지우고 더하고 내보내는 양을 정합니다. Forget gate가 1에 가까우면 cell state가 거의 그대로 전달되어 장기 의존성이 유지됩니다. 다만 완전한 해결이 아니라 완화이며, 순차 처리 때문에 병렬화가 어렵다는 한계는 남습니다. GRU는 gate 수를 줄인 간소화 변형이고, 이 순차 병목이 attention 기반 Transformer로 넘어간 배경입니다.',
     keyPoints: [
       '반복 곱셈이 vanishing gradient의 원인',
       'Cell state와 gate가 덧셈에 가까운 경로 제공',
@@ -218,9 +218,9 @@ export const dlRoadmapQuestions = [
     term: 'Autoencoder · VAE',
     prompt: 'Autoencoder와 VAE의 latent space는 무엇이 다르고, 왜 VAE만 생성 모델이라 부르나요?',
     shortAnswer:
-      'Autoencoder는 입력을 bottleneck으로 압축했다가 복원하며 재구성 오차만 줄이므로 latent space의 구조를 보장하지 않습니다. VAE는 latent를 확률분포로 두고 재구성 오차와 함께 latent를 prior에 가깝게 하는 KL 항을 최적화해, prior에서 sampling하면 새 데이터를 생성할 수 있습니다.',
+      'Autoencoder는 재구성 오차만 줄이므로 latent space의 구조를 보장하지 않습니다. VAE는 latent를 확률분포로 두고 prior에 가깝게 하는 KL 항을 함께 최적화해, prior에서 sampling해 생성할 수 있습니다.',
     deepAnswer:
-      'VAE의 목적함수는 ELBO로 재구성 항과 KL regularization의 균형이며, sampling을 미분 가능하게 만드는 reparameterization trick이 학습의 핵심 장치입니다. KL 항이 latent space를 매끄럽게 만들어 보간이 자연스럽지만, 그 대가로 출력이 흐릿해지는 경향이 GAN·diffusion과 비교되는 지점입니다.',
+      'Autoencoder는 입력을 bottleneck으로 압축했다가 복원하는 구조입니다. VAE의 목적함수는 ELBO로 재구성 항과 KL regularization의 균형이며, sampling을 미분 가능하게 만드는 reparameterization trick이 학습의 핵심 장치입니다. KL 항이 latent space를 매끄럽게 만들어 보간이 자연스럽지만, 그 대가로 출력이 흐릿해지는 경향이 GAN·diffusion과 비교되는 지점입니다.',
     keyPoints: ['AE는 재구성만, VAE는 latent 분포까지 제약', 'ELBO는 재구성 항과 KL 항의 균형'],
     followUp: 'KL 항의 가중치를 키우면 재구성 품질과 latent 구조는 어떻게 trade-off 되나요?',
     prerequisites: ['math-entropy-cross-entropy-kl', 'ml-generative-discriminative'],
@@ -232,9 +232,9 @@ export const dlRoadmapQuestions = [
     term: 'Diffusion Model',
     prompt: 'Diffusion model은 noise를 더하고 되돌리는 두 과정으로 어떻게 데이터를 생성하나요?',
     shortAnswer:
-      'Forward 과정은 데이터에 Gaussian noise를 여러 단계에 걸쳐 더해 결국 순수 noise로 만듭니다. 모델은 각 단계에서 섞인 noise를 예측하도록 학습하고, 생성할 때는 순수 noise에서 시작해 단계적으로 denoising하며 데이터를 만들어냅니다.',
+      'Forward 과정은 데이터에 Gaussian noise를 단계적으로 더해 순수 noise로 만듭니다. 모델은 각 단계의 noise를 예측하도록 학습하고, 생성은 noise에서 시작해 단계적으로 denoising합니다.',
     deepAnswer:
-      '학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 cross-attention 같은 경로로 모델에 주입하고, 생성할 때 classifier-free guidance로 그 조건을 얼마나 강하게 따를지 조절합니다.',
+      'Forward 과정은 Gaussian noise를 여러 단계에 걸쳐 더해 데이터를 완전히 무너뜨립니다. 학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 cross-attention 같은 경로로 모델에 주입하고, 생성할 때 classifier-free guidance로 그 조건을 얼마나 강하게 따를지 조절합니다.',
     keyPoints: [
       'Forward는 점진적 noise 추가, reverse는 학습된 denoising',
       '한 번에 생성하지 않고 반복 denoising',
@@ -249,9 +249,9 @@ export const dlRoadmapQuestions = [
     term: 'Early Stopping · Patience',
     prompt: 'Early Stopping은 무엇을 보고 학습을 멈추며 왜 규제 효과가 있나요?',
     shortAnswer:
-      'Validation 성능이 더 이상 좋아지지 않고 일정 횟수 이상 정체하거나 나빠지면 학습을 멈춥니다. Train loss는 계속 내려가지만 validation이 꺾이는 지점부터가 과적합 구간이라, 그 전에 멈추는 것 자체가 모델 복잡도를 제한하는 규제로 작동합니다.',
+      'Validation 성능이 좋아지지 않고 일정 횟수 이상 정체하거나 나빠지면 멈춥니다. Train loss는 계속 내려가도 validation이 꺾이는 지점부터가 과적합이라, 그 전에 멈추는 것이 규제가 됩니다.',
     deepAnswer:
-      'Validation 성능은 매 epoch 출렁이므로 한 번 나빠졌다고 바로 멈추지 않고 몇 번까지 참을지를 정해두며, 멈춘 시점이 아니라 가장 좋았던 시점의 파라미터를 복원해야 의미가 있습니다. 멈추는 기준으로 쓴 데이터로 최종 성능까지 보고하면 그 데이터에 유리한 지점을 고른 셈이라 성능이 부풀려지므로 test set은 따로 남겨야 합니다.',
+      'Validation 성능이 더 이상 좋아지지 않고 정체하는 구간을 어떻게 판정할지가 실제로는 까다롭습니다. Validation 성능은 매 epoch 출렁이므로 한 번 나빠졌다고 바로 멈추지 않고 몇 번까지 참을지를 정해두며, 멈춘 시점이 아니라 가장 좋았던 시점의 파라미터를 복원해야 의미가 있습니다. 멈추는 기준으로 쓴 데이터로 최종 성능까지 보고하면 그 데이터에 유리한 지점을 고른 셈이라 성능이 부풀려지므로 test set은 따로 남겨야 합니다.',
     keyPoints: [
       'Validation이 꺾이는 지점 전에 멈춰 과적합을 제한',
       '멈춘 시점이 아니라 최고 성능 시점의 파라미터를 복원',
@@ -266,7 +266,7 @@ export const dlRoadmapQuestions = [
     term: 'Weight Decay · AdamW',
     prompt: 'Weight Decay와 L2 Regularization은 왜 Adam에서 같지 않게 동작하나요?',
     shortAnswer:
-      '단순 경사하강법에서는 L2 벌점을 loss에 더하는 것과 가중치를 조금씩 줄이는 것이 사실상 같습니다. 하지만 Adam은 gradient를 파라미터별 크기로 나눠 쓰기 때문에 L2로 더한 항까지 그 스케일에 휘둘려, 의도한 만큼 감쇠가 걸리지 않습니다.',
+      '단순 경사하강법에서는 L2 벌점을 더하는 것과 가중치를 줄이는 것이 사실상 같습니다. 하지만 Adam은 gradient를 파라미터별 크기로 나누므로 L2 항도 그 스케일에 휘둘려 의도한 감쇠가 걸리지 않습니다.',
     deepAnswer:
       'AdamW는 그래서 감쇠를 gradient에 섞지 않고 파라미터를 직접 줄이는 별도 단계로 분리해, 적응적 스케일과 무관하게 일정한 감쇠가 걸리도록 합니다. 실무에서 Adam에 L2를 넣고 효과가 없다고 판단하는 흔한 오해가 여기서 나옵니다. 또 bias나 정규화 층의 스케일 파라미터에는 보통 감쇠를 걸지 않는데, 이들은 크기를 줄여야 할 이유가 다르기 때문입니다.',
     keyPoints: [
@@ -334,9 +334,9 @@ export const dlRoadmapQuestions = [
     term: 'Representation Learning · Hidden Layer',
     prompt: '사람이 특징을 설계하는 것과 신경망이 표현을 학습하는 것은 무엇이 다른가요?',
     shortAnswer:
-      '고전적인 방식은 사람이 도메인 지식으로 어떤 값을 입력으로 쓸지 직접 정하지만, 신경망은 hidden layer를 거치며 과제에 유용한 표현을 스스로 만들어냅니다. 그래서 hidden layer는 계산 층이 아니라 학습되는 특징 추출기라고 보는 것이 정확합니다.',
+      '고전적인 방식은 사람이 어떤 값을 입력으로 쓸지 직접 정하지만, 신경망은 hidden layer를 거치며 과제에 유용한 표현을 스스로 만듭니다. hidden layer는 학습되는 특징 추출기입니다.',
     deepAnswer:
-      '층이 깊어질수록 단순한 패턴이 조합돼 더 추상적인 특징이 되고, 이 표현은 다른 과제에 재사용할 수 있어 전이학습의 근거가 됩니다. 대신 표현을 데이터로부터 얻는 만큼 더 많은 데이터와 계산이 필요하고 무엇을 학습했는지 해석하기 어렵습니다. 데이터가 적고 의미가 분명한 정형 데이터에서는 사람이 만든 특징과 트리 계열이 여전히 강한 이유이기도 합니다.',
+      '사람이 특징을 설계하려면 도메인 지식이 필요하고, 그 지식의 한계가 곧 입력의 한계가 됩니다. 층이 깊어질수록 단순한 패턴이 조합돼 더 추상적인 특징이 되고, 이 표현은 다른 과제에 재사용할 수 있어 전이학습의 근거가 됩니다. 대신 표현을 데이터로부터 얻는 만큼 더 많은 데이터와 계산이 필요하고 무엇을 학습했는지 해석하기 어렵습니다. 데이터가 적고 의미가 분명한 정형 데이터에서는 사람이 만든 특징과 트리 계열이 여전히 강한 이유이기도 합니다.',
     keyPoints: [
       'Hidden layer는 학습되는 특징 추출기',
       '데이터·계산 비용과 해석 가능성을 대가로 지불',

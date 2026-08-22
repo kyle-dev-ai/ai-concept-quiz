@@ -8,9 +8,9 @@ export const transformerRoadmapQuestions = [
     term: 'Transformer End-to-End Flow',
     prompt: '문장이 Transformer에 들어가 다음 token logit이 되기까지의 흐름을 말해보세요.',
     shortAnswer:
-      '문장을 token으로 나누고 embedding에 위치 정보를 더한 뒤 여러 Transformer block을 통과시킵니다. 각 block은 attention과 feed-forward 변환을 수행하고 마지막 hidden state를 vocabulary 크기의 logit으로 투영합니다.',
+      '문장을 token으로 나누고 embedding에 위치 정보를 더한 뒤 여러 Transformer block을 통과시킵니다. 마지막 hidden state를 vocabulary 크기의 logit으로 투영합니다.',
     deepAnswer:
-      '각 sublayer 주변에는 residual connection과 normalization이 있어 정보와 gradient 흐름을 돕습니다. Decoder-only 모델은 causal mask로 미래 token을 가리고, 마지막 위치의 logit을 softmax해 다음 token 분포를 얻은 뒤 생성 과정을 반복합니다.',
+      '각 block은 attention으로 token 사이 정보를 모으고 feed-forward로 위치별 표현을 변환합니다. 각 sublayer 주변에는 residual connection과 normalization이 있어 정보와 gradient 흐름을 돕습니다. Decoder-only 모델은 causal mask로 미래 token을 가리고, 마지막 위치의 logit을 softmax해 다음 token 분포를 얻은 뒤 생성 과정을 반복합니다.',
     keyPoints: [
       'Token → embedding → blocks → logits',
       'Block은 attention과 feed-forward를 중심으로 구성',
@@ -56,9 +56,9 @@ export const transformerRoadmapQuestions = [
     term: 'Head Concatenation · Output Projection',
     prompt: 'Multi-Head Attention의 여러 head 결과는 마지막에 어떻게 하나의 표현으로 합쳐지나요?',
     shortAnswer:
-      '각 head가 독립된 projection 공간에서 attention output을 만든 뒤 feature 축으로 concatenate합니다. 이어서 output projection Wᴼ를 곱해 모델 hidden dimension으로 섞어 다음 sublayer에 전달합니다.',
+      '각 head가 독립된 projection 공간에서 attention output을 만든 뒤 feature 축으로 concatenate합니다. 이어서 output projection Wᴼ를 곱해 모델 hidden dimension으로 섞습니다.',
     deepAnswer:
-      'Head 수를 늘린다고 총 hidden dimension이 자동으로 커지는 것은 아니며 보통 head dimension을 나눠 전체 크기를 유지합니다. 각 head가 반드시 사람이 해석 가능한 고정 역할을 갖는다는 보장도 없습니다.',
+      '섞인 결과가 다음 sublayer로 전달됩니다. Head 수를 늘린다고 총 hidden dimension이 자동으로 커지는 것은 아니며 보통 head dimension을 나눠 전체 크기를 유지합니다. 각 head가 반드시 사람이 해석 가능한 고정 역할을 갖는다는 보장도 없습니다.',
     keyPoints: ['Head output을 feature 축으로 연결', 'Wᴼ가 head 정보를 다시 혼합'],
     followUp: 'd_model이 768이고 head가 12개라면 일반적인 head dimension은 얼마인가요?',
     prerequisites: ['transformer-scaled-multi-head', 'math-matrix-multiplication-shape'],
@@ -85,9 +85,9 @@ export const transformerRoadmapQuestions = [
     term: 'Pre-Norm · Post-Norm',
     prompt: 'Transformer의 Pre-Norm과 Post-Norm은 normalization 위치가 어떻게 다른가요?',
     shortAnswer:
-      'Pre-norm은 attention이나 FFN sublayer에 들어가기 전에 layer normalization을 적용하고 residual을 더합니다. Post-norm은 sublayer와 residual 합 이후에 normalization을 적용합니다.',
+      'Pre-norm은 sublayer에 들어가기 전에 layer normalization을 적용하고 residual을 더합니다. Post-norm은 sublayer와 residual을 합한 뒤에 normalization을 적용합니다.',
     deepAnswer:
-      '원래 Transformer는 post-norm을 사용했지만 깊은 모델에서 pre-norm이 gradient 흐름과 학습 안정성에 유리해 널리 쓰입니다. 다만 최종 성능과 scale 특성은 architecture와 training recipe에 따라 달라 어느 쪽도 무조건 우수하지 않습니다.',
+      '여기서 sublayer는 attention과 FFN을 말합니다. 원래 Transformer는 post-norm을 사용했지만 깊은 모델에서 pre-norm이 gradient 흐름과 학습 안정성에 유리해 널리 쓰입니다. 다만 최종 성능과 scale 특성은 architecture와 training recipe에 따라 달라 어느 쪽도 무조건 우수하지 않습니다.',
     keyPoints: ['Norm이 sublayer 전인지 후인지가 차이', '위치는 residual gradient 경로에 영향'],
     followUp:
       'Pre-norm block에서 residual identity path가 normalization을 거치지 않는다는 점은 왜 중요할까요?',
@@ -128,7 +128,7 @@ export const transformerRoadmapQuestions = [
     term: 'BERT · GPT Architecture',
     prompt: 'BERT와 GPT를 구조, attention 방향, 대표 학습 목표로 비교해보세요.',
     shortAnswer:
-      'BERT는 encoder-only로 양쪽 문맥을 보는 self-attention과 masked language modeling을 대표적으로 사용합니다. GPT 계열은 decoder-only causal attention으로 이전 token에서 다음 token을 예측합니다.',
+      'BERT는 encoder-only로 양쪽 문맥을 보며 masked language modeling으로 학습합니다. GPT 계열은 decoder-only causal attention으로 이전 token에서 다음 token을 예측합니다.',
     deepAnswer:
       '전통적으로 BERT는 문장 이해·표현과 분류에, GPT는 autoregressive 생성에 강점이 있습니다. 다만 실제 최신 모델의 task 범위는 학습법과 규모에 따라 넓어졌으므로 encoder는 이해, decoder는 생성이라는 문구를 절대적 제한처럼 보면 안 됩니다.',
     keyPoints: ['BERT는 encoder-only 양방향 문맥', 'GPT는 decoder-only causal next-token 학습'],
@@ -209,9 +209,9 @@ export const transformerRoadmapQuestions = [
     prompt:
       'Self-Attention, RNN, Convolution을 층당 계산량·순차 연산 수·최대 경로 길이로 비교해보세요.',
     shortAnswer:
-      'Self-attention은 층당 계산이 길이의 제곱에 비례하지만 순차 연산이 상수이고 임의의 두 위치가 한 층에서 직접 연결됩니다. RNN은 층당 계산이 길이에 선형이지만 순차 연산과 정보 경로가 모두 길이에 비례해 병렬화와 장거리 학습이 불리합니다.',
+      'Self-attention은 층당 계산이 길이의 제곱이지만 순차 연산이 상수이고 두 위치가 한 층에서 직접 연결됩니다. RNN은 계산이 길이에 선형이나 순차 연산과 정보 경로가 길이에 비례합니다.',
     deepAnswer:
-      'Convolution은 순차 연산은 상수지만 한 층의 수용 영역이 커널 크기로 제한돼 먼 위치를 잇는 데 여러 층이 필요합니다. 경로가 짧을수록 gradient가 먼 위치까지 잘 전달되므로, 이 표가 Transformer 선택의 근거가 됩니다. 다만 self-attention의 층당 계산은 길이의 제곱에 표현 차원을 곱한 형태고 RNN은 길이에 차원의 제곱을 곱한 형태라, 문장처럼 길이가 표현 차원보다 짧은 구간에서는 self-attention이 오히려 더 쌉니다. 길이가 아주 길어지면 이 관계가 뒤집히므로 국소 attention 같은 제한이 등장합니다.',
+      '그래서 RNN은 병렬화와 장거리 학습에 불리합니다. Convolution은 순차 연산은 상수지만 한 층의 수용 영역이 커널 크기로 제한돼 먼 위치를 잇는 데 여러 층이 필요합니다. 경로가 짧을수록 gradient가 먼 위치까지 잘 전달되므로, 이 표가 Transformer 선택의 근거가 됩니다. 다만 self-attention의 층당 계산은 길이의 제곱에 표현 차원을 곱한 형태고 RNN은 길이에 차원의 제곱을 곱한 형태라, 문장처럼 길이가 표현 차원보다 짧은 구간에서는 self-attention이 오히려 더 쌉니다. 길이가 아주 길어지면 이 관계가 뒤집히므로 국소 attention 같은 제한이 등장합니다.',
     keyPoints: [
       'Self-attention은 순차 연산 상수, 최대 경로 길이 상수',
       '길이가 표현 차원보다 짧으면 self-attention이 RNN보다 오히려 저렴',
@@ -244,9 +244,9 @@ export const transformerRoadmapQuestions = [
     term: 'Weight Tying · Embedding Sharing',
     prompt: '입력 embedding과 출력 projection의 가중치를 공유하면 무엇이 좋아지나요?',
     shortAnswer:
-      '어휘 크기가 크면 두 행렬이 전체 파라미터의 상당 부분을 차지하는데, 하나로 묶으면 그중 한 행렬 분량을 통째로 줄일 수 있습니다. 또 어떤 token을 입력으로 이해하는 공간과 출력으로 예측하는 공간을 같은 공간으로 묶어 규제 효과도 얻습니다.',
+      '어휘가 크면 입력 embedding과 출력 투영 두 행렬이 파라미터의 상당 부분을 차지하는데, 하나로 묶으면 한 행렬 분량을 통째로 줄일 수 있습니다.',
     deepAnswer:
-      '원 논문은 두 embedding 층과 softmax 직전 선형 변환의 가중치를 공유하고, embedding 쪽에는 스케일을 곱해 크기를 맞췄습니다. 다만 모델이 커지고 어휘가 매우 커지면 두 역할을 분리하는 편이 성능에 유리하다는 보고도 있어, 최근 모델은 묶는 경우와 푸는 경우가 모두 존재합니다. 파라미터 절감이 목적인지 성능이 목적인지에 따라 선택이 달라집니다.',
+      '또 token을 입력으로 이해하는 공간과 출력으로 예측하는 공간을 같은 공간으로 묶어 규제 효과도 얻습니다. 원 논문은 두 embedding 층과 softmax 직전 선형 변환의 가중치를 공유하고, embedding 쪽에는 스케일을 곱해 크기를 맞췄습니다. 다만 모델이 커지고 어휘가 매우 커지면 두 역할을 분리하는 편이 성능에 유리하다는 보고도 있어, 최근 모델은 묶는 경우와 푸는 경우가 모두 존재합니다. 파라미터 절감이 목적인지 성능이 목적인지에 따라 선택이 달라집니다.',
     keyPoints: [
       '큰 어휘에서 파라미터를 크게 줄이고 규제 효과',
       '모델 규모에 따라 분리가 유리할 수 있어 항상 묶지는 않음',
@@ -261,9 +261,9 @@ export const transformerRoadmapQuestions = [
     term: 'Label Smoothing · Confidence',
     prompt: 'Label Smoothing은 무엇을 바꾸고 왜 perplexity와 실제 성능이 반대로 움직이나요?',
     shortAnswer:
-      '정답에 확률 1을 전부 몰아주는 대신 아주 작은 확률을 나머지 후보에도 나눠 주는 방식입니다. 모델이 정답에 극단적으로 확신하지 못하게 만들어 perplexity 같은 확률 지표는 나빠지지만, 번역 품질이나 정확도는 오히려 좋아지는 경우가 보고됩니다.',
+      '정답에 확률 1을 전부 몰아주는 대신 아주 작은 확률을 나머지 후보에도 나눠 줍니다. 정답에 극단적으로 확신하지 못하게 만들어 perplexity는 나빠지지만 정확도는 좋아지곤 합니다.',
     deepAnswer:
-      '한 후보에 확률을 전부 몰면 logit 격차를 무한정 키우는 방향으로 학습이 흘러 과확신과 과적합이 생기는데, 목표 분포를 살짝 눕히면 이 압력이 줄어듭니다. 확률값 자체를 의사결정에 쓰는 서비스에서는 확신도의 절대 수준이 눌려 임계값을 다시 맞춰야 하지만, 과확신이 줄어 calibration 지표는 오히려 개선되는 것이 보통입니다. 다만 정도가 지나치면 정답과 오답의 구분이 흐려집니다.',
+      '원 논문도 번역에서 perplexity는 나빠지고 BLEU와 정확도는 좋아졌다고 보고했습니다. 한 후보에 확률을 전부 몰면 logit 격차를 무한정 키우는 방향으로 학습이 흘러 과확신과 과적합이 생기는데, 목표 분포를 살짝 눕히면 이 압력이 줄어듭니다. 확률값 자체를 의사결정에 쓰는 서비스에서는 확신도의 절대 수준이 눌려 임계값을 다시 맞춰야 하지만, 과확신이 줄어 calibration 지표는 오히려 개선되는 것이 보통입니다. 다만 정도가 지나치면 정답과 오답의 구분이 흐려집니다.',
     keyPoints: [
       '목표 분포를 눕혀 과확신과 과적합을 억제',
       '확률 지표는 나빠지고 과제 성능은 좋아질 수 있음',
@@ -295,9 +295,9 @@ export const transformerRoadmapQuestions = [
     term: 'Multi-Query · Grouped-Query Attention',
     prompt: 'Query head는 그대로 두고 Key·Value head 수만 줄이는 방식은 무엇을 해결하나요?',
     shortAnswer:
-      '생성 단계에서는 이전 token의 Key와 Value를 계속 들고 있어야 하는데, head 수만큼 쌓이면 메모리와 읽는 대역폭이 병목이 됩니다. Key·Value head를 여러 query head가 공유하면 저장량과 읽는 양이 그만큼 줄어 생성이 빨라집니다.',
+      '생성 단계에서는 이전 token의 Key와 Value를 계속 들고 있어야 해서 head 수만큼 쌓이면 메모리 대역폭이 병목이 됩니다. 여러 query head가 Key·Value를 공유하면 그만큼 줄어듭니다.',
     deepAnswer:
-      '모든 query head가 하나의 Key·Value를 공유하는 극단이 가장 가볍지만 품질 손실이 생길 수 있어, 몇 개의 그룹으로 묶어 절충하는 방식이 널리 쓰입니다. 이 최적화는 학습 계산량보다 생성 시 메모리 대역폭을 겨냥한 것이라, 문맥이 길고 동시 요청이 많을수록 이득이 커집니다. 이미 학습된 모델을 그룹형으로 바꾸려면 Key·Value를 병합한 뒤 추가 학습이 필요합니다.',
+      '저장량과 읽는 양이 함께 줄어 생성이 빨라집니다. 모든 query head가 하나의 Key·Value를 공유하는 극단이 가장 가볍지만 품질 손실이 생길 수 있어, 몇 개의 그룹으로 묶어 절충하는 방식이 널리 쓰입니다. 이 최적화는 학습 계산량보다 생성 시 메모리 대역폭을 겨냥한 것이라, 문맥이 길고 동시 요청이 많을수록 이득이 커집니다. 이미 학습된 모델을 그룹형으로 바꾸려면 Key·Value를 병합한 뒤 추가 학습이 필요합니다.',
     keyPoints: [
       'KV 캐시 크기와 메모리 대역폭이 생성 단계의 병목',
       '공유 정도가 클수록 가볍지만 품질 손실 위험',
@@ -313,9 +313,9 @@ export const transformerRoadmapQuestions = [
     prompt:
       'Attention을 근사하지 않고도 빠르고 메모리를 적게 쓰는 구현이 가능한 이유는 무엇인가요?',
     shortAnswer:
-      '기본 구현은 n×n attention 행렬을 통째로 메모리에 만들었다가 다시 읽는데, 이 데이터 이동이 실제 병목이기 때문입니다. 입력을 블록으로 나눠 빠른 메모리 안에서 계산하고 softmax를 누적 방식으로 처리하면 큰 행렬을 만들지 않고도 같은 결과를 얻습니다.',
+      '기본 구현은 n×n attention 행렬을 통째로 메모리에 만들었다가 다시 읽는데, 이 데이터 이동이 실제 병목입니다. 블록으로 나눠 빠른 메모리에서 계산하면 큰 행렬 없이 같은 결과를 얻습니다.',
     deepAnswer:
-      '핵심은 계산량을 줄이는 것이 아니라 느린 메모리와 주고받는 양을 줄이는 것이라, 수학적으로는 정확히 같은 attention이고 근사가 아닙니다. 역전파에서는 저장하지 않은 중간값을 다시 계산하는데, 메모리 이동이 줄어드는 이득이 재계산 비용보다 커서 전체가 빨라집니다. 이 관점은 attention에 국한되지 않고 GPU 연산 최적화의 일반적인 사고방식입니다.',
+      'softmax는 블록을 지나며 누적하는 방식으로 처리합니다. 핵심은 계산량을 줄이는 것이 아니라 느린 메모리와 주고받는 양을 줄이는 것이라, 수학적으로는 정확히 같은 attention이고 근사가 아닙니다. 역전파에서는 저장하지 않은 중간값을 다시 계산하는데, 메모리 이동이 줄어드는 이득이 재계산 비용보다 커서 전체가 빨라집니다. 이 관점은 attention에 국한되지 않고 GPU 연산 최적화의 일반적인 사고방식입니다.',
     keyPoints: [
       '병목은 계산량이 아니라 메모리 이동량',
       '근사가 아니라 같은 결과를 다른 순서로 계산',
@@ -331,9 +331,9 @@ export const transformerRoadmapQuestions = [
     term: 'Mixture of Experts · Sparse Activation',
     prompt: 'Mixture of Experts는 파라미터를 크게 늘리면서 계산량은 왜 비슷하게 유지되나요?',
     shortAnswer:
-      'FFN을 여러 전문가로 복제해두고 router가 token마다 그중 소수만 골라 통과시키기 때문입니다. 복제된 FFN 몫이 전문가 수만큼 불어나 전체 파라미터는 크게 늘지만, 한 token이 지나는 경로는 몇 개뿐이라 연산량은 크게 늘지 않습니다.',
+      'FFN을 여러 전문가로 복제해두고 router가 token마다 소수만 골라 통과시키기 때문입니다. 전체 파라미터는 전문가 수만큼 불어나지만 한 token이 지나는 경로는 몇 개뿐입니다.',
     deepAnswer:
-      '문제는 router가 특정 전문가에만 몰리는 쏠림이라, 보조 손실이나 용량 제한으로 균형을 맞춰야 학습이 됩니다. 또 계산은 희소해도 전문가 파라미터는 전부 메모리에 있어야 하므로 저장 공간과 분산 학습의 통신 비용은 그대로 늘고, router의 선택이 조금만 바뀌어도 결과가 달라져 학습이 불안정할 수 있습니다. 같은 연산량으로 더 큰 용량을 얻는 대신 시스템 복잡도를 지불하는 구조입니다.',
+      '그래서 파라미터는 크게 늘어도 연산량은 크게 늘지 않습니다. 문제는 router가 특정 전문가에만 몰리는 쏠림이라, 보조 손실이나 용량 제한으로 균형을 맞춰야 학습이 됩니다. 또 계산은 희소해도 전문가 파라미터는 전부 메모리에 있어야 하므로 저장 공간과 분산 학습의 통신 비용은 그대로 늘고, router의 선택이 조금만 바뀌어도 결과가 달라져 학습이 불안정할 수 있습니다. 같은 연산량으로 더 큰 용량을 얻는 대신 시스템 복잡도를 지불하는 구조입니다.',
     keyPoints: [
       '토큰마다 일부 전문가만 활성화해 연산량 유지',
       '쏠림 방지와 메모리·통신 비용이 실제 난점',
@@ -348,9 +348,9 @@ export const transformerRoadmapQuestions = [
     term: 'RMSNorm · LayerNorm',
     prompt: 'RMSNorm은 LayerNorm에서 무엇을 덜어냈고 왜 그래도 동작하나요?',
     shortAnswer:
-      'LayerNorm은 평균을 빼고 표준편차로 나눈 뒤 스케일과 이동을 학습하는데, RMSNorm은 평균 빼기와 이동을 생략하고 제곱평균제곱근으로만 크기를 맞춥니다. 정규화의 실질적 효과 대부분이 크기 조절에서 오기 때문에 성능은 비슷하면서 연산은 줄어듭니다.',
+      'LayerNorm은 평균을 빼고 표준편차로 나눈 뒤 스케일과 이동을 학습하지만, RMSNorm은 평균 빼기와 이동을 생략하고 제곱평균제곱근으로만 크기를 맞춥니다.',
     deepAnswer:
-      '연산이 단순해지면 큰 모델에서 층마다 반복되는 비용과 메모리 접근이 줄어 학습·추론 속도에 도움이 됩니다. 다만 평균을 제거하지 않으므로 입력 분포에 큰 편향이 있으면 동작이 달라질 수 있어, 무조건 대체 가능하다기보다 최근 대형 언어 모델에서 널리 채택된 선택으로 보는 편이 정확합니다. 정규화를 어디에 두느냐와는 별개의 문제입니다.',
+      '정규화의 실질적 효과 대부분이 크기 조절에서 오기 때문에 성능은 비슷하면서 연산은 줄어듭니다. 연산이 단순해지면 큰 모델에서 층마다 반복되는 비용과 메모리 접근이 줄어 학습·추론 속도에 도움이 됩니다. 다만 평균을 제거하지 않으므로 입력 분포에 큰 편향이 있으면 동작이 달라질 수 있어, 무조건 대체 가능하다기보다 최근 대형 언어 모델에서 널리 채택된 선택으로 보는 편이 정확합니다. 정규화를 어디에 두느냐와는 별개의 문제입니다.',
     keyPoints: [
       '평균 빼기와 이동 항을 생략하고 크기만 정규화',
       '성능은 비슷하면서 층마다 반복되는 비용을 절감',

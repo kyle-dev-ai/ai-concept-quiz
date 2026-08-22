@@ -84,7 +84,7 @@ export const mathRoadmapQuestions = [
     term: 'Eigenvector · PCA',
     prompt: '고유벡터와 고유값은 PCA에서 데이터의 중요한 방향을 어떻게 찾나요?',
     shortAnswer:
-      '고유벡터는 선형변환을 거쳐도 자기 축을 벗어나지 않는 벡터이고, 고유값은 그 축에서의 배율로 음수면 방향이 뒤집힙니다. PCA는 공분산 행렬의 큰 고유값에 대응하는 고유벡터를 골라 분산이 큰 축으로 데이터를 투영합니다.',
+      '고유벡터는 선형변환을 거쳐도 자기 축을 벗어나지 않는 벡터이고, 고유값은 그 축에서의 배율로 음수면 방향이 뒤집힙니다. PCA는 데이터를 평균 중심화한 뒤 공분산 행렬의 큰 고유값에 대응하는 고유벡터를 골라 투영합니다.',
     deepAnswer:
       '상위 주성분만 남기면 원래 분산을 최대한 보존하면서 차원을 줄일 수 있습니다. PCA는 선형 구조만 포착하고 입력 scale에 민감하며, 분산이 큰 방향이 반드시 task에 중요한 방향이라는 보장은 없습니다.',
     keyPoints: ['고유값은 해당 주성분이 설명하는 분산과 연결', 'PCA는 비지도 선형 차원 축소'],
@@ -220,9 +220,9 @@ export const mathRoadmapQuestions = [
     term: 'Inverse · Pseudoinverse · Least Squares',
     prompt: '역행렬이 없는 행렬에서도 pseudoinverse로 해를 구한다는 말은 무슨 뜻인가요?',
     shortAnswer:
-      '정사각 full-rank 행렬은 inverse로 유일한 해를 구할 수 있지만 직사각형이거나 singular한 행렬에는 일반 inverse가 없습니다. Moore-Penrose pseudoinverse는 이때 least-squares 오차가 가장 작고 필요한 경우 norm도 가장 작은 해를 고릅니다.',
+      '직사각형이거나 singular한 행렬에는 일반 inverse가 없습니다. Moore-Penrose pseudoinverse는 이때 least-squares 오차가 가장 작은 해를, 해가 여럿이면 norm이 가장 작은 것을 고릅니다.',
     deepAnswer:
-      'SVD A=UΣVᵀ에서 0이 아닌 singular value의 역수만 취해 A⁺=VΣ⁺Uᵀ를 만들 수 있습니다. 실제 계산에서는 inverse를 직접 만들기보다 QR이나 SVD 기반 solver를 사용해야 rank deficiency와 수치 오차를 더 안정적으로 다룰 수 있습니다.',
+      '정사각 full-rank 행렬이라면 inverse로 유일한 해를 바로 구할 수 있습니다. SVD A=UΣVᵀ에서 0이 아닌 singular value의 역수만 취해 A⁺=VΣ⁺Uᵀ를 만들 수 있습니다. 실제 계산에서는 inverse를 직접 만들기보다 QR이나 SVD 기반 solver를 사용해야 rank deficiency와 수치 오차를 더 안정적으로 다룰 수 있습니다.',
     keyPoints: [
       'Pseudoinverse는 직사각형·singular 행렬에도 정의',
       'Least-squares 또는 minimum-norm 해와 연결',
@@ -254,9 +254,9 @@ export const mathRoadmapQuestions = [
     term: 'Entropy · Cross Entropy · KL Divergence',
     prompt: 'Entropy, Cross Entropy, KL Divergence의 차이를 확률분포 비교 관점에서 말해보세요.',
     shortAnswer:
-      'Entropy H(P)는 분포 P 자체의 불확실성이고, cross entropy H(P,Q)는 P에서 나온 data를 Q로 설명할 때의 평균 surprisal입니다. KL(P∥Q)는 두 값의 차이 H(P,Q)−H(P)로 Q가 P와 얼마나 다른지 나타냅니다.',
+      'Entropy H(P)는 분포 P 자체의 불확실성이고, cross entropy H(P,Q)는 P에서 나온 데이터를 Q로 설명할 때의 평균 surprisal입니다. KL(P∥Q)는 그 차이 H(P,Q)−H(P)입니다.',
     deepAnswer:
-      '분류에서 label 분포 P가 고정되어 있으면 cross entropy를 최소화하는 것은 KL(P∥Q)를 최소화하는 것과 같습니다. KL은 0 이상이지만 대칭이 아니고 triangle inequality도 만족하지 않아 일반적인 distance metric은 아닙니다.',
+      'KL은 Q가 P와 얼마나 다른지를 나타냅니다. 분류에서 label 분포 P가 고정되어 있으면 cross entropy를 최소화하는 것은 KL(P∥Q)를 최소화하는 것과 같습니다. KL은 0 이상이지만 대칭이 아니고 triangle inequality도 만족하지 않아 일반적인 distance metric은 아닙니다.',
     keyPoints: [
       'Cross entropy = entropy + KL divergence',
       'KL divergence는 비대칭이며 일반 distance가 아님',

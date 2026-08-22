@@ -95,9 +95,9 @@ export const llmRoadmapQuestions = [
     term: 'Perplexity · Task Evaluation',
     prompt: 'Perplexity가 낮다는 것과 사용자 task를 잘한다는 것은 왜 같지 않나요?',
     shortAnswer:
-      'Perplexity는 정답 token sequence에 모델이 부여한 평균 negative log-likelihood의 지수로 다음 token 예측의 불확실성을 나타냅니다. 사실성, 지시 준수, 안전, tool 성공을 직접 측정하지는 않습니다.',
+      'Perplexity는 정답 token에 모델이 부여한 평균 negative log-likelihood의 지수로 다음 token 예측의 불확실성을 나타냅니다. 사실성이나 지시 준수를 직접 재지는 않습니다.',
     deepAnswer:
-      'Tokenization과 평가 corpus가 다르면 모델 간 perplexity를 단순 비교하기 어렵습니다. 실제 제품에서는 task별 golden set, factuality와 groundedness, 사람 판단, latency와 cost를 함께 보고 모델 변경의 회귀를 판단해야 합니다.',
+      '안전이나 tool 성공률도 perplexity로는 측정되지 않습니다. Tokenization과 평가 corpus가 다르면 모델 간 perplexity를 단순 비교하기 어렵습니다. 실제 제품에서는 task별 golden set, factuality와 groundedness, 사람 판단, latency와 cost를 함께 보고 모델 변경의 회귀를 판단해야 합니다.',
     keyPoints: [
       'Perplexity는 language modeling objective 지표',
       '제품 품질은 task별 다차원 평가 필요',
@@ -146,9 +146,9 @@ export const llmRoadmapQuestions = [
     term: 'Prefill · Decode · KV Cache',
     prompt: 'LLM Inference의 Prefill과 Decode 단계, KV Cache의 역할을 설명해보세요.',
     shortAnswer:
-      'Prefill은 prompt token을 한꺼번에 처리해 첫 token과 각 layer의 key·value를 계산합니다. Decode는 한 token씩 생성하며 KV cache에 저장한 이전 key·value를 재사용해 과거 전체를 매번 다시 계산하지 않습니다.',
+      'Prefill은 prompt token을 한꺼번에 처리해 첫 token과 각 layer의 key·value를 계산합니다. Decode는 한 token씩 생성하며 KV cache에 저장한 값을 재사용합니다.',
     deepAnswer:
-      'KV cache는 연산을 줄이는 대신 sequence 길이, layer 수, batch에 비례하는 memory를 사용합니다. Time to first token은 prefill에, token 간 속도는 decode에 더 영향을 받아 두 latency를 분리 측정해야 합니다.',
+      '덕분에 과거 전체를 매 step 다시 계산하지 않아도 됩니다. KV cache는 연산을 줄이는 대신 sequence 길이, layer 수, batch에 비례하는 memory를 사용합니다. Time to first token은 prefill에, token 간 속도는 decode에 더 영향을 받아 두 latency를 분리 측정해야 합니다.',
     keyPoints: ['Prefill은 prompt 병렬 처리', 'KV cache는 이전 attention K·V 재계산을 절약'],
     followUp:
       '긴 context에서 KV cache가 serving 동시 사용자 수를 제한할 수 있는 이유는 무엇인가요?',
@@ -176,7 +176,7 @@ export const llmRoadmapQuestions = [
     prompt:
       'Autoregressive Language Model은 문장 전체 확률을 어떻게 다음 token 확률의 곱으로 나타내나요?',
     shortAnswer:
-      '문장 token들의 joint probability를 각 token이 이전 token들에 조건부인 확률의 곱으로 분해합니다. 그래서 왼쪽 context가 주어졌을 때 다음 token을 예측하는 학습으로 전체 sequence 분포를 모델링할 수 있습니다.',
+      '문장 token들의 joint probability를 각 token이 이전 token들에 조건부인 확률의 곱으로 분해합니다. 그래서 다음 token을 예측하는 학습으로 전체 sequence 분포를 다룰 수 있습니다.',
     deepAnswer:
       '확률의 chain rule을 이용한 분해이며 decoder-only Transformer는 causal mask로 미래 token을 보지 못하게 합니다. 생성 시에는 한 token씩 순차적으로 sample해야 하므로 training의 병렬 next-token 계산보다 decode가 순차적입니다.',
     keyPoints: [

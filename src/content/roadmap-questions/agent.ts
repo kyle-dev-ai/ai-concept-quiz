@@ -122,9 +122,9 @@ export const agentRoadmapQuestions = [
     term: 'Wrong Tool · Recovery Strategy',
     prompt: 'Agent가 잘못된 Tool을 선택했을 때 탐지하고 복구하는 방법을 설명해보세요.',
     shortAnswer:
-      'Tool별 precondition과 postcondition을 검사하고 기대한 상태 변화가 없거나 결과 schema가 맞지 않으면 실패로 판정합니다. Side effect 전에는 확인하고, 안전한 경우 대체 tool이나 human escalation으로 전환합니다.',
+      'Tool별 precondition과 postcondition을 검사해 기대한 상태 변화가 없거나 결과 schema가 맞지 않으면 실패로 판정합니다. Side effect 전에는 확인 단계를 둡니다.',
     deepAnswer:
-      'Tool choice accuracy만 아니라 argument 정확성, 실행 성공, 최종 task 결과를 따로 측정합니다. 잘못된 선택 trace를 golden set에 추가하고 description·routing·권한을 수정한 뒤 동일 사례와 정상 사례의 회귀를 확인합니다.',
+      '실패로 판정되면 안전한 경우 대체 tool로 바꾸거나 사람에게 넘깁니다. Tool choice accuracy만 아니라 argument 정확성, 실행 성공, 최종 task 결과를 따로 측정합니다. 잘못된 선택 trace를 golden set에 추가하고 description·routing·권한을 수정한 뒤 동일 사례와 정상 사례의 회귀를 확인합니다.',
     keyPoints: ['실행 전 조건과 실행 후 상태를 검증', '실패 trace를 routing 평가로 환류'],
     followUp:
       '잘못된 Tool 호출이 이미 외부 상태를 바꿨다면 rollback이 없는 경우 어떻게 대응하나요?',
@@ -301,9 +301,9 @@ export const agentRoadmapQuestions = [
     term: 'Model Context Protocol · Tool Interoperability',
     prompt: 'Agent와 외부 도구를 연결할 때 표준 프로토콜을 쓰면 무엇이 좋아지나요?',
     shortAnswer:
-      'MCP(Model Context Protocol) 같은 표준을 쓰면 도구를 앱마다 다시 구현하지 않고, 같은 규격을 지키는 도구 서버를 여러 앱이 그대로 붙여 쓸 수 있습니다. 도구 목록과 사용법을 실행 중에 물어볼 수 있어 새 도구를 추가할 때 앱을 다시 배포하지 않아도 됩니다.',
+      'MCP 같은 표준을 쓰면 도구를 앱마다 다시 구현하지 않고, 같은 규격을 지키는 도구 서버를 여러 앱이 그대로 붙여 쓸 수 있습니다.',
     deepAnswer:
-      '반대로 외부 도구 서버가 어떤 도구를 노출할지 결정하게 되므로, 신뢰할 수 있는 출처인지와 도구 설명이 모델 지시문에 그대로 들어간다는 점을 함께 고려해야 합니다. 프로토콜은 아직 발전 중이라 통신 방식이 바뀌기도 하므로 버전 호환성 확인이 필요하고, 표준을 쓰더라도 도구 실패·타임아웃 처리는 여전히 앱의 책임입니다. 도구 수가 늘면 목록 자체가 컨텍스트를 차지한다는 비용도 봐야 합니다.',
+      '도구 목록과 사용법을 실행 중에 물어볼 수 있어 새 도구를 추가할 때 앱을 다시 배포하지 않아도 됩니다. 반대로 외부 도구 서버가 어떤 도구를 노출할지 결정하게 되므로, 신뢰할 수 있는 출처인지와 도구 설명이 모델 지시문에 그대로 들어간다는 점을 함께 고려해야 합니다. 프로토콜은 아직 발전 중이라 통신 방식이 바뀌기도 하므로 버전 호환성 확인이 필요하고, 표준을 쓰더라도 도구 실패·타임아웃 처리는 여전히 앱의 책임입니다. 도구 수가 늘면 목록 자체가 컨텍스트를 차지한다는 비용도 봐야 합니다.',
     keyPoints: [
       '도구를 앱 간 재사용하고 실행 중에 발견할 수 있음',
       '도구 설명이 곧 지시문이므로 출처 신뢰가 전제',

@@ -102,9 +102,9 @@ const coreQuestions = [
     term: 'Self-Supervised Learning',
     prompt: 'Self-Supervised Learning은 Unsupervised Learning과 무엇이 다르고 왜 유용한가요?',
     shortAnswer:
-      'Self-supervised learning은 사람이 붙인 label 없이 데이터 일부를 가리거나 다음 부분을 맞히는 식으로 정답 역할의 학습 신호를 데이터 자체에서 만듭니다. 대규모 원시 데이터를 활용해 일반적인 표현을 pretraining할 수 있다는 장점이 있습니다.',
+      'Self-supervised learning은 사람이 붙인 label 없이 데이터 일부를 가리거나 다음 부분을 맞히는 식으로 학습 신호를 데이터 자체에서 만듭니다. 대규모 원시 데이터로 일반적인 표현을 pretraining할 수 있습니다.',
     deepAnswer:
-      '명시적 사람이 만든 label은 없지만 입력과 target을 구성해 supervised loss 형태로 학습한다는 점이 단순 clustering 같은 unsupervised task와 다릅니다. BERT의 masked token 예측과 GPT의 next-token prediction이 대표적이며, 특정 task에는 이후 supervised fine-tuning이 필요할 수 있습니다.',
+      '가린 부분이나 다음 부분이 정답 역할의 학습 신호를 데이터 자체에서 만들어 줍니다. 명시적 사람이 만든 label은 없지만 입력과 target을 구성해 supervised loss 형태로 학습한다는 점이 단순 clustering 같은 unsupervised task와 다릅니다. BERT의 masked token 예측과 GPT의 next-token prediction이 대표적이며, 특정 task에는 이후 supervised fine-tuning이 필요할 수 있습니다.',
     keyPoints: [
       '정답 신호를 데이터 자체에서 구성',
       'Pretraining과 task-specific supervised learning은 역할이 다름',
@@ -120,9 +120,9 @@ const coreQuestions = [
     term: 'Train · Validation · Test',
     prompt: '데이터를 Train, Validation, Test로 나누는 이유는 무엇인가요?',
     shortAnswer:
-      'Train set은 파라미터 학습에, Validation set은 hyperparameter와 모델 선택에, Test set은 최종 일반화 성능 추정에 사용합니다. Test를 반복 의사결정에 쓰면 사실상 validation 데이터가 되어 성능 추정이 낙관적으로 편향됩니다.',
+      'Train set은 파라미터 학습에, Validation set은 hyperparameter와 모델 선택에, Test set은 최종 일반화 성능 추정에 씁니다. Test를 반복 의사결정에 쓰면 성능 추정이 낙관적으로 편향됩니다.',
     deepAnswer:
-      '세 집합은 같은 실제 분포를 대표해야 하며 중복 사용자나 시간 누수처럼 정보가 섞이지 않게 분리해야 합니다. 시계열이나 사용자 데이터는 무작위 행 분할보다 시간 또는 사용자 단위 분할이 더 적절할 수 있습니다.',
+      'Test set을 반복해서 들여다보면 사실상 또 하나의 validation 데이터가 되어 버립니다. 세 집합은 같은 실제 분포를 대표해야 하며 중복 사용자나 시간 누수처럼 정보가 섞이지 않게 분리해야 합니다. 시계열이나 사용자 데이터는 무작위 행 분할보다 시간 또는 사용자 단위 분할이 더 적절할 수 있습니다.',
     keyPoints: ['Test set은 마지막 독립 평가용', 'Data leakage가 있으면 지표를 신뢰할 수 없음'],
     followUp: '같은 사용자의 데이터가 train과 test에 섞이면 어떤 문제가 생기나요?',
     prerequisites: ['ml-supervised-unsupervised'],
@@ -134,9 +134,9 @@ const coreQuestions = [
     term: 'Parameter · Hyperparameter',
     prompt: 'Parameter와 Hyperparameter는 누가, 언제 정하는 값인가요?',
     shortAnswer:
-      'Parameter는 weight와 bias처럼 train data와 loss를 통해 모델이 학습하는 값입니다. Hyperparameter는 learning rate, batch size, 모델 깊이처럼 학습 방식이나 구조를 정하기 위해 학습 실행 전에 사람이 설정하거나 탐색하는 값입니다.',
+      'Parameter는 weight와 bias처럼 train data와 loss를 통해 모델이 학습하는 값입니다. Hyperparameter는 learning rate나 모델 깊이처럼 학습 전에 사람이 정하거나 탐색하는 값입니다.',
     deepAnswer:
-      'Validation 결과로 hyperparameter와 모델을 선택하고, test set은 그 선택이 끝난 뒤 최종 평가에 남겨둡니다. 자동 탐색 도구가 hyperparameter를 고르더라도 일반적인 단일 training run의 gradient로 직접 갱신되는 model parameter와 역할은 구분됩니다.',
+      'batch size나 구조 설계처럼 학습 방식을 정하는 값도 hyperparameter입니다. Validation 결과로 hyperparameter와 모델을 선택하고, test set은 그 선택이 끝난 뒤 최종 평가에 남겨둡니다. 자동 탐색 도구가 hyperparameter를 고르더라도 일반적인 단일 training run의 gradient로 직접 갱신되는 model parameter와 역할은 구분됩니다.',
     keyPoints: [
       'Parameter는 training objective로 학습',
       'Hyperparameter 선택에는 validation 결과 사용',
@@ -151,7 +151,7 @@ const coreQuestions = [
     term: 'Regression · Classification',
     prompt: 'Regression과 Classification은 출력과 loss 관점에서 어떻게 다른가요?',
     shortAnswer:
-      'Regression은 가격처럼 연속값을 예측하고, Classification은 클래스 또는 클래스 확률을 예측합니다. Regression에는 MSE, Classification에는 cross entropy가 흔히 사용되지만 문제의 가정에 따라 달라질 수 있습니다.',
+      'Regression은 가격처럼 연속값을, Classification은 클래스나 클래스 확률을 예측합니다. 보통 regression에는 MSE, classification에는 cross entropy를 쓰지만 문제의 가정에 따라 달라집니다.',
     deepAnswer:
       'MSE는 큰 오차를 제곱으로 더 크게 벌주며 Gaussian noise 가정과 연결됩니다. Cross entropy는 정답 분포와 예측 확률 분포의 차이를 줄이고, softmax와 함께 다중 클래스 확률을 학습할 때 자주 사용합니다.',
     keyPoints: ['출력 공간이 연속값인지 범주인지 구분', 'Loss는 문제와 데이터 분포의 가정을 반영'],
@@ -165,9 +165,9 @@ const coreQuestions = [
     term: 'Loss Function · Evaluation Metric',
     prompt: '학습에 Loss Function이 필요한 이유와 Evaluation Metric과의 차이를 설명해보세요.',
     shortAnswer:
-      'Loss는 prediction과 target의 오차를 학습이 줄일 수 있는 하나의 값으로 만들고, gradient를 통해 parameter update 방향을 제공합니다. Evaluation metric은 accuracy나 F1처럼 최종 성능을 사람이 해석하기 위한 값으로 미분 가능할 필요가 없습니다.',
+      'Loss는 오차를 학습이 줄일 수 있는 하나의 값으로 만들어 gradient로 update 방향을 줍니다. Metric은 accuracy나 F1처럼 사람이 성능을 해석하려고 보는 값이라 미분 가능할 필요가 없습니다.',
     deepAnswer:
-      'Regression에는 MSE, classification에는 cross entropy가 자주 쓰이지만 문제 가정과 목표에 따라 선택해야 합니다. Accuracy는 예측 class가 바뀌기 전까지 값이 일정해 gradient 정보를 주기 어려우므로 보통 직접 loss로 쓰지 않습니다. 따라서 training loss가 낮아져도 실제 metric이나 비즈니스 결과가 항상 좋아지는 것은 아닙니다.',
+      'Loss가 gradient를 통해 parameter update 방향을 준다는 점이 metric과의 결정적 차이입니다. Regression에는 MSE, classification에는 cross entropy가 자주 쓰이지만 문제 가정과 목표에 따라 선택해야 합니다. Accuracy는 예측 class가 바뀌기 전까지 값이 일정해 gradient 정보를 주기 어려우므로 보통 직접 loss로 쓰지 않습니다. 따라서 training loss가 낮아져도 실제 metric이나 비즈니스 결과가 항상 좋아지는 것은 아닙니다.',
     keyPoints: [
       'Loss는 최적화를 위한 미분 가능한 신호',
       'Metric은 해석과 비교를 위한 최종 평가 기준',
@@ -182,9 +182,9 @@ const coreQuestions = [
     term: 'Overfitting · Bias · Variance',
     prompt: 'Overfitting을 Bias-Variance 관점에서 설명하고 대응 방법을 말해보세요.',
     shortAnswer:
-      'Overfitting은 train 데이터에는 잘 맞지만 새로운 데이터에는 일반화하지 못하는 상태로, 보통 높은 variance와 연결됩니다. 더 많은 대표 데이터, regularization, augmentation, early stopping, 적절한 모델 크기로 줄일 수 있습니다.',
+      'Overfitting은 train 데이터에는 잘 맞지만 새 데이터에 일반화하지 못하는 상태로 높은 variance와 연결됩니다. 더 많은 데이터, regularization, early stopping, 적절한 모델 크기로 줄입니다.',
     deepAnswer:
-      '높은 bias는 모델이 너무 단순하거나 학습이 부족해 train과 validation 모두 성능이 낮은 underfitting으로 나타납니다. 높은 variance는 train 성능은 좋지만 validation 성능이 나쁜 간격으로 관찰됩니다. 원인을 구분하지 않고 모델을 키우거나 줄이면 반대 문제가 커질 수 있습니다. 다만 매우 큰 신경망에서는 test 오차가 다시 내려가는 double descent처럼 고전적 U-곡선이 그대로 맞지 않는 경우도 보고됩니다.',
+      'Augmentation도 대표 데이터를 늘리는 수단으로 함께 쓰입니다. 높은 bias는 모델이 너무 단순하거나 학습이 부족해 train과 validation 모두 성능이 낮은 underfitting으로 나타납니다. 높은 variance는 train 성능은 좋지만 validation 성능이 나쁜 간격으로 관찰됩니다. 원인을 구분하지 않고 모델을 키우거나 줄이면 반대 문제가 커질 수 있습니다. 다만 매우 큰 신경망에서는 test 오차가 다시 내려가는 double descent처럼 고전적 U-곡선이 그대로 맞지 않는 경우도 보고됩니다.',
     keyPoints: [
       'Train-validation gap으로 진단',
       'Regularization은 표현력과 일반화의 trade-off를 조절',
@@ -247,9 +247,9 @@ const coreQuestions = [
     term: 'Gradient Descent · Learning Rate',
     prompt: 'Gradient Descent와 Learning Rate의 관계를 직관적으로 설명해보세요.',
     shortAnswer:
-      'Gradient descent는 loss가 가장 빠르게 증가하는 gradient의 반대 방향으로 파라미터를 갱신합니다. Learning rate는 한 번에 이동할 크기를 정해 너무 크면 발산하고 너무 작으면 학습이 느리거나 나쁜 지점에 오래 머물 수 있습니다.',
+      'Gradient descent는 loss가 가장 빠르게 증가하는 방향의 반대로 파라미터를 갱신합니다. Learning rate는 한 번에 이동할 크기라 너무 크면 발산하고 너무 작으면 학습이 느려집니다.',
     deepAnswer:
-      'Mini-batch gradient는 전체 데이터 gradient의 noisy estimate라서 효율성과 일반화에 도움을 줄 수 있습니다. Scheduler, warmup, adaptive optimizer는 학습 단계와 파라미터별로 효과적인 이동 크기를 조절합니다.',
+      '학습률이 너무 작으면 나쁜 지점에 오래 머무를 수도 있습니다. Mini-batch gradient는 전체 데이터 gradient의 noisy estimate라서 효율성과 일반화에 도움을 줄 수 있습니다. Scheduler, warmup, adaptive optimizer는 학습 단계와 파라미터별로 효과적인 이동 크기를 조절합니다.',
     keyPoints: [
       '방향은 gradient, 보폭은 learning rate',
       'Mini-batch는 계산량과 gradient noise를 조절',
@@ -312,7 +312,7 @@ const coreQuestions = [
     term: 'Self-Attention',
     prompt: 'Self-Attention을 “문장 안에서 문맥을 섞는 과정”으로 설명해보세요.',
     shortAnswer:
-      '각 token이 같은 sequence의 다른 token들과 관련도를 계산하고, 관련도가 높은 token의 value를 더 많이 섞어 새로운 표현을 만듭니다. 그래서 같은 단어도 주변 문맥에 따라 다른 representation을 가질 수 있습니다.',
+      '각 token이 같은 sequence의 다른 token들과 관련도를 계산하고, 관련도가 높은 token의 value를 더 많이 섞어 새 표현을 만듭니다. 그래서 같은 단어도 문맥에 따라 달라집니다.',
     deepAnswer:
       '각 위치의 출력은 attention weight로 value들을 가중합한 결과입니다. Decoder의 causal self-attention은 미래 token을 보지 못하도록 mask를 적용합니다. Attention weight를 곧바로 인간이 해석하는 중요도와 동일시하면 안 됩니다.',
     keyPoints: ['동일 sequence 안의 관계를 사용해 표현 갱신', 'Decoder 학습에는 causal mask 적용'],
@@ -374,9 +374,9 @@ const coreQuestions = [
     term: 'Encoder · Decoder · Decoder-only',
     prompt: 'Transformer Encoder, Decoder, Decoder-only 구조의 정보 흐름을 비교해보세요.',
     shortAnswer:
-      'Encoder는 입력 전체를 양방향으로 보며 표현을 만들고, Decoder는 이전 token만 보며 다음 token을 생성하면서 필요하면 encoder 출력에 cross-attention합니다. GPT 계열 decoder-only 모델은 causal self-attention으로 하나의 sequence를 이어 생성합니다.',
+      'Encoder는 입력 전체를 양방향으로 보며 표현을 만들고, Decoder는 이전 token만 보며 다음 token을 생성하면서 필요하면 encoder 출력에 cross-attention합니다.',
     deepAnswer:
-      'BERT형 encoder-only는 문맥 이해와 표현 학습에, 원래 Transformer encoder-decoder는 번역 같은 sequence-to-sequence에, decoder-only는 autoregressive generation에 적합한 inductive bias를 가집니다. 실제 선택은 task와 학습 방식에 따라 달라집니다.',
+      'GPT 계열 decoder-only 모델은 별도 encoder 없이 causal self-attention으로 하나의 sequence를 이어 생성합니다. BERT형 encoder-only는 문맥 이해와 표현 학습에, 원래 Transformer encoder-decoder는 번역 같은 sequence-to-sequence에, decoder-only는 autoregressive generation에 적합한 inductive bias를 가집니다. 실제 선택은 task와 학습 방식에 따라 달라집니다.',
     keyPoints: [
       'Encoder는 bidirectional, 생성 decoder는 causal',
       'Encoder-decoder에는 입력을 보는 cross-attention 존재',
@@ -391,9 +391,9 @@ const coreQuestions = [
     term: 'Causal Mask · Next-Token Prediction',
     prompt: 'GPT의 self-attention에 Causal Mask가 필요한 이유는 무엇인가요?',
     shortAnswer:
-      'Causal mask는 각 위치가 현재와 이전 token만 보고 미래 token에는 attention하지 못하게 막습니다. 다음 token을 맞히는 training 중 정답이 될 미래 정보를 미리 보는 leakage를 방지하고 실제 autoregressive 생성 조건과 맞춥니다.',
+      'Causal mask는 각 위치가 현재와 이전 token만 보고 미래 token에는 attention하지 못하게 막습니다. 다음 token을 맞히는 학습에서 정답을 미리 보는 leakage를 막습니다.',
     deepAnswer:
-      'Training에서는 sequence의 여러 위치를 병렬로 계산할 수 있지만 attention score의 미래 위치를 mask한 뒤 softmax합니다. Inference에서는 생성된 token을 입력에 덧붙여 한 단계씩 이어갑니다. Padding mask는 의미 없는 padding 위치를 막는 용도라 causal mask와 목적이 다릅니다.',
+      '미래 정보를 미리 보는 leakage를 방지하는 것이 목적이며, 이 제약은 실제 autoregressive 생성 조건과도 맞습니다. Training에서는 sequence의 여러 위치를 병렬로 계산할 수 있지만 attention score의 미래 위치를 mask한 뒤 softmax합니다. Inference에서는 생성된 token을 입력에 덧붙여 한 단계씩 이어갑니다. Padding mask는 의미 없는 padding 위치를 막는 용도라 causal mask와 목적이 다릅니다.',
     keyPoints: [
       '미래 token을 보지 못하게 해 target leakage 방지',
       '병렬 training과 순차 autoregressive inference의 조건을 맞춤',
@@ -502,9 +502,9 @@ const coreQuestions = [
     term: 'Dense · Sparse · Hybrid · RRF',
     prompt: 'Dense와 Sparse retrieval을 비교하고 Hybrid Search에서 RRF를 쓰는 이유를 설명해보세요.',
     shortAnswer:
-      'Dense retrieval은 embedding 의미 유사성에 강하고, BM25 같은 sparse retrieval은 정확한 키워드와 희소한 고유명사에 강합니다. Hybrid는 두 결과를 합쳐 약점을 보완하고 RRF는 서로 다른 점수 척도 대신 순위를 이용해 결합합니다.',
+      'Dense retrieval은 의미 유사성에, BM25 같은 sparse retrieval은 정확한 키워드와 고유명사에 강합니다. Hybrid는 둘을 합쳐 약점을 보완하고 RRF는 점수 대신 순위로 결합합니다.',
     deepAnswer:
-      'RRF는 각 결과의 rank에 상수를 더한 역수를 합산해 score calibration 없이 안정적으로 fusion합니다. 하지만 query와 corpus에 따라 최적 조합이 달라지므로 offline relevance set과 online outcome으로 검증해야 합니다.',
+      '점수 척도가 서로 다른 두 검색 결과를 그대로 더할 수 없어 순위를 쓰는 것입니다. RRF는 각 결과의 rank에 상수를 더한 역수를 합산해 score calibration 없이 안정적으로 fusion합니다. 하지만 query와 corpus에 따라 최적 조합이 달라지므로 offline relevance set과 online outcome으로 검증해야 합니다.',
     keyPoints: ['Dense는 의미, sparse는 lexical matching에 강점', 'RRF는 점수가 아닌 rank를 결합'],
     followUp: '고유한 에러 코드 검색에서는 dense와 sparse 중 무엇이 유리할까요?',
     prerequisites: ['transformer-embedding', 'math-vector-dot-product'],
@@ -516,9 +516,9 @@ const coreQuestions = [
     term: 'Chunking · Vector DB · Cosine Similarity',
     prompt: 'Chunk 크기가 retrieval 품질에 미치는 영향을 Vector DB 흐름과 함께 설명해보세요.',
     shortAnswer:
-      '문서를 chunk로 나누고 embedding과 metadata를 Vector DB에 저장한 뒤 query embedding과 가까운 chunk를 찾습니다. Chunk가 너무 작으면 문맥이 끊기고 너무 크면 관련 없는 내용이 섞여 검색과 생성 품질이 떨어질 수 있습니다.',
+      '문서를 chunk로 나눠 embedding과 metadata를 Vector DB에 저장하고, query embedding과 가까운 chunk를 찾습니다. Chunk가 작으면 문맥이 끊기고 크면 관련 없는 내용이 섞입니다.',
     deepAnswer:
-      'Cosine similarity는 벡터 방향을 비교하지만 embedding model의 의미 공간과 데이터 특성이 품질을 결정합니다. 문서 구조 기반 분할, overlap, parent-child retrieval, metadata filtering을 query 유형별로 실험해야 합니다.',
+      'Chunk 크기가 검색 품질과 생성 품질을 함께 좌우합니다. Cosine similarity는 벡터 방향을 비교하지만 embedding model의 의미 공간과 데이터 특성이 품질을 결정합니다. 문서 구조 기반 분할, overlap, parent-child retrieval, metadata filtering을 query 유형별로 실험해야 합니다.',
     keyPoints: [
       'Chunk는 retrieval의 기본 단위이자 context 단위',
       '크기·overlap은 정답 하나가 아니라 평가로 결정',
@@ -581,9 +581,9 @@ const coreQuestions = [
     term: 'Memory · Agent Evaluation',
     prompt: 'Agent memory를 무작정 늘리면 안 되는 이유와 평가 방법을 말해보세요.',
     shortAnswer:
-      'Memory는 세션 상태, 사용자 선호, 과거 경험 등 목적별로 구분해야 하며 오래된 정보와 개인정보가 decision을 오염시킬 수 있습니다. 평가는 최종 성공뿐 아니라 tool 선택, 근거, 안전, 비용, latency를 단계별로 봐야 합니다.',
+      'Memory는 세션 상태, 사용자 선호, 과거 경험처럼 목적별로 구분해야 오래된 정보나 개인정보가 판단을 오염시키지 않습니다. 평가는 최종 성공만이 아니라 단계별로 봐야 합니다.',
     deepAnswer:
-      'Memory write 조건, TTL, provenance, 수정·삭제 권한을 설계하고 retrieval relevance를 검증해야 합니다. Agent 평가는 동일 task를 반복해 변동성을 보고 deterministic checks, trace replay, 사람 평가를 목적에 맞게 조합합니다.',
+      '단계별로 본다는 것은 tool 선택, 근거, 안전, 비용, latency를 각각 확인한다는 뜻입니다. Memory write 조건, TTL, provenance, 수정·삭제 권한을 설계하고 retrieval relevance를 검증해야 합니다. Agent 평가는 동일 task를 반복해 변동성을 보고 deterministic checks, trace replay, 사람 평가를 목적에 맞게 조합합니다.',
     keyPoints: [
       'Memory에는 저장·검색·만료 정책이 필요',
       'End-to-end와 component/trace 평가를 함께 사용',
@@ -598,9 +598,9 @@ const coreQuestions = [
     term: 'Latency · Cost · Quality',
     prompt: 'LLM 시스템의 latency, cost, quality trade-off를 어떤 레버로 조절할 수 있나요?',
     shortAnswer:
-      '모델 크기, 입력·출력 token, retrieval 후보 수, tool 호출 수, 병렬화, caching, streaming으로 조절할 수 있습니다. 한 지표만 줄이면 품질이나 안정성이 나빠질 수 있어 사용자 task별 SLO와 budget을 함께 둡니다.',
+      '모델 크기, 입출력 token 수, retrieval 후보 수, tool 호출 수, 병렬화, caching, streaming으로 조절합니다. 한 지표만 줄이면 품질이 나빠질 수 있어 SLO와 budget을 함께 둡니다.',
     deepAnswer:
-      'Time to first token과 전체 completion latency를 분리하고, model·retrieval·tool 단계별 trace를 측정해야 병목을 찾을 수 있습니다. 작은 모델 routing, semantic cache, context 압축은 효과가 있지만 cache stale과 routing 오류를 평가해야 합니다.',
+      'SLO와 budget은 사용자 task별로 다르게 잡아야 합니다. Time to first token과 전체 completion latency를 분리하고, model·retrieval·tool 단계별 trace를 측정해야 병목을 찾을 수 있습니다. 작은 모델 routing, semantic cache, context 압축은 효과가 있지만 cache stale과 routing 오류를 평가해야 합니다.',
     keyPoints: ['End-to-end latency를 단계별로 분해', '비용 최적화는 품질 회귀 gate와 함께'],
     followUp: 'Streaming은 실제 계산 시간을 줄이지 않아도 체감 속도를 개선하는 이유가 무엇인가요?',
     prerequisites: ['llm-tokenization-context-window', 'rag-reranking-cross-encoder'],
