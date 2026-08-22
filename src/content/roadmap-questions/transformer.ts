@@ -136,6 +136,40 @@ export const transformerRoadmapQuestions = [
     prerequisites: ['transformer-encoder-decoder', 'transformer-causal-mask'],
   },
   {
+    id: 'transformer-token-id-one-hot',
+    category: 'transformer',
+    difficulty: 'foundation',
+    term: 'Token ID · One-hot Encoding',
+    prompt: 'Token ID와 One-hot Encoding은 어떤 관계이고, 실제 구현은 왜 다르게 하나요?',
+    shortAnswer:
+      'Token ID는 vocabulary에서의 위치라 vocabulary 크기의 one-hot vector로도 표현할 수 있습니다. 하지만 실제로는 그 벡터를 만들지 않고 embedding 행렬에서 해당 행을 바로 조회합니다.',
+    deepAnswer:
+      'one-hot vector에 embedding 행렬을 곱하는 것은 수학적으로 그 ID 번째 행을 꺼내는 것과 같습니다. vocabulary가 수만 개인 모델에서 매 token마다 그 크기의 벡터를 만들어 곱하면 대부분이 0인 계산에 memory와 연산을 쓰게 되므로, 구현에서는 곱셈 대신 행 조회로 처리합니다. one-hot은 값 사이에 순서나 거리가 없다는 것을 표현하는 개념적 장치이고, embedding은 그 자리에 학습 가능한 의미를 채워 넣는 단계라고 보면 됩니다.',
+    keyPoints: [
+      'Token ID는 vocabulary에서의 위치를 가리키는 번호',
+      'one-hot 곱셈은 embedding 행렬의 행 조회와 같음',
+    ],
+    followUp: 'one-hot vector 자체로는 두 token의 의미가 비슷한지 알 수 없는 이유는 무엇인가요?',
+    prerequisites: ['transformer-embedding'],
+  },
+  {
+    id: 'transformer-why-decoder-only',
+    category: 'transformer',
+    difficulty: 'intermediate',
+    term: 'Decoder-only Rationale',
+    prompt: 'GPT 계열이 encoder 없이 decoder-only 구조를 택한 이유는 무엇인가요?',
+    shortAnswer:
+      '목표가 다음 token 예측 하나로 통일되기 때문입니다. 입력과 출력을 한 sequence로 이어 붙이면 별도 encoder 없이 causal self-attention만으로 학습과 생성을 같은 방식으로 처리할 수 있습니다.',
+    deepAnswer:
+      'Encoder-decoder는 source와 target이 뚜렷이 나뉘는 번역 같은 task를 염두에 둔 구조입니다. 반면 요약, 질의응답, 대화, 코드 작성은 모두 "앞의 글을 보고 이어 쓰기"로 표현할 수 있어 구조를 하나로 줄일 수 있습니다. 구조가 단순하면 사전학습에 쓸 수 있는 데이터가 라벨 없는 일반 텍스트 전체로 넓어지고 scaling도 쉬워집니다. 다만 decoder-only가 언제나 우월한 것은 아니어서, 입력 전체를 양방향으로 봐야 하는 이해 중심 task에서는 encoder 계열이 여전히 유리할 수 있습니다.',
+    keyPoints: [
+      '다음 token 예측 하나로 여러 task를 표현할 수 있음',
+      '입력과 출력을 한 sequence로 이어 붙여 cross-attention이 불필요',
+    ],
+    followUp: '번역처럼 source가 뚜렷한 task에서 encoder-decoder가 가지는 이점은 무엇인가요?',
+    prerequisites: ['transformer-encoder-decoder', 'transformer-causal-mask'],
+  },
+  {
     id: 'transformer-quadratic-attention-cost',
     category: 'transformer',
     difficulty: 'advanced',

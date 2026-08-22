@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+- Dataset `1.9.0`: 8/22~23 학습 계획에서 비어 있던 두 문항을 추가해 200문항.
+  `transformer-token-id-one-hot`은 Token ID와 one-hot의 관계, 그리고 실제 구현이 왜
+  행 조회인지를 다룬다. `transformer-why-decoder-only`는 GPT가 왜 encoder 없이
+  decoder-only를 택했는지를 정면으로 묻는다. 둘 다 골든 케이스를 함께 추가했다.
+
+- 답변 길이 정리: 198문항 중 135자를 넘던 56개를 모두 범위 안으로 줄였다(평균 116자).
+  "10초 핵심 답변"이라는 라벨과 15초 카운트다운에 맞지 않던 최장 195자 문항이 있었다.
+  내용은 버리지 않고 deepAnswer로 옮겼고, 골든 케이스가 잡아낸 누락 6건은 원래 표현을
+  되살려 기대값을 그대로 유지했다. PCA 문항에는 빠져 있던 중심화 단계를 넣었다.
+
 - standalone HTTPS 배포: GitHub Pages project site(`kyle-dev-ai.github.io/ai-concept-quiz/`).
   하위 경로 배포라 `APP_BASE_PATH`로 base를 넘겨 빌드하며, PWA manifest icon과 workbox
   navigateFallback이 이 값을 따라간다. 서비스워커에 `clientsClaim`을 켜 새 배포가

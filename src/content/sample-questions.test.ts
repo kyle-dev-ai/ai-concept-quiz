@@ -3,10 +3,10 @@ import { categoryIds } from '../domain/learning/question'
 import { sampleQuestions } from './sample-questions'
 
 describe('sampleQuestions', () => {
-  it('198개의 중복 없는 질문 ID를 제공한다', () => {
+  it('200개의 중복 없는 질문 ID를 제공한다', () => {
     const ids = sampleQuestions.map((question) => question.id)
 
-    expect(sampleQuestions).toHaveLength(198)
+    expect(sampleQuestions).toHaveLength(200)
     expect(new Set(ids).size).toBe(ids.length)
   })
 
@@ -38,7 +38,7 @@ describe('sampleQuestions', () => {
       math: 23,
       ml: 28,
       dl: 28,
-      transformer: 31,
+      transformer: 33,
       llm: 24,
       rag: 21,
       agent: 23,
