@@ -232,9 +232,9 @@ export const dlRoadmapQuestions = [
     term: 'Diffusion Model',
     prompt: 'Diffusion model은 noise를 더하고 되돌리는 두 과정으로 어떻게 데이터를 생성하나요?',
     shortAnswer:
-      'Forward 과정은 데이터에 Gaussian noise를 단계적으로 더해 순수 noise로 만듭니다. 모델은 각 단계의 noise를 예측하도록 학습하고, 생성은 noise에서 시작해 단계적으로 denoising합니다.',
+      'Forward 과정은 데이터에 Gaussian noise를 여러 단계에 걸쳐 더해 순수 noise로 만듭니다. 모델은 각 단계의 noise를 예측하도록 학습하고, 생성은 noise에서 시작해 단계적으로 denoising합니다.',
     deepAnswer:
-      'Forward 과정은 Gaussian noise를 여러 단계에 걸쳐 더해 데이터를 완전히 무너뜨립니다. 학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 cross-attention 같은 경로로 모델에 주입하고, 생성할 때 classifier-free guidance로 그 조건을 얼마나 강하게 따를지 조절합니다.',
+      '학습이 각 timestep의 noise를 맞히는 회귀 문제로 단순해져 GAN 같은 적대적 학습의 불안정함이 없습니다. 대신 sampling이 수십 step 이상의 반복이라 느린 것이 약점이고, 개선된 sampler나 distillation로 step을 줄입니다. 텍스트 조건은 cross-attention 같은 경로로 모델에 주입하고, 생성할 때 classifier-free guidance로 그 조건을 얼마나 강하게 따를지 조절합니다.',
     keyPoints: [
       'Forward는 점진적 noise 추가, reverse는 학습된 denoising',
       '한 번에 생성하지 않고 반복 denoising',
@@ -249,9 +249,9 @@ export const dlRoadmapQuestions = [
     term: 'Early Stopping · Patience',
     prompt: 'Early Stopping은 무엇을 보고 학습을 멈추며 왜 규제 효과가 있나요?',
     shortAnswer:
-      'Validation 성능이 좋아지지 않고 일정 횟수 이상 정체하거나 나빠지면 멈춥니다. Train loss는 계속 내려가도 validation이 꺾이는 지점부터가 과적합이라, 그 전에 멈추는 것이 규제가 됩니다.',
+      'Validation 성능이 더 이상 좋아지지 않고 일정 횟수 이상 정체하거나 나빠지면 멈춥니다. Train loss는 계속 내려가도 validation이 꺾이는 지점부터가 과적합이라, 그 전에 멈추는 것이 규제가 됩니다.',
     deepAnswer:
-      'Validation 성능이 더 이상 좋아지지 않고 정체하는 구간을 어떻게 판정할지가 실제로는 까다롭습니다. Validation 성능은 매 epoch 출렁이므로 한 번 나빠졌다고 바로 멈추지 않고 몇 번까지 참을지를 정해두며, 멈춘 시점이 아니라 가장 좋았던 시점의 파라미터를 복원해야 의미가 있습니다. 멈추는 기준으로 쓴 데이터로 최종 성능까지 보고하면 그 데이터에 유리한 지점을 고른 셈이라 성능이 부풀려지므로 test set은 따로 남겨야 합니다.',
+      'Validation 성능은 매 epoch 출렁이므로 한 번 나빠졌다고 바로 멈추지 않고 몇 번까지 참을지를 정해두며, 멈춘 시점이 아니라 가장 좋았던 시점의 파라미터를 복원해야 의미가 있습니다. 멈추는 기준으로 쓴 데이터로 최종 성능까지 보고하면 그 데이터에 유리한 지점을 고른 셈이라 성능이 부풀려지므로 test set은 따로 남겨야 합니다.',
     keyPoints: [
       'Validation이 꺾이는 지점 전에 멈춰 과적합을 제한',
       '멈춘 시점이 아니라 최고 성능 시점의 파라미터를 복원',

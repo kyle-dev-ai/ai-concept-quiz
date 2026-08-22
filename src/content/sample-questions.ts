@@ -102,9 +102,9 @@ const coreQuestions = [
     term: 'Self-Supervised Learning',
     prompt: 'Self-Supervised Learning은 Unsupervised Learning과 무엇이 다르고 왜 유용한가요?',
     shortAnswer:
-      'Self-supervised learning은 사람이 붙인 label 없이 데이터 일부를 가리거나 다음 부분을 맞히는 식으로 학습 신호를 데이터 자체에서 만듭니다. 대규모 원시 데이터로 일반적인 표현을 pretraining할 수 있습니다.',
+      '사람이 붙인 label 없이 데이터 일부를 가리거나 다음 부분을 맞히게 해서 정답 역할의 학습 신호를 데이터 자체에서 만듭니다. 대규모 원시 데이터로 일반적인 표현을 pretraining할 수 있습니다.',
     deepAnswer:
-      '가린 부분이나 다음 부분이 정답 역할의 학습 신호를 데이터 자체에서 만들어 줍니다. 명시적 사람이 만든 label은 없지만 입력과 target을 구성해 supervised loss 형태로 학습한다는 점이 단순 clustering 같은 unsupervised task와 다릅니다. BERT의 masked token 예측과 GPT의 next-token prediction이 대표적이며, 특정 task에는 이후 supervised fine-tuning이 필요할 수 있습니다.',
+      '명시적 사람이 만든 label은 없지만 입력과 target을 구성해 supervised loss 형태로 학습한다는 점이 단순 clustering 같은 unsupervised task와 다릅니다. BERT의 masked token 예측과 GPT의 next-token prediction이 대표적이며, 특정 task에는 이후 supervised fine-tuning이 필요할 수 있습니다.',
     keyPoints: [
       '정답 신호를 데이터 자체에서 구성',
       'Pretraining과 task-specific supervised learning은 역할이 다름',
@@ -165,9 +165,9 @@ const coreQuestions = [
     term: 'Loss Function · Evaluation Metric',
     prompt: '학습에 Loss Function이 필요한 이유와 Evaluation Metric과의 차이를 설명해보세요.',
     shortAnswer:
-      'Loss는 오차를 학습이 줄일 수 있는 하나의 값으로 만들어 gradient로 update 방향을 줍니다. Metric은 accuracy나 F1처럼 사람이 성능을 해석하려고 보는 값이라 미분 가능할 필요가 없습니다.',
+      'Loss는 오차를 하나의 값으로 만들어 gradient를 통해 parameter update 방향을 제공합니다. Metric은 accuracy나 F1처럼 사람이 성능을 해석하려고 보는 값이라 미분 가능할 필요가 없습니다.',
     deepAnswer:
-      'Loss가 gradient를 통해 parameter update 방향을 준다는 점이 metric과의 결정적 차이입니다. Regression에는 MSE, classification에는 cross entropy가 자주 쓰이지만 문제 가정과 목표에 따라 선택해야 합니다. Accuracy는 예측 class가 바뀌기 전까지 값이 일정해 gradient 정보를 주기 어려우므로 보통 직접 loss로 쓰지 않습니다. 따라서 training loss가 낮아져도 실제 metric이나 비즈니스 결과가 항상 좋아지는 것은 아닙니다.',
+      'Regression에는 MSE, classification에는 cross entropy가 자주 쓰이지만 문제 가정과 목표에 따라 선택해야 합니다. Accuracy는 예측 class가 바뀌기 전까지 값이 일정해 gradient 정보를 주기 어려우므로 보통 직접 loss로 쓰지 않습니다. 따라서 training loss가 낮아져도 실제 metric이나 비즈니스 결과가 항상 좋아지는 것은 아닙니다.',
     keyPoints: [
       'Loss는 최적화를 위한 미분 가능한 신호',
       'Metric은 해석과 비교를 위한 최종 평가 기준',
@@ -391,9 +391,9 @@ const coreQuestions = [
     term: 'Causal Mask · Next-Token Prediction',
     prompt: 'GPT의 self-attention에 Causal Mask가 필요한 이유는 무엇인가요?',
     shortAnswer:
-      'Causal mask는 각 위치가 현재와 이전 token만 보고 미래 token에는 attention하지 못하게 막습니다. 다음 token을 맞히는 학습에서 정답을 미리 보는 leakage를 막습니다.',
+      'Causal mask는 각 위치가 현재와 이전 token만 보고 미래 token에는 attention하지 못하게 막습니다. 다음 token을 맞히는 학습에서 정답이 될 미래 정보를 미리 보는 leakage를 방지합니다.',
     deepAnswer:
-      '미래 정보를 미리 보는 leakage를 방지하는 것이 목적이며, 이 제약은 실제 autoregressive 생성 조건과도 맞습니다. Training에서는 sequence의 여러 위치를 병렬로 계산할 수 있지만 attention score의 미래 위치를 mask한 뒤 softmax합니다. Inference에서는 생성된 token을 입력에 덧붙여 한 단계씩 이어갑니다. Padding mask는 의미 없는 padding 위치를 막는 용도라 causal mask와 목적이 다릅니다.',
+      '이 제약은 실제 autoregressive 생성 조건과도 맞습니다. Training에서는 sequence의 여러 위치를 병렬로 계산할 수 있지만 attention score의 미래 위치를 mask한 뒤 softmax합니다. Inference에서는 생성된 token을 입력에 덧붙여 한 단계씩 이어갑니다. Padding mask는 의미 없는 padding 위치를 막는 용도라 causal mask와 목적이 다릅니다.',
     keyPoints: [
       '미래 token을 보지 못하게 해 target leakage 방지',
       '병렬 training과 순차 autoregressive inference의 조건을 맞춤',
