@@ -100,6 +100,17 @@ function inspectBuild(label, directory) {
 }
 
 function inspectQuestionBank(label, directory) {
+  // 예산은 현재 버전만 재므로, 지난 버전이 남아 있으면 아무도 읽지 않는 파일이
+  // 사용자에게 전송되고 service worker precache에도 들어간다.
+  const bankDirectory = join(directory, 'generated')
+  const currentFileName = questionBankRelativePath.split('/').at(-1)
+  const strayBanks = readdirSync(bankDirectory).filter(
+    (name) => /^question-bank\..+\.json$/.test(name) && name !== currentFileName,
+  )
+  if (strayBanks.length > 0) {
+    fail(`${label}에 쓰이지 않는 지난 question bank가 있습니다: ${strayBanks.join(', ')}`)
+  }
+
   const filePath = join(directory, questionBankRelativePath)
   const content = JSON.parse(readFileSync(filePath, 'utf8'))
   const compressedSize = gzipSize(filePath)

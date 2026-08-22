@@ -125,30 +125,17 @@ export function StudyScreen({
   }, [speech, stopListening])
 
   // 문항마다 새로 마운트되므로(App에서 key={question.id}) 여기서 바로 듣기 시작한다.
+  // 정리는 반드시 ref가 가리키는 현재 세션을 멈춰야 한다. 이 effect가 만든 세션만
+  // 붙잡고 있으면 사용자가 다시 시도해 새로 연 세션이 화면을 벗어난 뒤에도 마이크를 붙든다.
   useEffect(() => {
     if (!speech.isSupported) {
       setSpeechFailure('unsupported')
       return
     }
 
-    const session = speech.start({
-      onTranscript: (text, others) => {
-        setTranscript(text)
-        setAlternatives(others)
-      },
-      onFailure: (failure) => {
-        setSpeechFailure(failure)
-        setIsListening(false)
-      },
-    })
-    sessionRef.current = session
-    setIsListening(true)
-
-    return () => {
-      session.stop()
-      sessionRef.current = null
-    }
-  }, [speech])
+    startListening()
+    return stopListening
+  }, [speech, startListening, stopListening])
 
   // 마지막 초를 소리로 알린다. 뜨(4) 뜨(3) 뜨(2) 뜨(1) 뜬!(0)
   useEffect(() => {

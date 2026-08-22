@@ -322,4 +322,34 @@ describe('StudyScreen', () => {
 
     expect(screen.getByText('100')).toBeInTheDocument()
   })
+
+  it('다시 시도로 새로 연 세션도 화면을 벗어날 때 멈춘다', async () => {
+    const user = userEvent.setup()
+    const stops: number[] = []
+    let opened = 0
+    const speech: SpeechRecognizer = {
+      isSupported: true,
+      start: (handlers: SpeechHandlers) => {
+        opened += 1
+        const id = opened
+        if (id === 1) {
+          handlers.onFailure('denied')
+        }
+        return {
+          stop: () => {
+            stops.push(id)
+          },
+        }
+      },
+    }
+
+    const { unmount } = renderScreen({ speech })
+    await user.click(screen.getByRole('button', { name: '다시 시도' }))
+    expect(opened).toBe(2)
+
+    unmount()
+
+    // 마지막으로 연 세션이 정리되지 않으면 마이크가 계속 열려 있다.
+    expect(stops).toContain(2)
+  })
 })
