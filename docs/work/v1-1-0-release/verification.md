@@ -6,7 +6,7 @@
 - Dataset: `1.9.0`
 - Verdict: **CONDITIONAL GO**
 
-저장소 기준 release candidate는 통과했다. Apps in Toss upload와 심사 요청은 콘솔 작업이라 이 문서 시점에는 수행하지 않았다. 아래 "남은 확인"이 끝나야 공개 배포 `GO`가 된다.
+저장소 기준 release candidate는 통과했고 번들은 2026-08-26에 Apps in Toss로 **업로드까지 완료**했다. 다만 업로드는 심사 요청이 아니다. 콘솔에서 이 deployment를 선택해 심사를 요청해야 하며, 아래 "남은 확인"이 끝나야 공개 배포 `GO`가 된다.
 
 v1.0.0은 2026-08-26 기준 심사를 통과해 출시된 상태이며, 이 릴리스는 그 위에 올리는 첫 갱신이다.
 
@@ -33,13 +33,24 @@ v1.0.0은 2026-08-26 기준 심사를 통과해 출시된 상태이며, 이 릴�
 
 ## Artifact
 
-- File: `ai-concept-quiz.ait`
-- deployment ID: `01a0398c-dbc7-7ccd-a321-be5c0285385a`
-- Size: `369,535 bytes` (`360.87 KiB`)
-- SHA-256: `4a7e6f0669359695c0de7d0b90a5bce9967aa3f0634282d56883fcb873dc4a68`
-- 참고: `ait build`는 빌드마다 deployment ID가 새로 발급되므로 checksum은 마지막 `npm run verify` 산출물 기준이다. console upload 직전에 재계산한다.
+### 게이트 통과 시점의 로컬 빌드
 
-이 ID는 local build artifact 식별자다. console upload나 deploy가 수행됐다는 뜻이 아니다.
+- deployment ID: `01a0398c-dbc7-7ccd-a321-be5c0285385a`
+- Size: `369,535 bytes`
+- SHA-256: `4a7e6f0669359695c0de7d0b90a5bce9967aa3f0634282d56883fcb873dc4a68`
+
+### 실제로 업로드된 번들
+
+`ait deploy`는 업로드 전에 아티팩트를 다시 만들기 때문에 위 값과 일치하지 않는다.
+
+- File: `ai-concept-quiz.ait`
+- deployment ID: `01a0398e-67e8-7147-b0f6-fc2249ff0b29`
+- Size: `369,537 bytes`
+- SHA-256: `0d79bb79bb8b7a4b0e8f144fd4b822624e376eb045f6cbf84ef33757160a61eb`
+- 스킴: `intoss-private://ai-concept-quiz?_deploymentId=01a0398e-67e8-7147-b0f6-fc2249ff0b29`
+- 업로드 시각: 2026-08-26 (Asia/Seoul)
+
+두 아티팩트는 같은 commit에서 나왔고 크기 차이 2바이트는 빌드마다 새로 발급되는 deployment ID 문자열 때문이다. 재현이 필요하면 commit을 기준으로 삼는다.
 
 ## v1.0.0 대비 변경 요약
 
@@ -60,6 +71,7 @@ v1.0.0은 2026-08-26 기준 심사를 통과해 출시된 상태이며, 이 릴�
 - [ ] Sandbox에서 system/light/dark, VoiceOver/TalkBack, 200% text 확인.
 - [ ] 서비스 전용 고객센터 email/contact 등록.
 - [ ] Sentry project/DSN과 alert 설정.
+- [ ] 콘솔에서 이 deployment로 **심사 요청**. `ait` CLI에는 심사 요청 명령이 없고 업로드까지만 가능하다(`token`, `build`, `deploy`, `migrate`, `init`).
 - [ ] 승인 후 `v1.1.0` tag 생성과 원격 push.
 
 ## 심사 메모 초안

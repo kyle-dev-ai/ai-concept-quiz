@@ -21,7 +21,8 @@
 
 - [x] `package.json`·CHANGELOG를 `1.1.0`으로 맞추고 release gate 통과
 - [x] `.ait` 재빌드와 checksum·verification packet 기록 (`docs/work/v1-1-0-release/verification.md`)
-- [ ] 콘솔 업로드와 심사 요청 (계정 작업)
+- [x] 콘솔 업로드 (`ait deploy`, deployment `01a0398e-67e8-7147-b0f6-fc2249ff0b29`)
+- [ ] 콘솔에서 심사 요청 (CLI로 불가, 계정 작업)
 - [ ] 마이크 권한·음성 인식을 Sandbox 실기기에서 확인 (이번 릴리스 신규 기능)
 - [ ] 음성 인식 외부 처리 안내가 개인정보 고지 기준과 맞는지 확인
 - [ ] 승인 후 `v1.1.0` tag 생성과 push
