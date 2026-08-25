@@ -15,7 +15,16 @@
 - [ ] Sentry project/DSN과 email alert를 설정하고 privacy-safe test error 1건 확인
 - [ ] source map을 credential이 있는 환경에서 공식 upload flow로 전송
 - [x] `.ait` checksum과 verification packet 기록
-- [ ] 승인 후에만 upload/deploy와 `v1.0.0` tag 생성
+- [x] 승인 후에만 upload/deploy와 `v1.0.0` tag 생성 → 2026-08-26 심사 통과·출시
+
+## v1.1.0 심사 준비
+
+- [x] `package.json`·CHANGELOG를 `1.1.0`으로 맞추고 release gate 통과
+- [x] `.ait` 재빌드와 checksum·verification packet 기록 (`docs/work/v1-1-0-release/verification.md`)
+- [ ] 콘솔 업로드와 심사 요청 (계정 작업)
+- [ ] 마이크 권한·음성 인식을 Sandbox 실기기에서 확인 (이번 릴리스 신규 기능)
+- [ ] 음성 인식 외부 처리 안내가 개인정보 고지 기준과 맞는지 확인
+- [ ] 승인 후 `v1.1.0` tag 생성과 push
 
 ## Early validation
 

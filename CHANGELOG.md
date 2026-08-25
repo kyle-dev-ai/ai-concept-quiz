@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-26
+
 - Dataset `1.9.0`: 8/22~23 학습 계획에서 비어 있던 두 문항을 추가해 200문항.
   `transformer-token-id-one-hot`은 Token ID와 one-hot의 관계, 그리고 실제 구현이 왜
   행 조회인지를 다룬다. `transformer-why-decoder-only`는 GPT가 왜 encoder 없이
