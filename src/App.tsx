@@ -24,6 +24,7 @@ import {
 import { categoryById, type StudyQuestion, type StudyScope } from './domain/learning/question'
 import { countDueOn, nextDay, planReview } from './domain/learning/review'
 import { createStudyQueue, weakQuestions } from './domain/learning/session'
+import type { AnswerMode } from './domain/preferences/answer-mode'
 import type { SoundPreference } from './domain/preferences/sound'
 import type { ThemePreference } from './domain/preferences/theme'
 import { OnboardingScreen, type OnboardingValue } from './features/goal-selector/OnboardingScreen'
@@ -67,6 +68,7 @@ function App({ dependencies = appDependencies }: AppProps) {
   const [session, setSession] = useState<StudySession | null>(null)
   const [themePreference, setThemePreference] = useState<ThemePreference>('light')
   const [soundPreference, setSoundPreference] = useState<SoundPreference>('on')
+  const [answerMode, setAnswerMode] = useState<AnswerMode>('spoken')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [loadError, setLoadError] = useState(false)
@@ -85,6 +87,7 @@ function App({ dependencies = appDependencies }: AppProps) {
       dependencies.progress.load(),
       dependencies.themePreferences.load(),
       dependencies.soundPreferences.load(),
+      dependencies.answerModes.load(),
     ])
       .then(
         ([
@@ -93,6 +96,7 @@ function App({ dependencies = appDependencies }: AppProps) {
           loadedProgress,
           loadedThemePreference,
           loadedSoundPreference,
+          loadedAnswerMode,
         ]) => {
           if (!isActive) {
             return
@@ -109,6 +113,7 @@ function App({ dependencies = appDependencies }: AppProps) {
           dependencies.themeController.apply(loadedThemePreference)
           setThemePreference(loadedThemePreference)
           setSoundPreference(loadedSoundPreference)
+          setAnswerMode(loadedAnswerMode)
           setIsReady(true)
 
           if (alignedProgress !== loadedProgress) {
@@ -228,6 +233,22 @@ function App({ dependencies = appDependencies }: AppProps) {
     }
 
     setSoundPreference(nextPreference)
+  }
+
+  async function changeAnswerMode(nextMode: AnswerMode): Promise<void> {
+    if (nextMode === answerMode) {
+      return
+    }
+
+    try {
+      await dependencies.answerModes.save(nextMode)
+    } catch (error) {
+      dependencies.telemetry.captureException(error, { area: 'answer-mode', operation: 'save' })
+      throw error
+    }
+
+    setAnswerMode(nextMode)
+    dependencies.telemetry.track({ name: 'answer_mode_changed', mode: nextMode })
   }
 
   function withThemeSwitcher(screen: ReactNode) {
@@ -354,12 +375,13 @@ function App({ dependencies = appDependencies }: AppProps) {
       return {
         ...currentSession,
         reviewedCount: currentSession.reviewedCount + 1,
+        // 무음 모드의 시도에는 유사도가 없다. 세션 평균과 기록 경신에서 모두 뺀다.
         similarities:
-          attempt === undefined
+          attempt?.similarity === undefined
             ? currentSession.similarities
             : [...currentSession.similarities, attempt.similarity],
         recordsBroken:
-          attempt !== undefined && attempt.similarity > previousBest
+          attempt?.similarity !== undefined && attempt.similarity > previousBest
             ? currentSession.recordsBroken + 1
             : currentSession.recordsBroken,
       }
@@ -501,6 +523,8 @@ function App({ dependencies = appDependencies }: AppProps) {
         speech={dependencies.speechRecognizer}
         countdownCue={dependencies.countdownCue}
         soundEnabled={soundPreference === 'on'}
+        answerMode={answerMode}
+        onAnswerModeChange={changeAnswerMode}
         bestSimilarity={progress.questions[question.id]?.bestSimilarity ?? 0}
         previouslyMissedKeyPoints={progress.questions[question.id]?.missedKeyPoints}
         onExit={() => setSession(null)}
@@ -554,6 +578,8 @@ function App({ dependencies = appDependencies }: AppProps) {
           bannerAds={dependencies.bannerAds}
           soundPreference={soundPreference}
           onSoundChange={changeSoundPreference}
+          answerMode={answerMode}
+          onAnswerModeChange={changeAnswerMode}
           onEdit={() => setIsEditingProfile(true)}
         />
       ) : null}

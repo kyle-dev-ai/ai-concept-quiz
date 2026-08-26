@@ -1,4 +1,5 @@
 import { createPlatformKeyValueStore } from '#platform-key-value-store'
+import type { AnswerModeRepository } from '../application/ports/answer-mode-repository'
 import type { AppBadge } from '../application/ports/app-badge'
 import type { BannerAdProvider } from '../application/ports/banner-ad-provider'
 import type { ChallengeShare } from '../application/ports/challenge-share'
@@ -17,6 +18,7 @@ import { WebAudioCountdownCue } from '../infrastructure/audio/web-audio-countdow
 import { BrowserAppBadge } from '../infrastructure/badge/browser-app-badge'
 import { BrowserChallengeShare } from '../infrastructure/share/browser-challenge-share'
 import { BrowserSpeechRecognizer } from '../infrastructure/speech/browser-speech-recognizer'
+import { LocalAnswerModeRepository } from '../infrastructure/storage/local-answer-mode-repository'
 import { LocalProfileRepository } from '../infrastructure/storage/local-profile-repository'
 import { LocalProgressRepository } from '../infrastructure/storage/local-progress-repository'
 import { LocalSoundPreferenceRepository } from '../infrastructure/storage/local-sound-preference-repository'
@@ -38,6 +40,7 @@ export interface AppDependencies {
   readonly appBadge: AppBadge
   readonly countdownCue: CountdownCue
   readonly soundPreferences: SoundPreferenceRepository
+  readonly answerModes: AnswerModeRepository
 }
 
 export function createAppDependencies(): AppDependencies {
@@ -56,6 +59,7 @@ export function createAppDependencies(): AppDependencies {
     appBadge: new BrowserAppBadge(),
     countdownCue: new WebAudioCountdownCue(),
     soundPreferences: new LocalSoundPreferenceRepository(storage),
+    answerModes: new LocalAnswerModeRepository(storage),
   }
 }
 

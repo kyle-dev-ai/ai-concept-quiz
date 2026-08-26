@@ -1754,10 +1754,26 @@
   justify-content: space-between;
 }
 
-.daily-challenge__meta > span:last-child {
+.daily-challenge__tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-challenge__tags > span:last-child {
   color: var(--on-inverse-muted);
   font-family: var(--font-technical);
   font-size: 10px;
+}
+
+/* 오늘의 문항을 오늘 끝냈다는 표시. 카드는 그대로 눌러 한 번 더 말할 수 있다. */
+.daily-challenge__done {
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--on-lime);
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--lime);
 }
 
 .daily-challenge > strong {
@@ -2394,6 +2410,90 @@
   line-height: 1.5;
 }
 
+.mic-failure__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 소리를 낼 수 있는 자리인지는 매일 바뀐다. 설정까지 가지 않고 여기서 바로 바꾼다. */
+.answer-mode-switch {
+  display: inline-flex;
+  /* fieldset 기본값이 그리드 안에서 폭을 밀어내지 않도록 함께 지운다. */
+  min-inline-size: 0;
+  gap: 3px;
+  margin: 0 0 20px;
+  padding: 3px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.answer-mode-switch button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.answer-mode-switch button[data-active="true"] {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.answer-mode-switch button:disabled {
+  cursor: default;
+}
+
+.silent-answer {
+  display: grid;
+  justify-items: stretch;
+  width: min(100%, 340px);
+  gap: 8px;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.silent-answer__label {
+  color: var(--muted);
+  font-family: var(--font-technical);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.silent-answer__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-small);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  background: var(--surface);
+  resize: vertical;
+}
+
+.silent-answer__input::placeholder {
+  color: var(--muted-disabled);
+}
+
+.silent-answer__input:focus-visible {
+  border-color: var(--blue-border-strong);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
 .answer-panel {
   padding: 24px 3px 5px;
   border-top: 1px solid var(--rule);
@@ -2456,6 +2556,11 @@
 
 .spoken-score[data-band="low"] .spoken-score__value {
   color: var(--danger);
+}
+
+/* 무음 모드는 유사도를 재지 않으므로 잘함·못함 색을 쓰지 않는다. */
+.spoken-score[data-band="silent"] .spoken-score__value {
+  color: var(--blue);
 }
 
 /* 세션 중 짚어주는 짧은 배지. 색만 다르고 형태는 같다. */

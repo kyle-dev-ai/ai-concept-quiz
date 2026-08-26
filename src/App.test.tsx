@@ -14,6 +14,7 @@ function createTestDependencies() {
   const track = vi.fn()
   const setBadge = vi.fn()
   const saveSoundPreference = vi.fn(async () => undefined)
+  const saveAnswerMode = vi.fn(async () => undefined)
 
   const dependencies: AppDependencies = {
     questions: { list: async () => sampleQuestions },
@@ -28,6 +29,7 @@ function createTestDependencies() {
     appBadge: { set: setBadge },
     countdownCue: { prepare: vi.fn(), tick: vi.fn(), finish: vi.fn() },
     soundPreferences: { load: async () => 'on', save: saveSoundPreference },
+    answerModes: { load: async () => 'spoken', save: saveAnswerMode },
   }
 
   return {
@@ -39,6 +41,7 @@ function createTestDependencies() {
     track,
     setBadge,
     saveSoundPreference,
+    saveAnswerMode,
   }
 }
 

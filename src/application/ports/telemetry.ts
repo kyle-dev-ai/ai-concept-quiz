@@ -22,6 +22,10 @@ export type ProductEvent =
       readonly questionId: string
       readonly method: string
     }
+  | {
+      readonly name: 'answer_mode_changed'
+      readonly mode: string
+    }
 
 export interface TelemetryContext {
   readonly area: string

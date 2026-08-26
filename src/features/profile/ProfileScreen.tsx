@@ -1,9 +1,11 @@
 import type { BannerAdProvider } from '../../application/ports/banner-ad-provider'
 import { learningGoalById } from '../../domain/learning/goal'
 import { type LearnerProfile, learnerGroupById } from '../../domain/learning/learner-profile'
+import type { AnswerMode } from '../../domain/preferences/answer-mode'
 import type { SoundPreference } from '../../domain/preferences/sound'
 import { AppFooter } from '../../shared/components/AppFooter'
 import { AdSlot } from '../monetization/AdSlot'
+import { AnswerModeToggle } from '../preferences/AnswerModeToggle'
 import { SoundToggle } from '../preferences/SoundToggle'
 
 interface ProfileScreenProps {
@@ -12,6 +14,8 @@ interface ProfileScreenProps {
   readonly bannerAds: BannerAdProvider
   readonly soundPreference: SoundPreference
   readonly onSoundChange: (preference: SoundPreference) => Promise<void>
+  readonly answerMode: AnswerMode
+  readonly onAnswerModeChange: (mode: AnswerMode) => Promise<void>
   readonly onEdit: () => void
 }
 
@@ -21,6 +25,8 @@ export function ProfileScreen({
   bannerAds,
   soundPreference,
   onSoundChange,
+  answerMode,
+  onAnswerModeChange,
   onEdit,
 }: ProfileScreenProps) {
   const learnerGroup = learnerGroupById[profile.groupId]
@@ -70,6 +76,7 @@ export function ProfileScreen({
       </dl>
 
       <section className="profile-settings" aria-label="앱 설정">
+        <AnswerModeToggle mode={answerMode} onChange={onAnswerModeChange} />
         <SoundToggle preference={soundPreference} onChange={onSoundChange} />
       </section>
 

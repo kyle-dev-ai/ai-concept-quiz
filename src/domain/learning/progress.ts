@@ -16,9 +16,16 @@ export interface QuestionProgress {
   readonly missedKeyPoints?: readonly string[]
 }
 
-/** 한 번의 발화 시도에서 나온 결과. 음성 인식을 못 쓰면 기록되지 않는다. */
+/** 한 번의 답변 시도에서 나온 결과. 음성 인식도 무음 입력도 못 쓰면 기록되지 않는다. */
 export interface SpokenAttempt {
-  readonly similarity: number
+  /**
+   * 모범 답과의 표현 유사도(0~100).
+   *
+   * 무음 모드처럼 문장을 말하지 않고 키워드만 적은 시도에는 없다. 짧은 키워드
+   * 나열은 bigram이 거의 겹치지 않아 구조적으로 낮게 나오고, 그 값을 최고 기록과
+   * 같은 자리에 두면 기록이 왜곡된다. 없으면 이전 유사도를 그대로 물려준다.
+   */
+  readonly similarity?: number
   readonly missedKeyPoints: readonly string[]
 }
 
@@ -82,6 +89,7 @@ export function recordReview(
 
   // 발화 기록은 음성 인식이 동작한 경우에만 갱신한다. 마이크를 못 쓴 날이
   // 최고 기록을 지우면 안 되므로 기존 값을 그대로 물려준다.
+  // 무음 모드는 핵심 포인트 적중만 남기고 유사도는 이전 값을 지키게 한다.
   const spoken =
     attempt === undefined
       ? {
@@ -90,8 +98,11 @@ export function recordReview(
           missedKeyPoints: previous?.missedKeyPoints,
         }
       : {
-          bestSimilarity: Math.max(previous?.bestSimilarity ?? 0, attempt.similarity),
-          lastSimilarity: attempt.similarity,
+          bestSimilarity:
+            attempt.similarity === undefined
+              ? previous?.bestSimilarity
+              : Math.max(previous?.bestSimilarity ?? 0, attempt.similarity),
+          lastSimilarity: attempt.similarity ?? previous?.lastSimilarity,
           missedKeyPoints: attempt.missedKeyPoints,
         }
 
@@ -170,6 +181,24 @@ export function countReviewedOn(progress: LearningProgress, date = new Date()): 
     const reviewedAt = new Date(entry.lastReviewedAt)
     return !Number.isNaN(reviewedAt.getTime()) && toLocalDate(reviewedAt) === target
   }).length
+}
+
+/**
+ * 그 날 이 문항을 확인했는지.
+ * 오늘의 문항을 오늘 끝냈는지 표시할 때 쓴다.
+ */
+export function wasReviewedOn(
+  progress: LearningProgress,
+  questionId: string,
+  date = new Date(),
+): boolean {
+  const entry = progress.questions[questionId]
+  if (entry === undefined) {
+    return false
+  }
+
+  const reviewedAt = new Date(entry.lastReviewedAt)
+  return !Number.isNaN(reviewedAt.getTime()) && toLocalDate(reviewedAt) === toLocalDate(date)
 }
 
 export interface ActivityDay {

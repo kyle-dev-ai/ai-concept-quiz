@@ -9,6 +9,7 @@ import {
   hasStudiedToday,
   hasWeakness,
   recordReview,
+  wasReviewedOn,
 } from './progress'
 
 describe('learning progress', () => {
@@ -95,6 +96,34 @@ describe('learning progress', () => {
       lastSimilarity: 61,
       missedKeyPoints: ['softmax로 가중치를 정규화'],
     })
+  })
+
+  it('무음 모드처럼 유사도 없는 시도는 최고 기록을 건드리지 않는다', () => {
+    let progress = createInitialProgress()
+    progress = recordReview(progress, 'attention', 'unsure', new Date(2026, 7, 20, 10), {
+      similarity: 61,
+      missedKeyPoints: ['softmax로 가중치를 정규화'],
+    })
+
+    // 키워드만 적은 시도는 짚은 포인트만 갱신하고 유사도 자리는 그대로 둔다.
+    progress = recordReview(progress, 'attention', 'known', new Date(2026, 7, 21, 10), {
+      missedKeyPoints: [],
+    })
+
+    expect(progress.questions.attention).toMatchObject({
+      bestSimilarity: 61,
+      lastSimilarity: 61,
+      missedKeyPoints: [],
+    })
+  })
+
+  it('그 문항을 그 날 확인했는지 알려준다', () => {
+    let progress = createInitialProgress()
+    progress = recordReview(progress, 'attention', 'known', new Date(2026, 7, 21, 10))
+
+    expect(wasReviewedOn(progress, 'attention', new Date(2026, 7, 21, 23))).toBe(true)
+    expect(wasReviewedOn(progress, 'attention', new Date(2026, 7, 22, 1))).toBe(false)
+    expect(wasReviewedOn(progress, 'never-seen', new Date(2026, 7, 21, 10))).toBe(false)
   })
 
   it('못 말한 핵심 포인트가 남아 있는 문항만 약점으로 본다', () => {

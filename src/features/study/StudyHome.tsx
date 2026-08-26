@@ -13,6 +13,7 @@ import {
   hasStudiedToday,
   type LearningProgress,
   summarizeProgress,
+  wasReviewedOn,
 } from '../../domain/learning/progress'
 import {
   categories,
@@ -79,6 +80,8 @@ export function StudyHome({
   const dueCount = reviewPlan.due.length
   const weakCount = weakQuestions(questions, progress).length
   const reviewedToday = countReviewedOn(progress)
+  // 오늘의 문항을 오늘 이미 끝냈는지. 하루 한 문항이 끝맺음을 갖게 한다.
+  const isDailyDone = dailyQuestion !== undefined && wasReviewedOn(progress, dailyQuestion.id)
   const { ref: categoryGridRef, isInView: isCategoryGridInView } = useInView<HTMLDivElement>()
   const quote = quoteOfTheDay(quotes)
   const briefing = dailyBriefing({
@@ -208,16 +211,20 @@ export function StudyHome({
         <button
           type="button"
           className="daily-challenge home-enter home-enter--daily"
-          data-waiting={!studiedToday}
+          data-waiting={!studiedToday && !isDailyDone}
+          data-done={isDailyDone}
           onClick={() => onStartDaily(dailyQuestion)}
         >
           <div className="daily-challenge__meta">
             <span className="pill pill--lime">오늘의 10초 구술</span>
-            <span>{categoryById[dailyQuestion.category].shortLabel}</span>
+            <span className="daily-challenge__tags">
+              {isDailyDone ? <span className="daily-challenge__done">✓ 완료</span> : null}
+              <span>{categoryById[dailyQuestion.category].shortLabel}</span>
+            </span>
           </div>
           <strong>Q. {dailyQuestion.prompt}</strong>
           <div className="daily-challenge__footer">
-            <span>바로 답해보기</span>
+            <span>{isDailyDone ? '오늘 완료 · 한 번 더 말해보기' : '바로 답해보기'}</span>
             <span className="round-arrow" aria-hidden="true">
               →
             </span>

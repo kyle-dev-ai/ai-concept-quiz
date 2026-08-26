@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { KeyValueStore } from '../../application/ports/key-value-store'
 import { createLearnerProfile } from '../../domain/learning/learner-profile'
 import { createInitialProgress, recordReview } from '../../domain/learning/progress'
+import { LocalAnswerModeRepository } from './local-answer-mode-repository'
 import { LocalProfileRepository } from './local-profile-repository'
 import { LocalProgressRepository } from './local-progress-repository'
 import { LocalThemePreferenceRepository } from './local-theme-preference-repository'
@@ -158,5 +159,18 @@ describe('device repositories', () => {
     expect(entry?.lastSimilarity).toBeUndefined()
     expect(entry?.missedKeyPoints).toEqual(['정상'])
     expect(entry).not.toHaveProperty('injected')
+  })
+  it('답변 방식을 저장하고, 알 수 없는 값은 소리 내어 말하기로 되돌린다', async () => {
+    const storage = new MemoryKeyValueStore()
+    const repository = new LocalAnswerModeRepository(storage)
+
+    expect(await repository.load()).toBe('spoken')
+
+    await repository.save('silent')
+    expect(await repository.load()).toBe('silent')
+
+    // 기기 저장소는 신뢰할 수 없는 입력이다.
+    await storage.setItem('attention-ai-answer-mode-v1', 'typed')
+    expect(await repository.load()).toBe('spoken')
   })
 })

@@ -352,4 +352,88 @@ describe('StudyScreen', () => {
     // 마지막으로 연 세션이 정리되지 않으면 마이크가 계속 열려 있다.
     expect(stops).toContain(2)
   })
+  it('무음 모드에서는 마이크를 아예 열지 않는다', () => {
+    const start = vi.fn(() => ({ stop: () => undefined }))
+
+    renderScreen({ answerMode: 'silent', speech: { isSupported: true, start } })
+
+    expect(start).not.toHaveBeenCalled()
+    expect(screen.getByText(/마이크를 켜지 않아요/)).toBeInTheDocument()
+    expect(screen.queryByText('듣는 중')).not.toBeInTheDocument()
+  })
+
+  it('무음 모드는 적은 키워드로 짚은 핵심 포인트를 세어 보여준다', async () => {
+    const user = userEvent.setup()
+    const question = firstQuestion()
+    const [firstPoint] = question.keyPoints
+    if (firstPoint === undefined) {
+      throw new Error('test question has no key point')
+    }
+
+    renderScreen({ answerMode: 'silent' })
+
+    await user.type(screen.getByRole('textbox', { name: '핵심 키워드' }), firstPoint)
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+
+    expect(screen.getByText('적은 키워드로 짚은 핵심')).toBeInTheDocument()
+    expect(screen.getAllByText('적었음')).toHaveLength(1)
+    expect(screen.getAllByText('못 적었음')).toHaveLength(question.keyPoints.length - 1)
+    // 유사도는 무음 모드에서 재지 않는다.
+    expect(screen.queryByText('말한 답과 모범 답 유사도')).not.toBeInTheDocument()
+  })
+
+  it('무음 모드의 시도는 유사도를 남기지 않아 최고 기록을 건드리지 않는다', async () => {
+    const user = userEvent.setup()
+    const question = firstQuestion()
+    const [firstPoint] = question.keyPoints
+    if (firstPoint === undefined) {
+      throw new Error('test question has no key point')
+    }
+    const onRate = vi.fn(async () => undefined)
+
+    renderScreen({ answerMode: 'silent', bestSimilarity: 80, onRate })
+
+    await user.type(screen.getByRole('textbox', { name: '핵심 키워드' }), firstPoint)
+    await user.click(screen.getByRole('button', { name: '답 확인하기' }))
+    await user.click(screen.getByRole('button', { name: /알았다/ }))
+
+    expect(onRate).toHaveBeenCalledWith('known', {
+      missedKeyPoints: expect.any(Array),
+    })
+    expect(screen.queryByText(/최고 기록 경신/)).not.toBeInTheDocument()
+  })
+
+  it('말하기 어려운 자리에서 학습 도중 무음으로 바꿀 수 있다', async () => {
+    const user = userEvent.setup()
+    const onAnswerModeChange = vi.fn(async () => undefined)
+
+    renderScreen({ onAnswerModeChange })
+
+    await user.click(screen.getByRole('button', { name: '무음으로 적기' }))
+
+    expect(onAnswerModeChange).toHaveBeenCalledWith('silent')
+  })
+
+  it('마이크를 못 쓰면 무음으로 바꾸는 길을 함께 준다', async () => {
+    const user = userEvent.setup()
+    const onAnswerModeChange = vi.fn(async () => undefined)
+    const speech: SpeechRecognizer = {
+      isSupported: true,
+      start: (handlers: SpeechHandlers) => {
+        handlers.onFailure('denied')
+        return { stop: () => undefined }
+      },
+    }
+
+    renderScreen({ speech, onAnswerModeChange })
+
+    expect(screen.getByText(/마이크 권한이 꺼져 있어요/)).toBeInTheDocument()
+    const [, switchToSilent] = screen.getAllByRole('button', { name: '무음으로 적기' })
+    if (switchToSilent === undefined) {
+      throw new Error('silent mode fallback button is missing')
+    }
+    await user.click(switchToSilent)
+
+    expect(onAnswerModeChange).toHaveBeenCalledWith('silent')
+  })
 })

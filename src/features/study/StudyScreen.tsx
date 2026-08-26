@@ -10,6 +10,7 @@ import type {
 import type { KnowledgeRating, SpokenAttempt } from '../../domain/learning/progress'
 import { categoryById, difficultyLabel, type StudyQuestion } from '../../domain/learning/question'
 import { scoreBestCandidate, similarityBand } from '../../domain/learning/spoken-answer'
+import type { AnswerMode } from '../../domain/preferences/answer-mode'
 import { AdSlot } from '../monetization/AdSlot'
 
 interface StudyScreenProps {
@@ -21,8 +22,12 @@ interface StudyScreenProps {
   readonly bannerAds: BannerAdProvider
   readonly speech: SpeechRecognizer
   readonly countdownCue: CountdownCue
-  /** 카운트다운 소리를 낼지. 설정에서 끌 수 있다. */
+  /** 카운트다운 소리를 낼지. 설정에서 끌 수 있다. 무음 모드에서는 무시하고 끈다. */
   readonly soundEnabled?: boolean
+  /** 답을 떠올리는 방식. `silent`면 마이크를 켜지 않는다. */
+  readonly answerMode?: AnswerMode
+  /** 학습 도중 방식을 바꿀 때. 자리를 옮기면 곧바로 필요해지므로 이 화면에 둔다. */
+  readonly onAnswerModeChange?: (mode: AnswerMode) => Promise<void>
   /** 답을 열기 전에 소리 내어 설명할 시간(초). 0이면 곧바로 열 수 있다. */
   readonly revealDelaySeconds?: number
   readonly onExit: () => void
@@ -73,6 +78,8 @@ export function StudyScreen({
   speech,
   countdownCue,
   soundEnabled = true,
+  answerMode = 'spoken',
+  onAnswerModeChange,
   bestSimilarity = 0,
   previouslyMissedKeyPoints,
   revealDelaySeconds = 15,
@@ -90,11 +97,16 @@ export function StudyScreen({
   const [remainingSeconds, setRemainingSeconds] = useState(revealDelaySeconds)
   const [transcript, setTranscript] = useState('')
   const [alternatives, setAlternatives] = useState<readonly string[]>([])
+  const [typedAnswer, setTypedAnswer] = useState('')
+  const [isSwitchingMode, setIsSwitchingMode] = useState(false)
   const [speechFailure, setSpeechFailure] = useState<SpeechFailure | null>(null)
   const [isListening, setIsListening] = useState(false)
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
   const sessionRef = useRef<SpeechSession | null>(null)
 
+  const isSilent = answerMode === 'silent'
+  // 무음 모드는 소리를 낼 수 없는 자리를 위한 것이므로 카운트다운 소리도 함께 끈다.
+  const cueEnabled = soundEnabled && !isSilent
   const progress = ((index + 1) / total) * 100
   const canReveal = remainingSeconds <= 0
   // 마지막 5초는 색이 짙어지고 맥박이 빨라진다.
@@ -109,6 +121,8 @@ export function StudyScreen({
   const startListening = useCallback(() => {
     stopListening()
     setSpeechFailure(null)
+    setTranscript('')
+    setAlternatives([])
 
     const session = speech.start({
       onTranscript: (text, others) => {
@@ -127,7 +141,15 @@ export function StudyScreen({
   // 문항마다 새로 마운트되므로(App에서 key={question.id}) 여기서 바로 듣기 시작한다.
   // 정리는 반드시 ref가 가리키는 현재 세션을 멈춰야 한다. 이 effect가 만든 세션만
   // 붙잡고 있으면 사용자가 다시 시도해 새로 연 세션이 화면을 벗어난 뒤에도 마이크를 붙든다.
+  //
+  // 무음 모드에서는 마이크를 아예 열지 않는다. 권한 창도 뜨지 않아야 지하철이나
+  // 회의실에서 부담 없이 열 수 있다. 모드를 바꾸면 cleanup이 현재 세션을 정리하고
+  // 다시 켰을 때 새로 시작한다.
   useEffect(() => {
+    if (answerMode !== 'spoken') {
+      setSpeechFailure(null)
+      return
+    }
     if (!speech.isSupported) {
       setSpeechFailure('unsupported')
       return
@@ -135,11 +157,11 @@ export function StudyScreen({
 
     startListening()
     return stopListening
-  }, [speech, startListening, stopListening])
+  }, [answerMode, speech, startListening, stopListening])
 
   // 마지막 초를 소리로 알린다. 뜨(4) 뜨(3) 뜨(2) 뜨(1) 뜬!(0)
   useEffect(() => {
-    if (!soundEnabled || revealDelaySeconds <= 0 || isRevealed) {
+    if (!cueEnabled || revealDelaySeconds <= 0 || isRevealed) {
       return
     }
     if (remainingSeconds === 0) {
@@ -149,7 +171,7 @@ export function StudyScreen({
     if (remainingSeconds < urgentSeconds) {
       countdownCue.tick()
     }
-  }, [countdownCue, isRevealed, remainingSeconds, revealDelaySeconds, soundEnabled])
+  }, [countdownCue, cueEnabled, isRevealed, remainingSeconds, revealDelaySeconds])
 
   // 남은 시간이 0이 될 때까지 1초씩 줄인다.
   // 0이 되면 isCountingDown이 false로 바뀌며 cleanup이 interval을 정리한다.
@@ -167,8 +189,13 @@ export function StudyScreen({
   }, [isCountingDown])
 
   // 화면에는 첫 후보를 보여주고, 점수는 후보 중 가장 잘 맞는 것으로 낸다.
-  const spokenScore = scoreBestCandidate([transcript, ...alternatives], question)
-  const isPersonalBest = spokenScore !== null && spokenScore.similarity > bestSimilarity
+  // 무음 모드는 적어둔 키워드 하나만 채점한다.
+  const spokenScore = isSilent
+    ? scoreBestCandidate([typedAnswer], question)
+    : scoreBestCandidate([transcript, ...alternatives], question)
+  // 최고 기록은 소리 내어 말한 것끼리만 겨룬다. 키워드 나열은 유사도가 구조적으로 낮다.
+  const isPersonalBest =
+    !isSilent && spokenScore !== null && spokenScore.similarity > bestSimilarity
   // 지난번에 놓쳤던 포인트를 이번에 말했으면 그것만 따로 짚어준다.
   const recoveredKeyPoints =
     spokenScore === null || previouslyMissedKeyPoints === undefined
@@ -191,7 +218,8 @@ export function StudyScreen({
         spokenScore === null
           ? undefined
           : {
-              similarity: spokenScore.similarity,
+              // 무음 모드는 유사도를 남기지 않는다. 이전 기록이 그대로 유지된다.
+              ...(isSilent ? {} : { similarity: spokenScore.similarity }),
               missedKeyPoints: spokenScore.coverage
                 .filter((entry) => !entry.covered)
                 .map((entry) => entry.keyPoint),
@@ -208,6 +236,21 @@ export function StudyScreen({
 
   async function share() {
     setShareResult(await onShare())
+  }
+
+  async function changeAnswerMode(nextMode: AnswerMode) {
+    if (nextMode === answerMode || onAnswerModeChange === undefined || isSwitchingMode) {
+      return
+    }
+
+    setIsSwitchingMode(true)
+    try {
+      await onAnswerModeChange(nextMode)
+    } catch {
+      // 설정 저장에 실패해도 학습은 막지 않는다. 다시 누르면 된다.
+    } finally {
+      setIsSwitchingMode(false)
+    }
   }
 
   function reveal() {
@@ -265,12 +308,17 @@ export function StudyScreen({
         {isRevealed ? (
           <section className="answer-panel" aria-live="polite">
             {spokenScore !== null ? (
-              <div className="spoken-score" data-band={similarityBand(spokenScore.similarity)}>
+              <div
+                className="spoken-score"
+                data-band={isSilent ? 'silent' : similarityBand(spokenScore.similarity)}
+              >
                 <div className="spoken-score__headline">
-                  <span className="spoken-score__label">말한 답과 모범 답 유사도</span>
+                  <span className="spoken-score__label">
+                    {isSilent ? '적은 키워드로 짚은 핵심' : '말한 답과 모범 답 유사도'}
+                  </span>
                   <strong className="spoken-score__value">
-                    {spokenScore.similarity}
-                    <small>%</small>
+                    {isSilent ? spokenScore.coveredCount : spokenScore.similarity}
+                    <small>{isSilent ? `/${spokenScore.keyPointCount}` : '%'}</small>
                   </strong>
                 </div>
                 {isPersonalBest && bestSimilarity > 0 ? (
@@ -283,31 +331,44 @@ export function StudyScreen({
                 {recoveredKeyPoints.length > 0 ? (
                   <p className="note-badge note-badge--blue">
                     <span aria-hidden="true">✦</span>
-                    지난번 놓친 포인트 {recoveredKeyPoints.length}개를 이번엔 말했어요
+                    지난번 놓친 포인트 {recoveredKeyPoints.length}개를 이번엔{' '}
+                    {isSilent ? '적었어요' : '말했어요'}
                   </p>
                 ) : null}
 
-                <p className="spoken-score__message">
-                  {bandMessage[similarityBand(spokenScore.similarity)]}
-                </p>
+                {isSilent ? null : (
+                  <p className="spoken-score__message">
+                    {bandMessage[similarityBand(spokenScore.similarity)]}
+                  </p>
+                )}
 
                 <ul className="spoken-score__coverage">
                   {spokenScore.coverage.map((entry) => (
                     <li key={entry.keyPoint} data-covered={entry.covered}>
                       <span aria-hidden="true">{entry.covered ? '●' : '○'}</span>
                       <span>{entry.keyPoint}</span>
-                      <small>{entry.covered ? '말했음' : '못 말했음'}</small>
+                      <small>
+                        {isSilent
+                          ? entry.covered
+                            ? '적었음'
+                            : '못 적었음'
+                          : entry.covered
+                            ? '말했음'
+                            : '못 말했음'}
+                      </small>
                     </li>
                   ))}
                 </ul>
 
                 <details className="spoken-score__transcript">
-                  <summary>내가 말한 내용 보기</summary>
-                  <p>{transcript}</p>
+                  <summary>내가 {isSilent ? '적은' : '말한'} 내용 보기</summary>
+                  <p>{isSilent ? typedAnswer : transcript}</p>
                 </details>
 
                 <small className="spoken-score__caveat">
-                  표현이 겹치는 정도만 재는 참고값이에요. 뜻이 같아도 낱말이 다르면 낮게 나와요.
+                  {isSilent
+                    ? '무음 모드는 유사도 대신 핵심 포인트만 봐요. 최고 기록은 소리 내어 말한 기록으로만 세요.'
+                    : '표현이 겹치는 정도만 재는 참고값이에요. 뜻이 같아도 낱말이 다르면 낮게 나와요.'}
                 </small>
               </div>
             ) : null}
@@ -334,45 +395,102 @@ export function StudyScreen({
         ) : (
           <div className="thinking-space">
             <div className="thinking-space__line" aria-hidden="true" />
+
+            {onAnswerModeChange === undefined ? null : (
+              <fieldset className="answer-mode-switch">
+                <legend className="sr-only">답변 방식</legend>
+                <button
+                  type="button"
+                  data-active={!isSilent}
+                  aria-pressed={!isSilent}
+                  disabled={isSwitchingMode}
+                  onClick={() => void changeAnswerMode('spoken')}
+                >
+                  소리 내어 말하기
+                </button>
+                <button
+                  type="button"
+                  data-active={isSilent}
+                  aria-pressed={isSilent}
+                  disabled={isSwitchingMode}
+                  onClick={() => void changeAnswerMode('silent')}
+                >
+                  무음으로 적기
+                </button>
+              </fieldset>
+            )}
+
             <p>
-              화면을 잠깐 내려놓고
+              {isSilent ? '머릿속으로 설명하고' : '화면을 잠깐 내려놓고'}
               <br />
-              소리 내어 설명해보세요.
+              {isSilent ? '핵심 키워드만 적어보세요.' : '소리 내어 설명해보세요.'}
             </p>
 
-            {isListening ? (
-              <div className="mic-status" role="status">
-                <span className="mic-status__dot" aria-hidden="true" />
-                <span>듣는 중</span>
-              </div>
-            ) : null}
-
-            {transcript.length > 0 ? (
-              <p className="live-transcript" aria-live="polite">
-                {transcript}
-              </p>
-            ) : null}
-
-            {speechFailure !== null ? (
-              <div className="mic-failure">
-                <small>{failureMessage[speechFailure]}</small>
-                {speechFailure !== 'unsupported' ? (
-                  <button
-                    type="button"
-                    className="button button--secondary"
-                    onClick={startListening}
-                  >
-                    다시 시도
-                  </button>
+            {isSilent ? (
+              <label className="silent-answer">
+                <span className="silent-answer__label">핵심 키워드</span>
+                <textarea
+                  className="silent-answer__input"
+                  value={typedAnswer}
+                  rows={3}
+                  placeholder="떠오르는 핵심어를 쉼표로 이어 적어보세요"
+                  onChange={(event) => setTypedAnswer(event.target.value)}
+                />
+              </label>
+            ) : (
+              <>
+                {isListening ? (
+                  <div className="mic-status" role="status">
+                    <span className="mic-status__dot" aria-hidden="true" />
+                    <span>듣는 중</span>
+                  </div>
                 ) : null}
-              </div>
-            ) : null}
+
+                {transcript.length > 0 ? (
+                  <p className="live-transcript" aria-live="polite">
+                    {transcript}
+                  </p>
+                ) : null}
+
+                {speechFailure !== null ? (
+                  <div className="mic-failure">
+                    <small>{failureMessage[speechFailure]}</small>
+                    <div className="mic-failure__actions">
+                      {speechFailure !== 'unsupported' ? (
+                        <button
+                          type="button"
+                          className="button button--secondary"
+                          onClick={startListening}
+                        >
+                          다시 시도
+                        </button>
+                      ) : null}
+                      {onAnswerModeChange === undefined ? null : (
+                        <button
+                          type="button"
+                          className="button button--secondary"
+                          disabled={isSwitchingMode}
+                          onClick={() => void changeAnswerMode('silent')}
+                        >
+                          무음으로 적기
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            )}
 
             <small>완벽한 문장보다 핵심 흐름이 먼저예요.</small>
-            {speech.isSupported ? (
+            {!isSilent && speech.isSupported ? (
               <small className="mic-privacy">
                 음성 인식은 브라우저 기능이라 브라우저에 따라 외부 서버를 거칠 수 있어요. 받아적은
                 내용은 저장하지 않아요.
+              </small>
+            ) : null}
+            {isSilent ? (
+              <small className="mic-privacy">
+                무음 모드에서는 마이크를 켜지 않아요. 적은 내용도 저장하지 않아요.
               </small>
             ) : null}
           </div>
