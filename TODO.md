@@ -17,6 +17,15 @@
 - [x] `.ait` checksum과 verification packet 기록
 - [x] 승인 후에만 upload/deploy와 `v1.0.0` tag 생성 → 2026-08-26 심사 통과·출시
 
+## v1.2.0 심사 준비
+
+- [x] `package.json`·CHANGELOG를 `1.2.0`으로 맞추고 release gate 통과
+- [x] `.ait` 재빌드와 checksum·verification packet 기록 (`docs/work/v1-2-0-release/verification.md`)
+- [x] 콘솔 업로드 (`ait deploy`, deployment `01a051d3-37db-767b-bca1-c45ac7879920`)
+- [ ] 콘솔에서 심사 요청 (CLI로 불가, 계정 작업)
+- [ ] 무음 모드와 마이크 권한 거부 경로를 Sandbox 실기기에서 확인
+- [ ] 승인 후 `v1.2.0` tag 생성과 push
+
 ## v1.1.0 심사 준비
 
 - [x] `package.json`·CHANGELOG를 `1.1.0`으로 맞추고 release gate 통과

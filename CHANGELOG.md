@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-30
+
+- Dataset `1.10.0`: 이미 다루던 개념을 잇는 네 문항을 추가해 204문항.
+  `llm-finetuning-taxonomy`는 full·PEFT·SFT·preference tuning을 갱신 범위와 학습 신호로
+  구분하고, `llm-training-loop-end-to-end`는 logit에서 멈춰 있던 흐름을 cross entropy와
+  backpropagation, optimizer까지 한 바퀴로 잇는다. `ml-ai-to-llm-hierarchy`는 deep
+  learning에서 끝나던 포함 관계를 Transformer와 RAG·Agent까지 이어가고,
+  `agent-graph-framework`는 그래프로 흐름을 고정할 때 무엇을 얻고 무엇이 설계자 몫으로
+  남는지를 묻는다. 넷 다 골든 케이스를 함께 추가했다.
+
 - 무음 모드(ADR 0012): 소리를 낼 수 없는 자리를 위해 마이크를 켜지 않고 핵심 키워드를 적는
   답변 방식을 추가했다. 채점은 기존 `scoreSpokenAnswer`를 그대로 쓰되 유사도(%)는 보여주지
   않고 핵심 포인트 적중만 센다. 15초 안에 적는 키워드 나열은 문장이 아니라 유사도가 구조적으로

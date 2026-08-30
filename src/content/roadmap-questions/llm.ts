@@ -70,9 +70,9 @@ export const llmRoadmapQuestions = [
     term: 'Training Loop End-to-end',
     prompt: '텍스트 한 문장이 LLM의 weight를 바꾸기까지의 흐름을 이어서 설명해보세요.',
     shortAnswer:
-      'Tokenization과 embedding을 거쳐 Transformer가 다음 token의 logit을 냅니다. Cross entropy로 오차를 재고 backpropagation이 gradient를 구하면 optimizer가 weight를 갱신합니다.',
+      'Transformer가 다음 token의 logit을 내면 Cross entropy로 오차를 재고, backpropagation이 gradient를 구하면 optimizer가 weight를 갱신합니다.',
     deepAnswer:
-      '한 문장 안에서도 각 위치가 저마다 다음 token 예측 문제가 되므로, causal mask 덕분에 여러 위치의 loss를 한 번에 병렬로 계산합니다. Cross entropy는 정답 token에 모델이 부여한 확률이 낮을수록 큰 값이 되고, 이 값이 계산 그래프를 거슬러 오르며 각 파라미터의 gradient가 됩니다. AdamW는 그 gradient의 1차·2차 모멘트로 파라미터별 보폭을 정하고 weight decay는 따로 적용합니다. 이 한 바퀴가 사전학습이며 SFT와 preference tuning도 학습 신호만 바뀔 뿐 같은 루프를 돕니다.',
+      '그 앞에는 tokenization과 embedding이 있습니다. 한 문장 안에서도 각 위치가 저마다 다음 token 예측 문제가 되므로, causal mask 덕분에 여러 위치의 loss를 한 번에 병렬로 계산합니다. Cross entropy는 정답 token에 모델이 부여한 확률이 낮을수록 큰 값이 되고, 이 값이 계산 그래프를 거슬러 오르며 각 파라미터의 gradient가 됩니다. AdamW는 그 gradient의 1차·2차 모멘트로 파라미터별 보폭을 정하고 weight decay는 따로 적용합니다. 이 한 바퀴가 사전학습이며 SFT와 preference tuning도 학습 신호만 바뀔 뿐 같은 루프를 돕니다.',
     keyPoints: [
       'logit을 cross entropy로 오차로 바꾼다',
       'backpropagation이 구한 gradient를 optimizer가 weight에 반영',
