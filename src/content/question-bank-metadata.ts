@@ -1,6 +1,6 @@
 export const questionBankMetadata = {
-  datasetVersion: '1.9.0',
-  assetPath: 'generated/question-bank.1.9.0.json',
+  datasetVersion: '1.10.0',
+  assetPath: 'generated/question-bank.1.10.0.json',
 } as const
 
 export function resolveQuestionBankUrl(baseUrl: string): string {

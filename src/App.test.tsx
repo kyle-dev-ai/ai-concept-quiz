@@ -4,7 +4,11 @@ import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 import type { AppDependencies } from './app/dependencies'
 import { sampleQuestions } from './content/sample-questions'
-import { createInitialProgress } from './domain/learning/progress'
+import {
+  calculateMasteryScore,
+  createInitialProgress,
+  recordReview,
+} from './domain/learning/progress'
 
 function createTestDependencies() {
   const saveProfile = vi.fn(async () => undefined)
@@ -129,7 +133,12 @@ describe('App learning flow', () => {
     expect(screen.getByLabelText('연속 학습 1일')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '기록' }))
 
-    expect(screen.getByLabelText('설명력 점수 1점')).toBeInTheDocument()
+    // 점수는 전체 문항 수에 대한 비율이라 문항이 늘면 값이 달라진다. 계산식에서 유도한다.
+    const scoreAfterOneKnown = calculateMasteryScore(
+      recordReview(createInitialProgress(), 'any', 'known'),
+      sampleQuestions.length,
+    )
+    expect(screen.getByLabelText(`설명력 점수 ${scoreAfterOneKnown}점`)).toBeInTheDocument()
     expect(
       screen.getByText('최근 자기평가로 계산한 학습 진도이며 시험·지능 점수가 아니에요.'),
     ).toBeInTheDocument()

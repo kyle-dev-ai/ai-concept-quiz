@@ -65,6 +65,23 @@ const coreQuestions = [
     prerequisites: [],
   },
   {
+    id: 'ml-ai-to-llm-hierarchy',
+    category: 'ml',
+    difficulty: 'foundation',
+    term: 'AI → LLM Hierarchy',
+    prompt: 'AI부터 RAG·Agent까지 어떤 포함 관계로 이어지는지 설명해보세요.',
+    shortAnswer:
+      'AI 안에 ML이, ML 안에 DL이 있습니다. DL의 한 architecture가 Transformer이고 이를 대규모로 학습한 것이 LLM이며, RAG와 Agent는 그 LLM을 쓰는 시스템입니다.',
+    deepAnswer:
+      '각 단계는 앞 단계를 대체하는 것이 아니라 좁혀 들어가는 관계입니다. 규칙 기반 전문가 시스템은 AI지만 ML이 아니고, 선형회귀는 ML이지만 DL이 아니며, CNN은 DL이지만 Transformer가 아닙니다. RAG와 Agent는 모델 구조가 아니라 모델을 어떻게 쓰는지에 대한 설계라 같은 LLM 위에 둘 다 올릴 수 있습니다. 이 구분이 흐려지면 학습 대상과 시스템 설계를 섞어 말하게 됩니다.',
+    keyPoints: [
+      'AI ⊃ ML ⊃ DL ⊃ Transformer 기반 LLM',
+      'RAG와 Agent는 구조가 아니라 LLM을 쓰는 설계',
+    ],
+    followUp: 'Transformer이지만 LLM이라고 부르지 않는 예를 들어보세요.',
+    prerequisites: ['ml-ai-ml-dl'],
+  },
+  {
     id: 'ml-supervised-unsupervised',
     category: 'ml',
     difficulty: 'foundation',
@@ -556,6 +573,23 @@ const coreQuestions = [
     keyPoints: ['동적 의사결정 권한의 위치가 핵심 차이', '유연성이 필요하지 않으면 workflow 우선'],
     followUp: '사용자의 돈을 이체하는 단계는 Agent에게 어느 정도 맡겨야 하나요?',
     prerequisites: ['agent-loop-basics'],
+  },
+  {
+    id: 'agent-graph-framework',
+    category: 'agent',
+    difficulty: 'intermediate',
+    term: 'Graph-based Agent Framework',
+    prompt: 'LangGraph처럼 그래프로 agent를 구성하면 무엇이 달라지나요?',
+    shortAnswer:
+      '다음 행동을 매번 모델에 맡기는 대신 node와 edge로 흐름을 적어두고 state를 한곳에서 관리합니다. 분기와 재시도, 중단과 재개를 코드로 고정할 수 있습니다.',
+    deepAnswer:
+      '어디까지 진행됐는지가 state에 남으므로 중단 지점부터 재개하거나 사람 승인을 중간에 끼워 넣기 쉬워집니다. 대신 흐름을 미리 정하는 만큼 모델의 자유로운 판단은 줄어드는데, 이는 손해라기보다 agent와 workflow 사이에서 어디까지 고정할지 고르는 문제입니다. 라이브러리를 쓰는 것 자체가 신뢰성을 주지는 않으므로 종료 조건, 예산 상한, 실패 경로는 여전히 직접 설계해야 합니다.',
+    keyPoints: [
+      'node와 edge로 흐름을 명시하고 state를 한곳에서 관리',
+      '중단·재개와 사람 승인을 끼워 넣기 쉬움',
+    ],
+    followUp: '그래프로 고정하는 것이 오히려 손해가 되는 상황은 언제인가요?',
+    prerequisites: ['agent-vs-workflow', 'agent-loop-basics'],
   },
   {
     id: 'agent-react-tool-planning',

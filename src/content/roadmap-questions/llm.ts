@@ -47,6 +47,40 @@ export const llmRoadmapQuestions = [
     prerequisites: ['llm-pretraining-next-token'],
   },
   {
+    id: 'llm-finetuning-taxonomy',
+    category: 'llm',
+    difficulty: 'intermediate',
+    term: 'Fine-tuning Taxonomy',
+    prompt: 'Fine-tuning의 종류를 갱신 범위와 학습 신호로 구분해보세요.',
+    shortAnswer:
+      'Full fine-tuning은 전체 파라미터를 갱신하고 PEFT는 대부분을 고정한 채 작은 행렬만 학습합니다. SFT는 입력·정답 쌍으로, preference tuning은 선호 비교로 학습합니다.',
+    deepAnswer:
+      '갱신 범위와 학습 신호는 서로 다른 축이라 SFT를 LoRA로 수행하는 것처럼 조합됩니다. Full fine-tuning은 적응력이 크지만 메모리와 비용이 크고 기존 능력이 손상될 수 있고, PEFT는 adapter를 여러 개 두고 갈아 끼우기 쉬운 대신 큰 행동 변화에는 약할 수 있습니다. Preference tuning은 RLHF처럼 reward model을 두는 방식과 DPO처럼 선호 쌍에서 바로 최적화하는 방식으로 나뉘며, 보통 SFT가 형식과 행동을 잡은 뒤에 옵니다.',
+    keyPoints: [
+      '갱신 범위와 학습 신호는 서로 다른 축',
+      'SFT는 정답 쌍, preference tuning은 선호 비교',
+    ],
+    followUp: 'SFT만으로 해결되지 않아 preference tuning이 필요한 상황은 무엇인가요?',
+    prerequisites: ['llm-sft-instruction-tuning', 'llm-peft-lora'],
+  },
+  {
+    id: 'llm-training-loop-end-to-end',
+    category: 'llm',
+    difficulty: 'intermediate',
+    term: 'Training Loop End-to-end',
+    prompt: '텍스트 한 문장이 LLM의 weight를 바꾸기까지의 흐름을 이어서 설명해보세요.',
+    shortAnswer:
+      'Tokenization과 embedding을 거쳐 Transformer가 다음 token의 logit을 냅니다. Cross entropy로 오차를 재고 backpropagation이 gradient를 구하면 optimizer가 weight를 갱신합니다.',
+    deepAnswer:
+      '한 문장 안에서도 각 위치가 저마다 다음 token 예측 문제가 되므로, causal mask 덕분에 여러 위치의 loss를 한 번에 병렬로 계산합니다. Cross entropy는 정답 token에 모델이 부여한 확률이 낮을수록 큰 값이 되고, 이 값이 계산 그래프를 거슬러 오르며 각 파라미터의 gradient가 됩니다. AdamW는 그 gradient의 1차·2차 모멘트로 파라미터별 보폭을 정하고 weight decay는 따로 적용합니다. 이 한 바퀴가 사전학습이며 SFT와 preference tuning도 학습 신호만 바뀔 뿐 같은 루프를 돕니다.',
+    keyPoints: [
+      'logit을 cross entropy로 오차로 바꾼다',
+      'backpropagation이 구한 gradient를 optimizer가 weight에 반영',
+    ],
+    followUp: '같은 루프에서 사전학습과 SFT는 무엇이 달라지나요?',
+    prerequisites: ['llm-autoregressive-factorization'],
+  },
+  {
     id: 'llm-context-vs-memory',
     category: 'llm',
     difficulty: 'intermediate',
